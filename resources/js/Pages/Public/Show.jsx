@@ -4,11 +4,25 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import { getBlockDefinition } from '@/Blocks/registry';
 import { AlertCircle, Edit3 } from 'lucide-react';
 
-export default function Show({ page, navigation = [], isAdmin = false }) {
+export default function Show({
+    page,
+    navigation = [],
+    footerNavigation = [],
+    recentPosts = [],
+    categories = [],
+    isAdmin = false,
+}) {
     const blocks = Array.isArray(page.blocks) ? page.blocks : [];
 
     return (
-        <PublicLayout navigation={navigation} isAdmin={isAdmin}>
+        <PublicLayout
+            navigation={navigation}
+            footerNavigation={footerNavigation}
+            layout={page.layout || 'default'}
+            recentPosts={recentPosts}
+            categories={categories}
+            isAdmin={isAdmin}
+        >
             <Head>
                 <title>{page.meta_title || page.title}</title>
                 {page.meta_description && (

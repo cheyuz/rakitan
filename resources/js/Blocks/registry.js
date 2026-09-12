@@ -5,6 +5,7 @@ import {
     Megaphone,
     Image,
     SeparatorHorizontal,
+    BookOpen,
 } from 'lucide-react';
 
 import { HeroComponent, HeroSettings } from './Definitions/HeroBlock';
@@ -13,6 +14,7 @@ import { FeaturesComponent, FeaturesSettings } from './Definitions/FeaturesBlock
 import { CtaComponent, CtaSettings } from './Definitions/CtaBlock';
 import { GalleryComponent, GallerySettings } from './Definitions/GalleryBlock';
 import { SpacerComponent, SpacerSettings } from './Definitions/SpacerBlock';
+import { LatestPostsComponent, LatestPostsSettings } from './Definitions/LatestPostsBlock';
 
 export const BLOCK_REGISTRY = {
     hero: {
@@ -152,6 +154,26 @@ export const BLOCK_REGISTRY = {
         },
         Component: SpacerComponent,
         SettingsComponent: SpacerSettings,
+    },
+    latest_posts: {
+        type: 'latest_posts',
+        label: 'Latest Blog Posts',
+        category: 'Dynamic Content',
+        icon: BookOpen,
+        description: 'Dynamic showcase of latest published articles, featuring filterable category feeds, and grid or list styles.',
+        defaultProps: {
+            badge: 'LATEST JOURNAL',
+            title: 'Fresh Articles & Updates',
+            subtitle: 'Stay up-to-date with tutorials, architecture insights, and engineering updates from Rakitan CMS.',
+            limit: 3,
+            categoryId: 'all',
+            layoutStyle: 'grid',
+            showViewAll: true,
+            viewAllText: 'View All Articles',
+            viewAllUrl: '/blog',
+        },
+        Component: LatestPostsComponent,
+        SettingsComponent: LatestPostsSettings,
     },
 };
 

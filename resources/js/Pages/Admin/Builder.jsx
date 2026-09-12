@@ -206,6 +206,7 @@ export default function Builder({ page }) {
     const [status, setStatus] = useState(page.status || 'draft');
     const [metaTitle, setMetaTitle] = useState(page.meta_title || '');
     const [metaDescription, setMetaDescription] = useState(page.meta_description || '');
+    const [layout, setLayout] = useState(page.layout || 'default');
 
     // Blocks & History State
     const [blocks, setBlocks] = useState(Array.isArray(page.blocks) ? page.blocks : []);
@@ -346,6 +347,7 @@ export default function Builder({ page }) {
                 title,
                 slug,
                 status,
+                layout,
                 meta_title: metaTitle,
                 meta_description: metaDescription,
                 blocks,
@@ -864,6 +866,28 @@ export default function Builder({ page }) {
                                             <option value="draft">Draft (Private to Admin)</option>
                                             <option value="published">Published (Publicly Accessible)</option>
                                         </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block font-semibold text-slate-300 mb-1.5">
+                                            Page Layout Template
+                                        </label>
+                                        <select
+                                            value={layout}
+                                            onChange={(e) => setLayout(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                                        >
+                                            <option value="default">Default (Full Header & Footer)</option>
+                                            <option value="blank">Blank / Canvas (No Header & Footer - LP)</option>
+                                            <option value="boxed">Contained Box (Centered Elegant Card)</option>
+                                            <option value="sidebar">With Dynamic Sidebar (Widgets)</option>
+                                        </select>
+                                        <p className="mt-1.5 text-[11px] text-slate-400">
+                                            {layout === 'blank' && 'Renders only blocks with zero surrounding chrome. Perfect for standalone landing pages.'}
+                                            {layout === 'default' && 'Standard full-width responsive layout with navigation header and footer.'}
+                                            {layout === 'boxed' && 'Wraps puzzle blocks in an elevated container with subtle glow.'}
+                                            {layout === 'sidebar' && 'Adds interactive Search, Categories, and Recent Posts widgets beside page content.'}
+                                        </p>
                                     </div>
 
                                     <div className="pt-4 border-t border-slate-800">

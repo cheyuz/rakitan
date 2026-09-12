@@ -119,6 +119,7 @@ class PageController extends Controller
                 'slug' => $page->slug,
                 'meta_title' => $page->meta_title ?? '',
                 'meta_description' => $page->meta_description ?? '',
+                'layout' => $page->layout ?? 'default',
                 'status' => $page->status,
                 'blocks' => $page->blocks ?? [],
                 'updated_at' => $page->updated_at->diffForHumans(),
@@ -136,6 +137,7 @@ class PageController extends Controller
             'slug' => ['required', 'string', 'max:255', 'unique:pages,slug,' . $page->id],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:1000'],
+            'layout' => ['nullable', 'string', 'in:default,blank,boxed,sidebar'],
             'status' => ['required', 'in:draft,published'],
             'blocks' => ['nullable', 'array'],
         ]);

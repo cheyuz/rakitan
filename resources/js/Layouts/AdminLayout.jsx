@@ -3,6 +3,9 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard,
     FileText,
+    BookOpen,
+    Tag,
+    Menu as MenuIcon,
     Wrench,
     Settings,
     Globe,
@@ -30,6 +33,24 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             href: '/admin/pages',
             icon: FileText,
             active: currentUrl.startsWith('/admin/pages') && !currentUrl.includes('/builder'),
+        },
+        {
+            label: 'Posts',
+            href: '/admin/posts',
+            icon: BookOpen,
+            active: currentUrl.startsWith('/admin/posts'),
+        },
+        {
+            label: 'Categories',
+            href: '/admin/categories',
+            icon: Tag,
+            active: currentUrl.startsWith('/admin/categories'),
+        },
+        {
+            label: 'Menus',
+            href: '/admin/menus',
+            icon: MenuIcon,
+            active: currentUrl.startsWith('/admin/menus'),
         },
         {
             label: 'Tools & Migration',

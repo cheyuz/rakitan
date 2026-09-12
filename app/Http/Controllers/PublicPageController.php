@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Menu;
 use App\Models\Page;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,15 +38,40 @@ class PublicPageController extends Controller
             abort(404, "Halaman '{$targetSlug}' tidak ditemukan.");
         }
 
-        // Ambil daftar menu navigasi publik (halaman published)
-        $navPages = Page::where('status', 'published')
+        // Ambil menu navigasi dari database Menu dengan fallback ke halaman published
+        $fallbackNav = Page::where('status', 'published')
             ->select('id', 'title', 'slug')
             ->orderBy('id', 'asc')
             ->get()
             ->map(fn ($p) => [
-                'title' => $p->title,
-                'slug' => $p->slug === 'home' ? '/' : '/' . $p->slug,
-            ]);
+                'label' => $p->title,
+                'url' => $p->slug === 'home' ? '/' : '/' . $p->slug,
+            ])
+            ->toArray();
+
+        $headerNav = Menu::getItems('header', $fallbackNav);
+        $footerNav = Menu::getItems('footer', $fallbackNav);
+
+        // Data widget jika layout adalah sidebar
+        $recentPosts = [];
+        $categories = [];
+        if (($page->layout ?? 'default') === 'sidebar') {
+            $recentPosts = Post::published()
+                ->latest('published_at')
+                ->take(5)
+                ->get(['id', 'title', 'slug', 'featured_image', 'published_at', 'created_at'])
+                ->map(fn ($p) => [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'slug' => $p->slug,
+                    'featured_image' => $p->featured_image,
+                    'published_at' => $p->published_at ? $p->published_at->format('d M Y') : $p->created_at->format('d M Y'),
+                ]);
+
+            $categories = Category::withCount(['posts' => fn ($q) => $q->published()])
+                ->orderBy('name', 'asc')
+                ->get(['id', 'name', 'slug', 'posts_count']);
+        }
 
         return Inertia::render('Public/Show', [
             'page' => [
@@ -52,10 +80,14 @@ class PublicPageController extends Controller
                 'slug' => $page->slug,
                 'meta_title' => $page->meta_title ?? $page->title,
                 'meta_description' => $page->meta_description ?? '',
+                'layout' => $page->layout ?? 'default',
                 'status' => $page->status,
                 'blocks' => $page->blocks ?? [],
             ],
-            'navigation' => $navPages,
+            'navigation' => $headerNav,
+            'footerNavigation' => $footerNav,
+            'recentPosts' => $recentPosts,
+            'categories' => $categories,
             'isAdmin' => (bool) $request->user(),
         ]);
     }

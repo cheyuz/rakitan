@@ -22,6 +22,7 @@ class Page extends Model
         'meta_title',
         'meta_description',
         'blocks',
+        'layout',
         'status',
         'user_id',
     ];
