@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Check, Sparkles, Plus, Trash2 } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const PricingComponent = ({ props = {} }) => {
+export const PricingComponent = ({ props = {}, blockId }) => {
     const {
         badge = 'TRANSPARENT PRICING',
         title = 'Simple, Predictable Plans for Everyone',
@@ -59,63 +63,125 @@ export const PricingComponent = ({ props = {} }) => {
                 buttonUrl: '#',
             },
         ],
+        subComponents = [],
+        isCustom = false,
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const [isAnnual, setIsAnnual] = useState(false);
 
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-                    {badge && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <span>{badge}</span>
-                        </div>
-                    )}
-                    <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-                        {title}
-                    </h2>
-                    {subtitle && (
-                        <p className="text-base sm:text-lg text-slate-400">
-                            {subtitle}
-                        </p>
-                    )}
-
-                    {/* Billing Cycle Toggle */}
-                    <div className="inline-flex items-center gap-3 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 mt-8">
-                        <button
-                            type="button"
-                            onClick={() => setIsAnnual(false)}
-                            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                                !isAnnual
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-slate-400 hover:text-white'
-                            }`}
-                        >
-                            Monthly Billing
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setIsAnnual(true)}
-                            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                                isAnnual
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-slate-400 hover:text-white'
-                            }`}
-                        >
-                            <span>Annual Billing</span>
-                            {annualDiscountBadge && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold">
-                                    {annualDiscountBadge}
-                                </span>
-                            )}
-                        </button>
+                {isCustom ? (
+                    <div className="w-full max-w-6xl mx-auto">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Pricing Kustom Ini"
+                        />
                     </div>
-                </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                            {(badge || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="badge"
+                                    label="Badge"
+                                    isCustom={isCustom}
+                                >
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        <InlineText
+                                            value={badge}
+                                            onChange={(val) => handlePropChange('badge', val)}
+                                            placeholder="Badge Harga"
+                                        />
+                                    </div>
+                                </DefaultElementWrapper>
+                            )}
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="title"
+                                label="Judul Pricing"
+                                isCustom={isCustom}
+                            >
+                                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
+                                    <InlineText
+                                        value={title}
+                                        onChange={(val) => handlePropChange('title', val)}
+                                        placeholder="Judul Pricing"
+                                        as="span"
+                                    />
+                                </h2>
+                            </DefaultElementWrapper>
+                            {(subtitle || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="subtitle"
+                                    label="Subjudul"
+                                    isCustom={isCustom}
+                                >
+                                    <p className="text-base sm:text-lg text-slate-400">
+                                        <InlineText
+                                            value={subtitle}
+                                            onChange={(val) => handlePropChange('subtitle', val)}
+                                            placeholder="Deskripsi paket harga..."
+                                            multiline
+                                            as="span"
+                                        />
+                                    </p>
+                                </DefaultElementWrapper>
+                            )}
 
-                {/* Plans Grid */}
+                            {/* Billing Cycle Toggle */}
+                            <div className="inline-flex items-center gap-3 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 mt-8">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAnnual(false)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                                        !isAnnual
+                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            : 'text-slate-400 hover:text-white'
+                                    }`}
+                                >
+                                    Monthly Billing
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAnnual(true)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                                        isAnnual
+                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            : 'text-slate-400 hover:text-white'
+                                    }`}
+                                >
+                                    <span>Annual Billing</span>
+                                    {annualDiscountBadge && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold">
+                                            {annualDiscountBadge}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Plans Grid */}
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="plans"
+                            label="Daftar Paket Harga"
+                            isCustom={isCustom}
+                        >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                     {plans.map((plan, idx) => {
                         const price = isAnnual && plan.priceAnnual ? plan.priceAnnual : plan.priceMonthly;
@@ -175,6 +241,18 @@ export const PricingComponent = ({ props = {} }) => {
                         );
                     })}
                 </div>
+                </DefaultElementWrapper>
+
+                {/* Dynamic Sub-Components Slot pada Pricing Section */}
+                <div className="w-full mt-12 max-w-2xl mx-auto">
+                    <SubComponentSlot
+                        blockId={blockId}
+                        subComponents={subComponents}
+                        emptyPlaceholder="+ Tambah Sub-Komponen ke Bagian Pricing"
+                    />
+                </div>
+                </>
+                )}
             </div>
         </section>
     );

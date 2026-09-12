@@ -10,6 +10,7 @@ import {
     HelpCircle,
     MessageSquareQuote,
     Mail,
+    LayoutGrid,
 } from 'lucide-react';
 
 import { HeroComponent, HeroSettings } from './Definitions/HeroBlock';
@@ -23,6 +24,14 @@ import { PricingComponent, PricingSettings } from './Definitions/PricingBlock';
 import { FaqComponent, FaqSettings } from './Definitions/FaqBlock';
 import { TestimonialsComponent, TestimonialsSettings } from './Definitions/TestimonialsBlock';
 import { ContactFormComponent, ContactFormSettings } from './Definitions/ContactFormBlock';
+import { ContainerComponent, ContainerSettings } from './Definitions/ContainerBlock';
+
+export {
+    SUB_COMPONENTS_REGISTRY,
+    createSubComponentInstance,
+    getSubComponentDefinition,
+    getAllSubComponents,
+} from './SubComponents/subRegistry';
 
 export const BLOCK_REGISTRY = {
     hero: {
@@ -336,6 +345,47 @@ export const BLOCK_REGISTRY = {
         },
         Component: ContactFormComponent,
         SettingsComponent: ContactFormSettings,
+    },
+    container: {
+        type: 'container',
+        label: 'Section & Sub-Components',
+        category: 'Layout',
+        icon: LayoutGrid,
+        description: 'Kontainer bagian fleksibel multi-kolom untuk menyusun komponen mikro (sub-components) secara bebas.',
+        defaultProps: {
+            badgeText: '✨ KOMPONEN DINAMIS',
+            title: 'Rakit Sub-Komponen Sesuka Hati',
+            subtitle: 'Sisipkan tombol kustom, badge, rating, alert, dan kartu mikro langsung ke dalam kontainer ini.',
+            columns: 2,
+            layoutType: 'grid',
+            alignment: 'center',
+            bgStyle: 'glass',
+            padding: 'md',
+            subComponents: [
+                {
+                    id: 'sub-badge-demo',
+                    type: 'sub_badge',
+                    props: { text: '✨ Fitur Fleksibel', color: 'indigo', icon: 'Sparkles', pill: true },
+                },
+                {
+                    id: 'sub-button-demo',
+                    type: 'sub_button',
+                    props: { text: 'Pelajari Sub-Komponen', url: '#', variant: 'primary', size: 'md', icon: 'ArrowRight' },
+                },
+                {
+                    id: 'sub-rating-demo',
+                    type: 'sub_rating',
+                    props: { score: '4.9', stars: 5, count: '1,200+ ulasan', label: 'Dipercaya kreator' },
+                },
+                {
+                    id: 'sub-alert-demo',
+                    type: 'sub_alert',
+                    props: { type: 'tip', title: 'Tips Menata Komponen', content: 'Anda bisa mengedit teks langsung di preview ini atau menggeser urutan sub-komponen.' },
+                },
+            ],
+        },
+        Component: ContainerComponent,
+        SettingsComponent: ContainerSettings,
     },
 };
 

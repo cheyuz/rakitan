@@ -1,7 +1,11 @@
 import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const CtaComponent = ({ props = {} }) => {
+export const CtaComponent = ({ props = {}, blockId }) => {
     const {
         title = 'Ready to Assemble the Next-Gen Web?',
         description = 'Join thousands of creators and build clean, lightning-fast pages with modular puzzle blocks.',
@@ -10,40 +14,119 @@ export const CtaComponent = ({ props = {} }) => {
         secondaryButtonText = 'View Documentation',
         secondaryButtonUrl = '#',
         variant = 'gradient',
+        subComponents = [],
+        isCustom = false,
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     if (variant === 'boxed') {
         return (
             <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-950 transition-colors duration-200">
                 <div className="max-w-5xl mx-auto rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-800 bg-slate-900/70 shadow-2xl relative overflow-hidden">
                     <div className="relative z-10 max-w-3xl text-center mx-auto">
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
-                            {title}
-                        </h2>
-                        {description && (
-                            <p className="text-base sm:text-lg text-slate-300 mb-8">
-                                {description}
-                            </p>
+                        {isCustom ? (
+                            <div className="w-full">
+                                <SubComponentSlot
+                                    blockId={blockId}
+                                    subComponents={subComponents}
+                                    emptyPlaceholder="+ Tambahkan Sub-Komponen ke Boxed CTA Kustom Ini"
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="title"
+                                    label="Judul CTA"
+                                    isCustom={isCustom}
+                                >
+                                    <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+                                        <InlineText
+                                            value={title}
+                                            onChange={(val) => handlePropChange('title', val)}
+                                            placeholder="Judul CTA"
+                                            as="span"
+                                        />
+                                    </h2>
+                                </DefaultElementWrapper>
+
+                                {(description || isEditing) && (
+                                    <DefaultElementWrapper
+                                        blockId={blockId}
+                                        elementKey="description"
+                                        label="Deskripsi"
+                                        isCustom={isCustom}
+                                    >
+                                        <p className="text-base sm:text-lg text-slate-300 mb-8">
+                                            <InlineText
+                                                value={description}
+                                                onChange={(val) => handlePropChange('description', val)}
+                                                placeholder="Deskripsi ajakan bertindak..."
+                                                multiline
+                                                as="span"
+                                            />
+                                        </p>
+                                    </DefaultElementWrapper>
+                                )}
+
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="buttons"
+                                    label="Tombol Aksi"
+                                    isCustom={isCustom}
+                                >
+                                    <div className="flex flex-wrap justify-center items-center gap-4">
+                                        {(primaryButtonText || isEditing) && (
+                                            <a
+                                                href={isEditing ? undefined : (primaryButtonUrl || '#')}
+                                                onClick={(e) => {
+                                                    if (isEditing) e.preventDefault();
+                                                }}
+                                                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/25 transition-all active:scale-95"
+                                            >
+                                                <InlineText
+                                                    value={primaryButtonText}
+                                                    onChange={(val) => handlePropChange('primaryButtonText', val)}
+                                                    placeholder="Tombol Utama"
+                                                />
+                                                <ArrowRight className="w-4 h-4" />
+                                            </a>
+                                        )}
+                                        {(secondaryButtonText || isEditing) && (
+                                            <a
+                                                href={isEditing ? undefined : (secondaryButtonUrl || '#')}
+                                                onClick={(e) => {
+                                                    if (isEditing) e.preventDefault();
+                                                }}
+                                                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm border border-slate-700 text-slate-200 hover:bg-slate-800 transition-all active:scale-95"
+                                            >
+                                                <InlineText
+                                                    value={secondaryButtonText}
+                                                    onChange={(val) => handlePropChange('secondaryButtonText', val)}
+                                                    placeholder="Tombol Kedua"
+                                                />
+                                            </a>
+                                        )}
+                                    </div>
+                                </DefaultElementWrapper>
+
+                                {/* Dynamic Sub-Components Slot */}
+                                <div className="w-full mt-6">
+                                    <SubComponentSlot
+                                        blockId={blockId}
+                                        subComponents={subComponents}
+                                        emptyPlaceholder="+ Tambah Sub-Komponen ke Boxed CTA"
+                                    />
+                                </div>
+                            </>
                         )}
-                        <div className="flex flex-wrap justify-center items-center gap-4">
-                            {primaryButtonText && (
-                                <a
-                                    href={primaryButtonUrl || '#'}
-                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/25 transition-all active:scale-95"
-                                >
-                                    <span>{primaryButtonText}</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </a>
-                            )}
-                            {secondaryButtonText && (
-                                <a
-                                    href={secondaryButtonUrl || '#'}
-                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm border border-slate-700 text-slate-200 hover:bg-slate-800 transition-all active:scale-95"
-                                >
-                                    <span>{secondaryButtonText}</span>
-                                </a>
-                            )}
-                        </div>
                     </div>
                 </div>
             </section>
@@ -54,33 +137,102 @@ export const CtaComponent = ({ props = {} }) => {
         return (
             <section className="py-20 px-4 sm:px-6 lg:px-8 border-y border-slate-800 bg-slate-950 text-center transition-colors">
                 <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                        {title}
-                    </h2>
-                    {description && (
-                        <p className="text-base sm:text-lg text-slate-400 mb-8">
-                            {description}
-                        </p>
+                    {isCustom ? (
+                        <div className="w-full">
+                            <SubComponentSlot
+                                blockId={blockId}
+                                subComponents={subComponents}
+                                emptyPlaceholder="+ Tambahkan Sub-Komponen ke Minimal CTA Kustom Ini"
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="title"
+                                label="Judul CTA"
+                                isCustom={isCustom}
+                            >
+                                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+                                    <InlineText
+                                        value={title}
+                                        onChange={(val) => handlePropChange('title', val)}
+                                        placeholder="Judul CTA"
+                                        as="span"
+                                    />
+                                </h2>
+                            </DefaultElementWrapper>
+
+                            {(description || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="description"
+                                    label="Deskripsi"
+                                    isCustom={isCustom}
+                                >
+                                    <p className="text-base sm:text-lg text-slate-400 mb-8">
+                                        <InlineText
+                                            value={description}
+                                            onChange={(val) => handlePropChange('description', val)}
+                                            placeholder="Deskripsi ajakan bertindak..."
+                                            multiline
+                                            as="span"
+                                        />
+                                    </p>
+                                </DefaultElementWrapper>
+                            )}
+
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="buttons"
+                                label="Tombol Aksi"
+                                isCustom={isCustom}
+                            >
+                                <div className="flex flex-wrap justify-center items-center gap-4">
+                                    {(primaryButtonText || isEditing) && (
+                                        <a
+                                            href={isEditing ? undefined : (primaryButtonUrl || '#')}
+                                            onClick={(e) => {
+                                                if (isEditing) e.preventDefault();
+                                            }}
+                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-white hover:bg-slate-100 transition-all active:scale-95"
+                                        >
+                                            <InlineText
+                                                value={primaryButtonText}
+                                                onChange={(val) => handlePropChange('primaryButtonText', val)}
+                                                placeholder="Tombol Utama"
+                                            />
+                                            <ArrowRight className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {(secondaryButtonText || isEditing) && (
+                                        <a
+                                            href={isEditing ? undefined : (secondaryButtonUrl || '#')}
+                                            onClick={(e) => {
+                                                if (isEditing) e.preventDefault();
+                                            }}
+                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:text-white underline underline-offset-4"
+                                        >
+                                            <InlineText
+                                                value={secondaryButtonText}
+                                                onChange={(val) => handlePropChange('secondaryButtonText', val)}
+                                                placeholder="Tombol Kedua"
+                                            />
+                                        </a>
+                                    )}
+                                </div>
+                            </DefaultElementWrapper>
+
+                            {/* Dynamic Sub-Components Slot */}
+                            <div className="w-full mt-6">
+                                <SubComponentSlot
+                                    blockId={blockId}
+                                    subComponents={subComponents}
+                                    emptyPlaceholder="+ Tambah Sub-Komponen ke Minimal CTA"
+                                />
+                            </div>
+                        </>
                     )}
-                    <div className="flex flex-wrap justify-center items-center gap-4">
-                        {primaryButtonText && (
-                            <a
-                                href={primaryButtonUrl || '#'}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-white hover:bg-slate-100 transition-all active:scale-95"
-                            >
-                                <span>{primaryButtonText}</span>
-                                <ArrowRight className="w-4 h-4" />
-                            </a>
-                        )}
-                        {secondaryButtonText && (
-                            <a
-                                href={secondaryButtonUrl || '#'}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:text-white underline underline-offset-4"
-                            >
-                                <span>{secondaryButtonText}</span>
-                            </a>
-                        )}
-                    </div>
                 </div>
             </section>
         );
@@ -92,37 +244,106 @@ export const CtaComponent = ({ props = {} }) => {
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-indigo-950 pointer-events-none" />
             <div className="absolute -top-20 -right-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 mb-6">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Next Steps</span>
-                </div>
-                <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
-                    {title}
-                </h2>
-                {description && (
-                    <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-                        {description}
-                    </p>
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Gradient CTA Kustom Ini"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 mb-6">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Next Steps</span>
+                        </div>
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="title"
+                            label="Judul CTA"
+                            isCustom={isCustom}
+                        >
+                            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
+                                <InlineText
+                                    value={title}
+                                    onChange={(val) => handlePropChange('title', val)}
+                                    placeholder="Judul Call to Action"
+                                    as="span"
+                                />
+                            </h2>
+                        </DefaultElementWrapper>
+
+                        {(description || isEditing) && (
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="description"
+                                label="Deskripsi"
+                                isCustom={isCustom}
+                            >
+                                <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                                    <InlineText
+                                        value={description}
+                                        onChange={(val) => handlePropChange('description', val)}
+                                        placeholder="Deskripsi ajakan bertindak..."
+                                        multiline
+                                        as="span"
+                                    />
+                                </p>
+                            </DefaultElementWrapper>
+                        )}
+
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="buttons"
+                            label="Tombol Aksi"
+                            isCustom={isCustom}
+                        >
+                            <div className="flex flex-wrap justify-center items-center gap-4">
+                                {(primaryButtonText || isEditing) && (
+                                    <a
+                                        href={isEditing ? undefined : (primaryButtonUrl || '#')}
+                                        onClick={(e) => {
+                                            if (isEditing) e.preventDefault();
+                                        }}
+                                        className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm text-slate-950 bg-white hover:bg-slate-100 shadow-xl shadow-white/10 active:scale-95 transition-all"
+                                    >
+                                        <InlineText
+                                            value={primaryButtonText}
+                                            onChange={(val) => handlePropChange('primaryButtonText', val)}
+                                            placeholder="Tombol Utama"
+                                        />
+                                        <ArrowRight className="w-4 h-4 text-slate-950" />
+                                    </a>
+                                )}
+                                {(secondaryButtonText || isEditing) && (
+                                    <a
+                                        href={isEditing ? undefined : (secondaryButtonUrl || '#')}
+                                        onClick={(e) => {
+                                            if (isEditing) e.preventDefault();
+                                        }}
+                                        className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm border border-white/20 text-white hover:bg-white/10 active:scale-95 transition-all"
+                                    >
+                                        <InlineText
+                                            value={secondaryButtonText}
+                                            onChange={(val) => handlePropChange('secondaryButtonText', val)}
+                                            placeholder="Tombol Kedua"
+                                        />
+                                    </a>
+                                )}
+                            </div>
+                        </DefaultElementWrapper>
+
+                        {/* Dynamic Sub-Components Slot */}
+                        <div className="w-full mt-8 max-w-xl mx-auto">
+                            <SubComponentSlot
+                                blockId={blockId}
+                                subComponents={subComponents}
+                                emptyPlaceholder="+ Tambah Sub-Komponen ke Gradient CTA"
+                            />
+                        </div>
+                    </>
                 )}
-                <div className="flex flex-wrap justify-center items-center gap-4">
-                    {primaryButtonText && (
-                        <a
-                            href={primaryButtonUrl || '#'}
-                            className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm text-slate-950 bg-white hover:bg-slate-100 shadow-xl shadow-white/10 active:scale-95 transition-all"
-                        >
-                            <span>{primaryButtonText}</span>
-                            <ArrowRight className="w-4 h-4 text-slate-950" />
-                        </a>
-                    )}
-                    {secondaryButtonText && (
-                        <a
-                            href={secondaryButtonUrl || '#'}
-                            className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm border border-white/20 text-white hover:bg-white/10 active:scale-95 transition-all"
-                        >
-                            <span>{secondaryButtonText}</span>
-                        </a>
-                    )}
-                </div>
             </div>
         </section>
     );

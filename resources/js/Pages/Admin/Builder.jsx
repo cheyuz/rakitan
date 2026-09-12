@@ -20,7 +20,11 @@ import {
     getAllBlocks,
     getBlockDefinition,
     createBlockInstance,
+    getAllSubComponents,
+    createSubComponentInstance,
 } from '@/Blocks/registry';
+import { convertBlockToCustom } from '@/Blocks/Helpers/blockConverter';
+import { CanvasEditProvider } from '@/Blocks/Context/CanvasEditContext';
 import {
     ArrowLeft,
     Save,
@@ -49,6 +53,8 @@ import {
     Battery,
     ZoomIn,
     ZoomOut,
+    Wand2,
+    RotateCcw,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -63,6 +69,8 @@ function SortableCanvasBlock({
     onDelete,
     onMoveUp,
     onMoveDown,
+    onConvertToCustom,
+    onResetToDefault,
     isFirst,
     isLast,
     isPreviewMode,
@@ -92,10 +100,12 @@ function SortableCanvasBlock({
     if (isPreviewMode) {
         return (
             <div className="w-full">
-                <Component props={block.props || {}} />
+                <Component props={block.props || {}} blockId={block.id} />
             </div>
         );
     }
+
+    const isCustom = Boolean(block.props?.isCustom);
 
     return (
         <div
@@ -118,9 +128,15 @@ function SortableCanvasBlock({
                 }`}
             >
                 {/* Block Identifier Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/95 text-white border border-slate-700/80 shadow-xl backdrop-blur-md pointer-events-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/95 text-white border border-slate-700/80 shadow-xl backdrop-blur-md pointer-events-auto">
                     <Icon className="w-3.5 h-3.5 text-indigo-400" />
                     <span>{def.label}</span>
+                    {isCustom && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <Wand2 className="w-2.5 h-2.5 text-purple-400" />
+                            <span>Custom</span>
+                        </span>
+                    )}
                 </div>
 
                 {/* Floating Quick Action Buttons */}
@@ -135,6 +151,33 @@ function SortableCanvasBlock({
                     >
                         <GripVertical className="w-4 h-4" />
                     </button>
+
+                    {/* Mode Kustom / Reset Bawaan Action */}
+                    {isCustom ? (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onResetToDefault) onResetToDefault(block.id);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors"
+                            title="Reset kembali ke Template Bawaan"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onConvertToCustom) onConvertToCustom(block.id);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-slate-800 transition-colors"
+                            title="Konversi blok ini menjadi Mode Kustom (Full Editable)"
+                        >
+                            <Wand2 className="w-4 h-4" />
+                        </button>
+                    )}
 
                     {/* Move Up */}
                     <button
@@ -194,7 +237,7 @@ function SortableCanvasBlock({
 
             {/* Block Live Render Content */}
             <div className="w-full pointer-events-auto">
-                <Component props={block.props || {}} />
+                <Component props={block.props || {}} blockId={block.id} />
             </div>
         </div>
     );
@@ -228,6 +271,7 @@ export default function Builder({ page }) {
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [paletteFilter, setPaletteFilter] = useState('All');
     const [paletteSearch, setPaletteSearch] = useState('');
+    const [subSearch, setSubSearch] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -342,6 +386,233 @@ export default function Builder({ page }) {
         setBlocks(newBlocks);
     };
 
+    // Live update property spesifik dari visual canvas preview inline editing
+    const handleLiveUpdateBlockProp = (blockId, propKey, propVal) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        [propKey]: propVal,
+                    },
+                };
+            }
+            return b;
+        });
+        setBlocks(newBlocks);
+    };
+
+    // Helper untuk memanipulasi array sub-components (baik di root blok maupun di dalam nested kolom sub_row)
+    const updateSubListWithSlotPath = (subs = [], slotPath, modifierFn) => {
+        if (!slotPath) {
+            return modifierFn(subs);
+        }
+
+        const { parentSubId, columnIndex } = slotPath;
+        return subs.map((sub) => {
+            if (sub.id === parentSubId) {
+                const columnSlots = Array.isArray(sub.props?.columnSlots) ? [...sub.props.columnSlots] : [];
+                const currentSlot = columnSlots[columnIndex] || { id: `col-${columnIndex}`, subComponents: [] };
+                const currentSlotSubs = Array.isArray(currentSlot.subComponents) ? currentSlot.subComponents : [];
+
+                const modifiedSlotSubs = modifierFn(currentSlotSubs);
+                columnSlots[columnIndex] = {
+                    ...currentSlot,
+                    subComponents: modifiedSlotSubs,
+                };
+
+                return {
+                    ...sub,
+                    props: {
+                        ...sub.props,
+                        columnSlots,
+                    },
+                };
+            }
+            return sub;
+        });
+    };
+
+    // Tambah Sub-Komponen ke dalam suatu block atau nested slotPath
+    const handleAddSubComponent = (blockId, subType, slotPath = null) => {
+        const targetId = blockId || selectedBlockId;
+        if (!targetId) return;
+
+        const newSub = createSubComponentInstance(subType);
+        if (!newSub) return;
+
+        const newBlocks = blocks.map((b) => {
+            if (b.id === targetId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) => [...list, newSub]);
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+        setSelectedBlockId(targetId);
+    };
+
+    // Reorder sub-komponen saat drag-and-drop selesai
+    const handleReorderSubComponents = (blockId, reorderedSubs, slotPath = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, () => reorderedSubs);
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
+    // Update props suatu sub-komponen
+    const handleUpdateSubComponent = (blockId, subId, updatedProps, slotPath = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) =>
+                    list.map((s) => (s.id === subId ? { ...s, props: { ...s.props, ...updatedProps } } : s))
+                );
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        setBlocks(newBlocks);
+    };
+
+    // Hapus sub-komponen
+    const handleRemoveSubComponent = (blockId, subId, slotPath = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) =>
+                    list.filter((s) => s.id !== subId)
+                );
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
+    // Geser posisi sub-komponen naik / turun
+    const handleMoveSubComponent = (blockId, subId, direction, slotPath = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) => {
+                    const idx = list.findIndex((s) => s.id === subId);
+                    if (idx === -1) return list;
+
+                    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+                    if (targetIdx < 0 || targetIdx >= list.length) return list;
+
+                    const copy = [...list];
+                    const [moved] = copy.splice(idx, 1);
+                    copy.splice(targetIdx, 0, moved);
+                    return copy;
+                });
+
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
+    // Duplikasi sub-komponen
+    const handleDuplicateSubComponent = (blockId, subId, slotPath = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) => {
+                    const idx = list.findIndex((s) => s.id === subId);
+                    if (idx === -1) return list;
+
+                    const original = list[idx];
+                    const duplicate = {
+                        ...original,
+                        id: `sub-${original.type}-${Date.now().toString(36)}-copy`,
+                        props: JSON.parse(JSON.stringify(original.props)),
+                    };
+                    const copy = [...list];
+                    copy.splice(idx + 1, 0, duplicate);
+                    return copy;
+                });
+
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        subComponents: updatedSubs,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
+    // Konversi blok ke mode kustom (dengan menghapus elemen bawaan tertentu jika dipilih)
+    const handleConvertBlockToCustom = (blockId, deleteElementKey = null) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                return convertBlockToCustom(b, deleteElementKey);
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
+    // Reset blok kustom kembali ke template default bawaan
+    const handleResetBlockToDefault = (blockId) => {
+        const newBlocks = blocks.map((b) => {
+            if (b.id === blockId) {
+                return {
+                    ...b,
+                    props: {
+                        ...b.props,
+                        isCustom: false,
+                    },
+                };
+            }
+            return b;
+        });
+        updateBlocksWithHistory(newBlocks);
+    };
+
     const handleSave = () => {
         setIsSaving(true);
         setSaveSuccess(false);
@@ -375,6 +646,7 @@ export default function Builder({ page }) {
     const selectedDef = selectedBlock ? getBlockDefinition(selectedBlock.type) : null;
 
     const allAvailableBlocks = getAllBlocks();
+    const allSubComponents = getAllSubComponents();
     const categories = ['All', 'Header', 'Content', 'Media', 'Conversion', 'Layout'];
     const filteredPalette = allAvailableBlocks.filter((b) => {
         const matchCategory = paletteFilter === 'All' || b.category === paletteFilter;
@@ -390,56 +662,73 @@ export default function Builder({ page }) {
         mobile: 'max-w-[375px] mx-auto shadow-2xl rounded-3xl overflow-hidden border-2 border-slate-800',
     }[deviceMode] || 'w-full';
 
-    const renderCanvasBlocks = () => {
-        if (blocks.length === 0) {
-            return (
-                <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto min-h-[400px]">
-                    <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
-                    <p className="text-xs text-slate-400 max-w-sm mb-6">
-                        Start building your webpage by dragging or clicking puzzle pieces from the left palette.
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => handleAddBlock('hero')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Initial Hero Section</span>
-                    </button>
-                </div>
-            );
-        }
+    const canvasEditContextValue = {
+        isEditing: !isPreviewMode,
+        selectedBlockId,
+        onSelectBlock: setSelectedBlockId,
+        onUpdateBlockProp: handleLiveUpdateBlockProp,
+        onAddSubComponent: handleAddSubComponent,
+        onUpdateSubComponent: handleUpdateSubComponent,
+        onRemoveSubComponent: handleRemoveSubComponent,
+        onMoveSubComponent: handleMoveSubComponent,
+        onDuplicateSubComponent: handleDuplicateSubComponent,
+        onReorderSubComponents: handleReorderSubComponents,
+        onConvertBlockToCustom: handleConvertBlockToCustom,
+        onResetBlockToDefault: handleResetBlockToDefault,
+    };
 
+    const renderCanvasBlocks = () => {
         return (
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext
-                    items={blocks.map((b) => b.id)}
-                    strategy={verticalListSortingStrategy}
-                >
-                    <div className="w-full flex flex-col space-y-0.5">
-                        {blocks.map((block, idx) => (
-                            <SortableCanvasBlock
-                                key={block.id}
-                                block={block}
-                                isSelected={block.id === selectedBlockId}
-                                onSelect={setSelectedBlockId}
-                                onDuplicate={handleDuplicate}
-                                onDelete={handleDelete}
-                                onMoveUp={handleMoveUp}
-                                onMoveDown={handleMoveDown}
-                                isFirst={idx === 0}
-                                isLast={idx === blocks.length - 1}
-                                isPreviewMode={isPreviewMode}
-                            />
-                        ))}
+            <CanvasEditProvider value={canvasEditContextValue}>
+                {blocks.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto min-h-[400px]">
+                        <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
+                        <p className="text-xs text-slate-400 max-w-sm mb-6">
+                            Start building your webpage by dragging or clicking puzzle pieces from the left palette.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => handleAddBlock('hero')}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Add Initial Hero Section</span>
+                        </button>
                     </div>
-                </SortableContext>
-            </DndContext>
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={blocks.map((b) => b.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className="w-full flex flex-col space-y-0.5">
+                                {blocks.map((block, idx) => (
+                                    <SortableCanvasBlock
+                                        key={block.id}
+                                        block={block}
+                                        isSelected={block.id === selectedBlockId}
+                                        onSelect={setSelectedBlockId}
+                                        onDuplicate={handleDuplicate}
+                                        onDelete={handleDelete}
+                                        onMoveUp={handleMoveUp}
+                                        onMoveDown={handleMoveDown}
+                                        onConvertToCustom={handleConvertBlockToCustom}
+                                        onResetToDefault={handleResetBlockToDefault}
+                                        isFirst={idx === 0}
+                                        isLast={idx === blocks.length - 1}
+                                        isPreviewMode={isPreviewMode}
+                                    />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
+                )}
+            </CanvasEditProvider>
         );
     };
 
@@ -578,6 +867,11 @@ export default function Builder({ page }) {
 
                 {/* Right: Public View & Save Button */}
                 <div className="flex items-center gap-3">
+                    <div className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Live Edit Active</span>
+                    </div>
+
                     <Link
                         href={slug === 'home' ? '/' : `/${slug}`}
                         target="_blank"
@@ -622,31 +916,124 @@ export default function Builder({ page }) {
                             <button
                                 type="button"
                                 onClick={() => setActiveTabLeft('palette')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                                     activeTabLeft === 'palette'
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                 }`}
+                                title="Katalog Blok Penuh"
                             >
                                 <Puzzle className="w-3.5 h-3.5" />
-                                <span>Puzzle Palette</span>
+                                <span>Blok</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTabLeft('subcomponents')}
+                                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                                    activeTabLeft === 'subcomponents'
+                                        ? 'bg-indigo-600 text-white shadow-sm'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                }`}
+                                title="Mikro Komponen Dinamis"
+                            >
+                                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                                <span>Mikro</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveTabLeft('outline')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                                     activeTabLeft === 'outline'
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                 }`}
+                                title="Struktur Halaman"
                             >
                                 <Layers className="w-3.5 h-3.5" />
-                                <span>Structure ({blocks.length})</span>
+                                <span>Pohon</span>
                             </button>
                         </div>
 
                         {/* Content Tab Left */}
-                        {activeTabLeft === 'palette' ? (
+                        {activeTabLeft === 'subcomponents' ? (
+                            <div className="flex-1 flex flex-col overflow-hidden p-4">
+                                <div className="mb-3 p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 text-xs">
+                                    <div className="text-[11px] text-indigo-300 font-bold mb-1 flex items-center gap-1.5">
+                                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                                        <span>Mikro Komponen Dinamis</span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                                        {selectedBlock ? (
+                                            <>
+                                                Menyisipkan ke blok:{' '}
+                                                <span className="font-bold text-white bg-indigo-500/20 px-1.5 py-0.5 rounded">
+                                                    {selectedDef?.label || selectedBlock.type}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            'Pilih blok di canvas terlebih dahulu atau langsung klik tombol di bawah.'
+                                        )}
+                                    </p>
+                                </div>
+
+                                {/* Search Box */}
+                                <div className="relative mb-3">
+                                    <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                                    <input
+                                        type="text"
+                                        value={subSearch}
+                                        onChange={(e) => setSubSearch(e.target.value)}
+                                        placeholder="Cari mikro komponen..."
+                                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+
+                                {/* List of Sub-Components */}
+                                <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                    {allSubComponents
+                                        .filter(
+                                            (s) =>
+                                                s.label.toLowerCase().includes(subSearch.toLowerCase()) ||
+                                                s.description.toLowerCase().includes(subSearch.toLowerCase())
+                                        )
+                                        .map((item) => {
+                                            const Icon = item.icon;
+                                            return (
+                                                <div
+                                                    key={item.type}
+                                                    onClick={() => {
+                                                        if (blocks.length === 0) {
+                                                            handleAddBlock('container');
+                                                        } else {
+                                                            handleAddSubComponent(selectedBlockId, item.type);
+                                                        }
+                                                    }}
+                                                    className="group p-3 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:bg-slate-900/90 cursor-pointer transition-all duration-200"
+                                                >
+                                                    <div className="flex items-start gap-2.5">
+                                                        <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all">
+                                                            <Icon className="w-4 h-4" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between mb-0.5">
+                                                                <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
+                                                                    {item.label}
+                                                                </h4>
+                                                                <span className="text-[10px] text-indigo-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    + Sisipkan
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
+                                                                {item.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                </div>
+                            </div>
+                        ) : activeTabLeft === 'palette' ? (
                             <div className="flex-1 flex flex-col overflow-hidden p-4">
                                 {/* Search Box */}
                                 <div className="relative mb-3">
@@ -890,6 +1277,51 @@ export default function Builder({ page }) {
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
+
+                                        {/* Status Mode Kustom vs Template Bawaan */}
+                                        {selectedBlock.props?.isCustom ? (
+                                            <div className="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1.5 font-bold text-purple-300">
+                                                        <Wand2 className="w-4 h-4 text-purple-400" />
+                                                        <span>Mode Kustom (Full Editable)</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleResetBlockToDefault(selectedBlock.id)}
+                                                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-purple-900/50 hover:bg-purple-800/80 text-purple-200 transition-colors"
+                                                        title="Kembalikan ke format template default"
+                                                    >
+                                                        <RotateCcw className="w-3 h-3" />
+                                                        <span>Reset Template</span>
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-slate-300 leading-relaxed">
+                                                    Blok ini sekarang berstatus kustom bebas. Anda dapat menghapus sub-komponen, menambah komponen mikro di mana saja, serta men-drag & drop urutan posisi elemen.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1.5 font-semibold text-slate-300">
+                                                        <Sparkles className="w-4 h-4 text-indigo-400" />
+                                                        <span>Template Bawaan</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleConvertBlockToCustom(selectedBlock.id)}
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-sm shadow-indigo-600/30"
+                                                        title="Buka kebebasan edit penuh dengan memecah elemen bawaan menjadi sub-komponen"
+                                                    >
+                                                        <Wand2 className="w-3 h-3" />
+                                                        <span>Jadikan Kustom</span>
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-slate-400 leading-relaxed">
+                                                    Arahkan kursor ke elemen mana saja pada kanvas (Badge, Judul, Tombol) lalu klik Hapus untuk otomatis mengubahnya menjadi mode kustom yang bebas diedit.
+                                                </p>
+                                            </div>
+                                        )}
 
                                         {/* Render Block Inspector Form */}
                                         <selectedDef.SettingsComponent

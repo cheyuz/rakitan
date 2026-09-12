@@ -86,7 +86,7 @@ export default function Show({
                         const Component = def.Component;
                         return (
                             <div key={block.id} id={block.id} className="w-full">
-                                <Component props={block.props || {}} />
+                                <Component props={block.props || {}} blockId={block.id} />
                             </div>
                         );
                     })

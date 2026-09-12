@@ -1,13 +1,17 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { Plus, Trash2, Layers, Sparkles } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
 const DynamicIcon = ({ name, className = 'w-6 h-6' }) => {
     const IconComponent = LucideIcons[name] || LucideIcons.Sparkles;
     return <IconComponent className={className} />;
 };
 
-export const FeaturesComponent = ({ props = {} }) => {
+export const FeaturesComponent = ({ props = {}, blockId }) => {
     const {
         badge = 'CORE CAPABILITIES',
         title = 'Everything You Need for Modern Web Experiences',
@@ -33,7 +37,23 @@ export const FeaturesComponent = ({ props = {} }) => {
                 badge: 'Secure',
             },
         ],
+        subComponents = [],
+        isCustom = false,
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
+
+    const handleItemChange = (idx, field, val) => {
+        const newItems = [...items];
+        newItems[idx] = { ...newItems[idx], [field]: val };
+        handlePropChange('items', newItems);
+    };
 
     const colClasses = {
         2: 'grid-cols-1 md:grid-cols-2',
@@ -44,54 +64,133 @@ export const FeaturesComponent = ({ props = {} }) => {
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 text-slate-100 transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
-                {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    {badge && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-indigo-900/40 text-indigo-400 border border-indigo-500/20 mb-4">
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <span>{badge}</span>
-                        </div>
-                    )}
-                    {title && (
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
-                            {title}
-                        </h2>
-                    )}
-                    {subtitle && (
-                        <p className="text-base sm:text-lg text-slate-400">
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
+                {isCustom ? (
+                    <div className="w-full max-w-6xl mx-auto">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Fitur Kustom Ini"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        {/* Section Header */}
+                        <div className="text-center max-w-3xl mx-auto mb-16">
+                            {(badge || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="badge"
+                                    label="Badge"
+                                    isCustom={isCustom}
+                                >
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-indigo-900/40 text-indigo-400 border border-indigo-500/20 mb-4">
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        <InlineText
+                                            value={badge}
+                                            onChange={(val) => handlePropChange('badge', val)}
+                                            placeholder="Badge Kategori"
+                                        />
+                                    </div>
+                                </DefaultElementWrapper>
+                            )}
 
-                {/* Grid of Items */}
-                <div className={`grid gap-8 ${colClasses}`}>
-                    {items.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="group relative flex flex-col p-8 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-sm hover:shadow-2xl hover:border-indigo-500/40 transition-all duration-300"
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="title"
+                                label="Judul Fitur"
+                                isCustom={isCustom}
+                            >
+                                <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+                                    <InlineText
+                                        value={title}
+                                        onChange={(val) => handlePropChange('title', val)}
+                                        placeholder="Judul Bagian Fitur"
+                                        as="span"
+                                    />
+                                </h2>
+                            </DefaultElementWrapper>
+
+                            {(subtitle || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="subtitle"
+                                    label="Subjudul"
+                                    isCustom={isCustom}
+                                >
+                                    <p className="text-base sm:text-lg text-slate-400">
+                                        <InlineText
+                                            value={subtitle}
+                                            onChange={(val) => handlePropChange('subtitle', val)}
+                                            placeholder="Deskripsi fitur..."
+                                            multiline
+                                            as="span"
+                                        />
+                                    </p>
+                                </DefaultElementWrapper>
+                            )}
+                        </div>
+
+                        {/* Grid of Items */}
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="items"
+                            label="Grid Fitur"
+                            isCustom={isCustom}
                         >
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="w-12 h-12 rounded-xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                                    <DynamicIcon name={item.icon} className="w-6 h-6" />
-                                </div>
-                                {item.badge && (
-                                    <span className="px-2.5 py-1 text-[11px] font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                                        {item.badge}
-                                    </span>
-                                )}
+                            <div className={`grid gap-8 ${colClasses}`}>
+                                {items.map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="group relative flex flex-col p-8 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-sm hover:shadow-2xl hover:border-indigo-500/40 transition-all duration-300"
+                                    >
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="w-12 h-12 rounded-xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                <DynamicIcon name={item.icon} className="w-6 h-6" />
+                                            </div>
+                                            {(item.badge || isEditing) && (
+                                                <span className="px-2.5 py-1 text-[11px] font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                                                    <InlineText
+                                                        value={item.badge}
+                                                        onChange={(val) => handleItemChange(idx, 'badge', val)}
+                                                        placeholder="Tag"
+                                                    />
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                                            <InlineText
+                                                value={item.title}
+                                                onChange={(val) => handleItemChange(idx, 'title', val)}
+                                                placeholder="Judul Fitur"
+                                                as="span"
+                                            />
+                                        </h3>
+
+                                        <p className="text-sm text-slate-400 leading-relaxed flex-grow">
+                                            <InlineText
+                                                value={item.description}
+                                                onChange={(val) => handleItemChange(idx, 'description', val)}
+                                                placeholder="Keterangan fitur..."
+                                                multiline
+                                                as="span"
+                                            />
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
+                        </DefaultElementWrapper>
 
-                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
-                                {item.title}
-                            </h3>
-
-                            <p className="text-sm text-slate-400 leading-relaxed flex-grow">
-                                {item.description}
-                            </p>
+                        {/* Dynamic Sub-Components Slot di bawah Grid */}
+                        <div className="w-full mt-12 max-w-2xl mx-auto">
+                            <SubComponentSlot
+                                blockId={blockId}
+                                subComponents={subComponents}
+                                emptyPlaceholder="+ Tambah Sub-Komponen ke Bagian Fitur"
+                            />
                         </div>
-                    ))}
-                </div>
+                    </>
+                )}
             </div>
         </section>
     );

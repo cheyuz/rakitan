@@ -1,7 +1,11 @@
 import React from 'react';
 import { AlignLeft, AlignCenter, AlignRight, Sparkles, ArrowRight } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const HeroComponent = ({ props = {} }) => {
+export const HeroComponent = ({ props = {}, blockId }) => {
     const {
         badgeText = '✨ Next-Gen Modular CMS',
         title = 'Craft Your Dream Website Like Building a Puzzle',
@@ -14,7 +18,17 @@ export const HeroComponent = ({ props = {} }) => {
         bgStyle = 'gradient',
         imageUrl = '',
         padding = 'lg',
+        subComponents = [],
+        isCustom = false,
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const alignClasses = {
         left: 'text-left items-start',
@@ -52,49 +66,125 @@ export const HeroComponent = ({ props = {} }) => {
             )}
 
             <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className={`flex flex-col ${alignClasses} max-w-3xl`}>
-                    {badgeText && (
-                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-6 backdrop-blur-sm shadow-sm">
-                            <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
-                            <span>{badgeText}</span>
-                        </div>
-                    )}
-
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6">
-                        {title}
-                    </h1>
-
-                    {subtitle && (
-                        <p className={`text-lg sm:text-xl font-normal leading-relaxed mb-10 ${bgStyle === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
-                            {subtitle}
-                        </p>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-4">
-                        {primaryButtonText && (
-                            <a
-                                href={primaryButtonUrl || '#'}
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 shadow-lg shadow-indigo-600/25 transition-all duration-200"
-                            >
-                                <span>{primaryButtonText}</span>
-                                <ArrowRight className="w-4 h-4" />
-                            </a>
-                        )}
-
-                        {secondaryButtonText && (
-                            <a
-                                href={secondaryButtonUrl || '#'}
-                                className={`inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 border active:scale-95 ${
-                                    bgStyle === 'light'
-                                        ? 'border-slate-300 text-slate-700 hover:bg-slate-200'
-                                        : 'border-white/20 text-white hover:bg-white/10'
-                                }`}
-                            >
-                                <span>{secondaryButtonText}</span>
-                            </a>
-                        )}
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Hero Kustom Ini"
+                        />
                     </div>
-                </div>
+                ) : (
+                    <div className={`flex flex-col ${alignClasses} max-w-3xl`}>
+                        {(badgeText || isEditing) && (
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="badgeText"
+                                label="Badge"
+                                isCustom={isCustom}
+                            >
+                                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-6 backdrop-blur-sm shadow-sm">
+                                    <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+                                    <InlineText
+                                        value={badgeText}
+                                        onChange={(val) => handlePropChange('badgeText', val)}
+                                        placeholder="Teks Badge Hero"
+                                    />
+                                </div>
+                            </DefaultElementWrapper>
+                        )}
+
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="title"
+                            label="Headline"
+                            isCustom={isCustom}
+                        >
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6">
+                                <InlineText
+                                    value={title}
+                                    onChange={(val) => handlePropChange('title', val)}
+                                    placeholder="Judul Hero Section"
+                                    as="span"
+                                />
+                            </h1>
+                        </DefaultElementWrapper>
+
+                        {(subtitle || isEditing) && (
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="subtitle"
+                                label="Subjudul"
+                                isCustom={isCustom}
+                            >
+                                <p className={`text-lg sm:text-xl font-normal leading-relaxed mb-10 ${bgStyle === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
+                                    <InlineText
+                                        value={subtitle}
+                                        onChange={(val) => handlePropChange('subtitle', val)}
+                                        placeholder="Tuliskan subjudul pengantar..."
+                                        multiline
+                                        as="span"
+                                    />
+                                </p>
+                            </DefaultElementWrapper>
+                        )}
+
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="buttons"
+                            label="Tombol Aksi"
+                            isCustom={isCustom}
+                        >
+                            <div className="flex flex-wrap items-center gap-4">
+                                {(primaryButtonText || isEditing) && (
+                                    <a
+                                        href={isEditing ? undefined : (primaryButtonUrl || '#')}
+                                        onClick={(e) => {
+                                            if (isEditing) e.preventDefault();
+                                        }}
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 shadow-lg shadow-indigo-600/25 transition-all duration-200"
+                                    >
+                                        <InlineText
+                                            value={primaryButtonText}
+                                            onChange={(val) => handlePropChange('primaryButtonText', val)}
+                                            placeholder="Tombol Utama"
+                                        />
+                                        <ArrowRight className="w-4 h-4" />
+                                    </a>
+                                )}
+
+                                {(secondaryButtonText || isEditing) && (
+                                    <a
+                                        href={isEditing ? undefined : (secondaryButtonUrl || '#')}
+                                        onClick={(e) => {
+                                            if (isEditing) e.preventDefault();
+                                        }}
+                                        className={`inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 border active:scale-95 ${
+                                            bgStyle === 'light'
+                                                ? 'border-slate-300 text-slate-700 hover:bg-slate-200'
+                                                : 'border-white/20 text-white hover:bg-white/10'
+                                        }`}
+                                    >
+                                        <InlineText
+                                            value={secondaryButtonText}
+                                            onChange={(val) => handlePropChange('secondaryButtonText', val)}
+                                            placeholder="Tombol Kedua"
+                                        />
+                                    </a>
+                                )}
+                            </div>
+                        </DefaultElementWrapper>
+
+                        {/* Dynamic Sub-Components Slot pada Hero Section */}
+                        <div className="w-full mt-8">
+                            <SubComponentSlot
+                                blockId={blockId}
+                                subComponents={subComponents}
+                                emptyPlaceholder="+ Tambah Sub-Komponen ke Hero Section"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </section>
     );

@@ -1,15 +1,29 @@
 import React, { useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { AlignLeft, AlignCenter, AlignJustify } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const RichTextComponent = ({ props = {} }) => {
+export const RichTextComponent = ({ props = {}, blockId }) => {
     const {
         title = '',
         content = '<p>Rakitan was born from the vision to deliver a CMS that does not bloat servers with conflicting plugins, while still giving creators the freedom to assemble stunning web pages.</p>',
         containerWidth = 'normal',
         alignment = 'left',
         dropCap = false,
+        subComponents = [],
+        isCustom = false,
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const widthClasses = {
         narrow: 'max-w-2xl',
@@ -34,18 +48,58 @@ export const RichTextComponent = ({ props = {} }) => {
     return (
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-950 text-slate-100 transition-colors duration-200">
             <div className={`mx-auto ${widthClasses} ${alignClasses}`}>
-                {title && (
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-8">
-                        {title}
-                    </h2>
-                )}
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Rich Text Kustom Ini"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        {(title || isEditing) && (
+                            <DefaultElementWrapper
+                                blockId={blockId}
+                                elementKey="title"
+                                label="Judul Artikel"
+                                isCustom={isCustom}
+                            >
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-8">
+                                    <InlineText
+                                        value={title}
+                                        onChange={(val) => handlePropChange('title', val)}
+                                        placeholder="Judul Artikel / Rich Text"
+                                        as="span"
+                                    />
+                                </h2>
+                            </DefaultElementWrapper>
+                        )}
 
-                <div
-                    className={`prose prose-invert max-w-none text-base sm:text-lg leading-relaxed text-slate-300 ${
-                        dropCap ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-indigo-400' : ''
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-                />
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="content"
+                            label="Konten HTML"
+                            isCustom={isCustom}
+                        >
+                            <div
+                                className={`prose prose-invert max-w-none text-base sm:text-lg leading-relaxed text-slate-300 ${
+                                    dropCap ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-indigo-400' : ''
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+                            />
+                        </DefaultElementWrapper>
+
+                        {/* Dynamic Sub-Components Slot */}
+                        <div className="w-full mt-10">
+                            <SubComponentSlot
+                                blockId={blockId}
+                                subComponents={subComponents}
+                                emptyPlaceholder="+ Tambah Sub-Komponen ke Rich Text"
+                            />
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );
