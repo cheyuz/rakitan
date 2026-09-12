@@ -58,6 +58,7 @@ class PluginManager
                     'description' => $manifest['description'] ?? '',
                     'is_builtin' => !empty($manifest['is_builtin']),
                     'is_active' => $isActive,
+                    'blocks' => $manifest['blocks'] ?? [],
                     'settings' => $manifest['settings'] ?? [],
                     'path' => $dir,
                 ];
@@ -75,8 +76,21 @@ class PluginManager
      */
     public function getActivePluginIds(): array
     {
-        $active = Setting::get('active_plugins', ['hello-rakitan']);
-        return is_array($active) ? $active : (json_decode($active, true) ?? []);
+        $active = Setting::get('active_plugins', ['hello-rakitan', 'rakitan-extended-blocks']);
+        $list = is_array($active) ? $active : (json_decode($active, true) ?? ['hello-rakitan', 'rakitan-extended-blocks']);
+
+        $disabled = Setting::get('disabled_plugins', []);
+        $disabledList = is_array($disabled) ? $disabled : (json_decode($disabled, true) ?? []);
+
+        // Auto-include rakitan-extended-blocks if installed and not explicitly disabled
+        if (File::exists($this->getPluginsPath() . '/rakitan-extended-blocks/plugin.json')
+            && !in_array('rakitan-extended-blocks', $disabledList, true)
+            && !in_array('rakitan-extended-blocks', $list, true)) {
+            $list[] = 'rakitan-extended-blocks';
+            Setting::set('active_plugins', $list);
+        }
+
+        return array_values(array_unique($list));
     }
 
     /**
@@ -85,9 +99,14 @@ class PluginManager
     public function togglePlugin(string $pluginId): bool
     {
         $activePlugins = $this->getActivePluginIds();
+        $disabled = Setting::get('disabled_plugins', []);
+        $disabledList = is_array($disabled) ? $disabled : (json_decode($disabled, true) ?? []);
 
         if (in_array($pluginId, $activePlugins, true)) {
             $activePlugins = array_values(array_filter($activePlugins, fn ($id) => $id !== $pluginId));
+            if (!in_array($pluginId, $disabledList, true)) {
+                $disabledList[] = $pluginId;
+            }
             $newStatus = false;
         } else {
             // Verify plugin exists
@@ -105,10 +124,12 @@ class PluginManager
             }
 
             $activePlugins[] = $pluginId;
+            $disabledList = array_values(array_filter($disabledList, fn ($id) => $id !== $pluginId));
             $newStatus = true;
         }
 
         Setting::set('active_plugins', array_values(array_unique($activePlugins)));
+        Setting::set('disabled_plugins', array_values(array_unique($disabledList)));
         return $newStatus;
     }
 

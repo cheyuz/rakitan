@@ -185,6 +185,24 @@ export default function Index({ plugins = [], pluginsPath = '' }) {
                                         </p>
                                     </div>
 
+                                    {plugin.blocks && plugin.blocks.length > 0 && (
+                                        <div className="pt-2">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 block mb-1.5">
+                                                Included Blocks ({plugin.blocks.length}):
+                                            </span>
+                                            <div className="flex flex-wrap gap-1">
+                                                {plugin.blocks.map((b, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20"
+                                                    >
+                                                        +{b}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="text-[11px] text-slate-500 space-y-1 pt-2 border-t border-slate-800/60 font-mono">
                                         <p>By: <span className="text-slate-300 font-sans">{plugin.author}</span></p>
                                         <p className="truncate text-slate-600">ID: {plugin.id}</p>

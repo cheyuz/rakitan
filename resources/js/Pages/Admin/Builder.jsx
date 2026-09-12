@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     DndContext,
     closestCenter,
@@ -753,9 +753,10 @@ export default function Builder({ page }) {
     const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
     const selectedDef = selectedBlock ? getBlockDefinition(selectedBlock.type) : null;
 
-    const allAvailableBlocks = getAllBlocks();
+    const { active_plugins = [] } = usePage().props;
+    const allAvailableBlocks = getAllBlocks(active_plugins);
     const allSubComponents = getAllSubComponents();
-    const categories = ['All', 'Header', 'Content', 'Media', 'Conversion', 'Layout'];
+    const categories = ['All', 'Header', 'Content', 'Media', 'Conversion', 'Layout', 'Extended Suite'];
     const filteredPalette = allAvailableBlocks.filter((b) => {
         const matchCategory = paletteFilter === 'All' || b.category === paletteFilter;
         const matchSearch =
@@ -1302,9 +1303,16 @@ export default function Builder({ page }) {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center justify-between mb-1">
-                                                            <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
-                                                                {item.label}
-                                                            </h4>
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
+                                                                    {item.label}
+                                                                </h4>
+                                                                {item.pluginId && (
+                                                                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                                                        Plugin
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <div className="flex items-center gap-1">
                                                                 <span className="text-[10px] text-indigo-400/80 uppercase font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                                                                     Drag / + Add

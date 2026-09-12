@@ -33,6 +33,16 @@ export {
     getAllSubComponents,
 } from './SubComponents/subRegistry';
 
+import {
+    getActivePluginBlocks,
+    getAllPluginBlockDefinitions,
+} from './Plugins/pluginBlocks';
+
+export {
+    getActivePluginBlocks,
+    getAllPluginBlockDefinitions,
+} from './Plugins/pluginBlocks';
+
 export const BLOCK_REGISTRY = {
     hero: {
         type: 'hero',
@@ -396,14 +406,27 @@ export const BLOCK_REGISTRY = {
  * Get block definition by type identifier
  */
 export function getBlockDefinition(type) {
-    return BLOCK_REGISTRY[type] || null;
+    if (BLOCK_REGISTRY[type]) {
+        return BLOCK_REGISTRY[type];
+    }
+    const pluginDefs = getAllPluginBlockDefinitions();
+    return pluginDefs[type] || null;
 }
 
 /**
- * Get all registered block definitions
+ * Get all registered block definitions, filtered by active plugins if specified
  */
-export function getAllBlocks() {
-    return Object.values(BLOCK_REGISTRY);
+export function getAllBlocks(activePluginIds = null) {
+    const coreBlocks = Object.values(BLOCK_REGISTRY);
+
+    if (Array.isArray(activePluginIds)) {
+        const pluginBlocks = Object.values(getActivePluginBlocks(activePluginIds));
+        return [...coreBlocks, ...pluginBlocks];
+    }
+
+    // Default fallback: return all available blocks (core + plugin blocks)
+    const allPlugins = Object.values(getAllPluginBlockDefinitions());
+    return [...coreBlocks, ...allPlugins];
 }
 
 /**
@@ -412,7 +435,7 @@ export function getAllBlocks() {
 export function createBlockInstance(type) {
     const def = getBlockDefinition(type);
     if (!def) {
-        throw new Error(`Block type "${type}" is not registered in BLOCK_REGISTRY.`);
+        throw new Error(`Block type "${type}" is not registered in BLOCK_REGISTRY or any active plugin.`);
     }
 
     const uniqueId = `block-${type}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;

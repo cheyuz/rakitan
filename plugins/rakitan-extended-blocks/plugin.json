@@ -1,0 +1,19 @@
+{
+    "id": "rakitan-extended-blocks",
+    "name": "Rakitan Extended Blocks Pro",
+    "version": "1.0.0",
+    "author": "Rakitan Ecosystem",
+    "description": "Supercharge your website with 5 high-converting, interactive blocks: Stats Counter Grid, Roadmap Timeline, Team Members Showcase, Feature Comparison Matrix, and Flash Sale Countdown Urgency Banner.",
+    "is_builtin": false,
+    "blocks": [
+        "stats_counter",
+        "timeline",
+        "team_grid",
+        "comparison_table",
+        "countdown_banner"
+    ],
+    "settings": {
+        "enableAnimations": true,
+        "badge": "Pro Suite"
+    }
+}
