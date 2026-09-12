@@ -23,6 +23,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{page}/duplicate', [PageController::class, 'duplicate'])->name('duplicate');
         Route::delete('/{page}', [PageController::class, 'destroy'])->name('destroy');
     });
+
+    // Site Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+
+    // Tools (XML Export / Import)
+    Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])->name('tools.index');
+    Route::get('/tools/export', [\App\Http\Controllers\Admin\ToolsController::class, 'export'])->name('tools.export');
+    Route::post('/tools/import', [\App\Http\Controllers\Admin\ToolsController::class, 'import'])->name('tools.import');
 });
 
 // Profile Routes

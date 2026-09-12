@@ -3,24 +3,24 @@ import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
 
 export const GalleryComponent = ({ props = {} }) => {
     const {
-        title = 'Galeri Media & Showcase',
-        subtitle = 'Koleksi dokumentasi visual produk dan aktivitas',
+        title = 'Media Showcase & Gallery',
+        subtitle = 'A visual documentation of product interfaces and creative assets',
         columns = 3,
         gap = 'md',
         images = [
             {
                 url: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
-                caption: 'Visual Page Builder',
+                caption: 'Visual Page Builder Interface',
                 alt: 'Page Builder Interface',
             },
             {
                 url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-                caption: 'Analitik Konten',
+                caption: 'Analytics & Performance Metrics',
                 alt: 'Analytics Dashboard',
             },
             {
                 url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-                caption: 'Kustomisasi Blok React',
+                caption: 'Modular React Components',
                 alt: 'Developer Code View',
             },
         ],
@@ -39,17 +39,17 @@ export const GalleryComponent = ({ props = {} }) => {
     }[gap] || 'gap-6';
 
     return (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 transition-colors duration-200">
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 text-slate-100 transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
                 {(title || subtitle) && (
                     <div className="text-center max-w-2xl mx-auto mb-12">
                         {title && (
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+                            <h2 className="text-3xl font-extrabold text-white tracking-tight mb-3">
                                 {title}
                             </h2>
                         )}
                         {subtitle && (
-                            <p className="text-base text-slate-600 dark:text-slate-400">
+                            <p className="text-base text-slate-400">
                                 {subtitle}
                             </p>
                         )}
@@ -60,7 +60,7 @@ export const GalleryComponent = ({ props = {} }) => {
                     {images.map((img, idx) => (
                         <div
                             key={idx}
-                            className="group relative overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm aspect-[4/3]"
+                            className="group relative overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 shadow-sm aspect-[4/3]"
                         >
                             <img
                                 src={img.url}
@@ -97,8 +97,8 @@ export const GallerySettings = ({ props, updateProps }) => {
             ...images,
             {
                 url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
-                caption: 'Foto Baru',
-                alt: 'Deskripsi gambar',
+                caption: 'New Image Caption',
+                alt: 'Image description',
             },
         ];
         updateProps({ images: newImages });
@@ -112,62 +112,62 @@ export const GallerySettings = ({ props, updateProps }) => {
     return (
         <div className="space-y-4 text-xs">
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Judul Galeri</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Gallery Title</label>
                 <input
                     type="text"
                     value={props.title || ''}
                     onChange={(e) => updateProps({ title: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 />
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Subjudul</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Subtitle</label>
                 <input
                     type="text"
                     value={props.subtitle || ''}
                     onChange={(e) => updateProps({ subtitle: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Jumlah Kolom</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Columns</label>
                     <select
                         value={props.columns || 3}
                         onChange={(e) => updateProps({ columns: Number(e.target.value) })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     >
-                        <option value={2}>2 Kolom</option>
-                        <option value={3}>3 Kolom</option>
-                        <option value={4}>4 Kolom</option>
+                        <option value={2}>2 Columns</option>
+                        <option value={3}>3 Columns</option>
+                        <option value={4}>4 Columns</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Jarak Antar Gambar (Gap)</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Item Spacing (Gap)</label>
                     <select
                         value={props.gap || 'md'}
                         onChange={(e) => updateProps({ gap: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     >
-                        <option value="sm">Kecil (sm)</option>
-                        <option value="md">Sedang (md)</option>
-                        <option value="lg">Besar (lg)</option>
+                        <option value="sm">Small (sm)</option>
+                        <option value="md">Medium (md)</option>
+                        <option value="lg">Large (lg)</option>
                     </select>
                 </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-3 border-t border-slate-800">
                 <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">Daftar Foto ({images.length})</span>
+                    <span className="font-semibold text-white">Images List ({images.length})</span>
                     <button
                         type="button"
                         onClick={handleAddImage}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600/20 text-indigo-400 font-semibold hover:bg-indigo-600 hover:text-white transition-all"
                     >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Tambah Foto</span>
+                        <span>Add Image</span>
                     </button>
                 </div>
 
@@ -175,15 +175,16 @@ export const GallerySettings = ({ props, updateProps }) => {
                     {images.map((img, idx) => (
                         <div
                             key={idx}
-                            className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-2 relative"
+                            className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 space-y-2.5 relative"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="font-medium text-[11px] text-slate-500">Foto #{idx + 1}</span>
+                                <span className="font-bold text-[11px] text-slate-400">Photo #{idx + 1}</span>
                                 {images.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveImage(idx)}
-                                        className="text-red-500 hover:text-red-700 transition-colors"
+                                        className="text-red-400 hover:text-red-300 p-1"
+                                        title="Remove Photo"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
                                     </button>
@@ -191,23 +192,24 @@ export const GallerySettings = ({ props, updateProps }) => {
                             </div>
 
                             <div>
-                                <label className="block text-[11px] text-slate-500">URL Gambar</label>
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">Image URL</label>
                                 <input
                                     type="url"
                                     value={img.url || ''}
                                     onChange={(e) => handleUpdateImage(idx, { url: e.target.value })}
                                     placeholder="https://..."
-                                    className="w-full px-2 py-1 text-xs rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    className="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700/80 text-white"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[11px] text-slate-500">Caption / Deskripsi Singkat</label>
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">Caption</label>
                                 <input
                                     type="text"
                                     value={img.caption || ''}
                                     onChange={(e) => handleUpdateImage(idx, { caption: e.target.value })}
-                                    className="w-full px-2 py-1 text-xs rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    placeholder="Brief caption..."
+                                    className="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700/80 text-white"
                                 />
                             </div>
                         </div>

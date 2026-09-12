@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
-    Puzzle,
     LayoutDashboard,
     FileText,
+    Wrench,
+    Settings,
     Globe,
     LogOut,
     Plus,
@@ -11,6 +12,7 @@ import {
     CheckCircle2,
     AlertCircle,
 } from 'lucide-react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
     const { auth, flash } = usePage().props;
@@ -21,13 +23,25 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             label: 'Dashboard',
             href: '/admin/dashboard',
             icon: LayoutDashboard,
-            active: currentUrl.startsWith('/admin/dashboard'),
+            active: currentUrl === '/admin/dashboard',
         },
         {
-            label: 'Semua Halaman',
+            label: 'Pages',
             href: '/admin/pages',
             icon: FileText,
             active: currentUrl.startsWith('/admin/pages') && !currentUrl.includes('/builder'),
+        },
+        {
+            label: 'Tools & Migration',
+            href: '/admin/tools',
+            icon: Wrench,
+            active: currentUrl.startsWith('/admin/tools'),
+        },
+        {
+            label: 'Settings',
+            href: '/admin/settings',
+            icon: Settings,
+            active: currentUrl.startsWith('/admin/settings'),
         },
     ];
 
@@ -38,15 +52,13 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                 <div>
                     {/* Brand */}
                     <div className="h-16 px-6 flex items-center gap-3 border-b border-slate-800/60">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
-                            <Puzzle className="w-5 h-5" />
-                        </div>
+                        <ApplicationLogo className="w-9 h-9 rounded-xl shadow-lg shadow-indigo-600/20" />
                         <div>
                             <span className="text-lg font-black tracking-tight text-white">
                                 Rakitan<span className="text-indigo-400">.</span>
                             </span>
                             <span className="block text-[10px] uppercase tracking-wider font-semibold text-slate-400">
-                                Visual CMS
+                                Open Source CMS
                             </span>
                         </div>
                     </div>
@@ -54,7 +66,7 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                     {/* Navigation */}
                     <div className="px-3 py-6 space-y-1">
                         <div className="px-3 pb-2 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                            Menu Utama
+                            Main Menu
                         </div>
                         {navItems.map((item) => {
                             const Icon = item.icon;
@@ -84,7 +96,7 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                         className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                     >
                         <Globe className="w-4 h-4 text-emerald-400" />
-                        <span>Kunjungi Situs Publik</span>
+                        <span>Visit Public Site</span>
                     </Link>
 
                     <div className="pt-2 flex items-center justify-between px-2">
@@ -103,7 +115,7 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                             method="post"
                             as="button"
                             className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                            title="Keluar"
+                            title="Log Out"
                         >
                             <LogOut className="w-4 h-4" />
                         </Link>
@@ -125,7 +137,7 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
                         >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Buat Halaman</span>
+                            <span>New Page</span>
                         </Link>
                     </div>
                 </header>

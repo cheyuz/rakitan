@@ -14,7 +14,7 @@ class PageSeeder extends Seeder
      */
     public function run(): void
     {
-        // Pastikan akun admin tersedia
+        // Ensure admin user exists
         $admin = User::firstOrCreate(
             ['email' => 'admin@rakitan.test'],
             [
@@ -24,13 +24,13 @@ class PageSeeder extends Seeder
             ]
         );
 
-        // Seed Halaman Utama (Home)
+        // Seed Homepage (Home)
         Page::updateOrCreate(
             ['slug' => 'home'],
             [
-                'title' => 'Selamat Datang di Rakitan CMS',
-                'meta_title' => 'Rakitan CMS - Visual Modular Page Builder Masa Depan',
-                'meta_description' => 'CMS open-source modern dengan visual builder drag-and-drop berbasis puzzle komponen independen.',
+                'title' => 'Welcome to Rakitan CMS',
+                'meta_title' => 'Rakitan CMS - The Next-Gen Modular Visual Builder',
+                'meta_description' => 'A modern open-source CMS built with Laravel 11, Inertia.js React, Tailwind CSS, and a puzzle-like drag-and-drop block builder.',
                 'status' => 'published',
                 'user_id' => $admin->id,
                 'blocks' => [
@@ -38,12 +38,12 @@ class PageSeeder extends Seeder
                         'id' => 'hero-intro',
                         'type' => 'hero',
                         'props' => [
-                            'badgeText' => '✨ CMS Visual Modular Masa Depan',
-                            'title' => 'Rancang Web Impian Seperti Menyusun Puzzle',
-                            'subtitle' => 'Rakitan CMS memberikan kebebasan berkarya tanpa batas dengan arsitektur blok modular independen, performa kilat, dan fleksibilitas penuh bagi developer maupun kreator.',
-                            'primaryButtonText' => 'Mulai Rakit Sekarang',
+                            'badgeText' => '✨ Next-Gen Modular CMS',
+                            'title' => 'Craft Your Dream Website Like Building a Puzzle',
+                            'subtitle' => 'Rakitan CMS empowers developers and creators with independent modular blocks, lightning performance, and complete visual freedom.',
+                            'primaryButtonText' => 'Start Building Now',
                             'primaryButtonUrl' => '/login',
-                            'secondaryButtonText' => 'Tentang Rakitan',
+                            'secondaryButtonText' => 'About Rakitan',
                             'secondaryButtonUrl' => '/about',
                             'alignment' => 'center',
                             'bgStyle' => 'gradient',
@@ -54,45 +54,45 @@ class PageSeeder extends Seeder
                         'id' => 'feat-grid-1',
                         'type' => 'features',
                         'props' => [
-                            'badge' => 'KEUNGGULAN UTAMA',
-                            'title' => 'Mengapa Memilih Rakitan?',
-                            'subtitle' => 'Setiap blok dirancang secara presisi, menghasilkan kecepatan website maksimal dan pengelolaan konten yang menyenangkan.',
+                            'badge' => 'CORE CAPABILITIES',
+                            'title' => 'Why Choose Rakitan CMS?',
+                            'subtitle' => 'Every block is engineered for surgical precision, resulting in maximum page speed and an enjoyable publishing experience.',
                             'columns' => 3,
                             'items' => [
                                 [
                                     'icon' => 'Layers',
-                                    'title' => 'Arsitektur Puzzle Core',
-                                    'description' => 'Setiap blok terisolasi rapi dengan skema data JSON fleksibel, memudahkan ekstensi komponen kustom.',
+                                    'title' => 'Puzzle Core Architecture',
+                                    'description' => 'Each block is isolated with clean JSON schemas, making custom component extensions straightforward.',
                                     'badge' => 'Modular',
                                 ],
                                 [
                                     'icon' => 'Zap',
-                                    'title' => 'Performa Kilat SPA',
-                                    'description' => 'Ditenagai oleh Laravel 11 dan Inertia.js React untuk navigasi instan tanpa delay reload halaman.',
-                                    'badge' => 'Cepat',
+                                    'title' => 'Blazing Fast SPA',
+                                    'description' => 'Powered by Laravel 11 and Inertia.js React for instant navigation without page reload delay.',
+                                    'badge' => 'Fast',
                                 ],
                                 [
                                     'icon' => 'Sliders',
                                     'title' => 'Visual Drag & Drop',
-                                    'description' => 'Atur tata letak, gandakan seksi, dan atur style secara interaktif dengan live canvas preview.',
-                                    'badge' => 'Intuitif',
+                                    'description' => 'Arrange layouts, duplicate sections, and style properties interactively with live canvas preview.',
+                                    'badge' => 'Intuitive',
                                 ],
                                 [
                                     'icon' => 'Palette',
-                                    'title' => 'Desain Berkelas Modern',
-                                    'description' => 'Palet warna Tailwind yang harmonis, dukungan dark mode bawaan, dan responsif di ponsel hingga desktop.',
-                                    'badge' => 'Aestetik',
+                                    'title' => 'Class-Leading Design',
+                                    'description' => 'Harmonious Tailwind color palettes, native dark mode support, and full responsiveness across devices.',
+                                    'badge' => 'Aesthetic',
                                 ],
                                 [
                                     'icon' => 'ShieldCheck',
-                                    'title' => 'Keamanan Ketat',
-                                    'description' => 'Sanitasi XSS pada rich text, proteksi CSRF otomatis, serta pengujian berkala tanpa risiko data.',
-                                    'badge' => 'Aman',
+                                    'title' => 'Enterprise Security',
+                                    'description' => 'Built-in DOMPurify sanitization, automatic CSRF verification, and strict session controls.',
+                                    'badge' => 'Secure',
                                 ],
                                 [
                                     'icon' => 'Code2',
-                                    'title' => 'Ramah Pengembang',
-                                    'description' => 'Buat blok kustom Anda sendiri dalam hitungan menit cukup dengan membuat komponen React baru.',
+                                    'title' => 'Developer Friendly',
+                                    'description' => 'Create custom blocks in minutes using standard React components and Tailwind CSS.',
                                     'badge' => 'Open Source',
                                 ],
                             ],
@@ -102,35 +102,35 @@ class PageSeeder extends Seeder
                         'id' => 'rich-text-1',
                         'type' => 'rich_text',
                         'props' => [
-                            'title' => 'Filosofi Desain Komponen Rakitan',
+                            'title' => 'Our Component-Driven Philosophy',
                             'containerWidth' => 'normal',
                             'alignment' => 'left',
                             'dropCap' => true,
-                            'content' => 'Rakitan lahir dari visi untuk menghadirkan CMS yang tidak membebani server dengan puluhan plugin yang rentan konflik, namun tetap memberikan keleluasaan bagi pengguna untuk menyusun halaman web yang memukau. Dengan pendekatan puzzle-driven, setiap blok adalah mikrokosmos mandiri: memiliki state bawaan, validasi properti, serta kemampuan render instan baik di sisi server maupun klien.',
+                            'content' => 'Rakitan was born from the realization that modern website publishing shouldn\'t require dozens of heavy, vulnerable plugins that degrade server response times. With our puzzle-driven approach, each block is an independent microcosm: it manages its own default state, validates properties, and renders instantly across client and server.',
                         ],
                     ],
                     [
                         'id' => 'gallery-1',
                         'type' => 'gallery',
                         'props' => [
-                            'title' => 'Eksplorasi Kreasi Visual',
-                            'subtitle' => 'Koleksi layout dan media yang dapat dirakit sesuai identitas brand Anda',
+                            'title' => 'Explore Visual Showcases',
+                            'subtitle' => 'Curated layouts and media components assembled to match your brand identity',
                             'columns' => 3,
                             'gap' => 'md',
                             'images' => [
                                 [
                                     'url' => 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
-                                    'caption' => 'Penyusunan Konten Visual',
+                                    'caption' => 'Visual Page Builder',
                                     'alt' => 'Visual Editor',
                                 ],
                                 [
                                     'url' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-                                    'caption' => 'Dashboard Analitik Lengkap',
+                                    'caption' => 'Comprehensive Analytics',
                                     'alt' => 'Analytics',
                                 ],
                                 [
                                     'url' => 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-                                    'caption' => 'Kemudahan Integrasi Kode',
+                                    'caption' => 'Seamless Code Integration',
                                     'alt' => 'Code',
                                 ],
                             ],
@@ -150,11 +150,11 @@ class PageSeeder extends Seeder
                         'id' => 'cta-1',
                         'type' => 'cta',
                         'props' => [
-                            'title' => 'Siap Merakit Website Generasi Baru Anda?',
-                            'description' => 'Mulai eksplorasi visual builder Rakitan sekarang. Mudah dikustomisasi dan dirawat.',
-                            'primaryButtonText' => 'Buka Dashboard Admin',
+                            'title' => 'Ready to Assemble Your Next Website?',
+                            'description' => 'Explore the Rakitan visual builder today. Fully customizable, maintainable, and open source.',
+                            'primaryButtonText' => 'Open Admin Dashboard',
                             'primaryButtonUrl' => '/admin/dashboard',
-                            'secondaryButtonText' => 'Lihat Halaman About',
+                            'secondaryButtonText' => 'View About Page',
                             'secondaryButtonUrl' => '/about',
                             'variant' => 'gradient',
                         ],
@@ -163,13 +163,13 @@ class PageSeeder extends Seeder
             ]
         );
 
-        // Seed Halaman About
+        // Seed About Page
         Page::updateOrCreate(
             ['slug' => 'about'],
             [
-                'title' => 'Tentang Rakitan CMS',
-                'meta_title' => 'Tentang Rakitan - Filosofi & Misi Open Source',
-                'meta_description' => 'Mengenal lebih dekat ekosistem Rakitan CMS dan tim di baliknya.',
+                'title' => 'About Rakitan CMS',
+                'meta_title' => 'About Rakitan - Mission & Philosophy',
+                'meta_description' => 'Learn more about the Rakitan CMS open-source ecosystem.',
                 'status' => 'published',
                 'user_id' => $admin->id,
                 'blocks' => [
@@ -177,13 +177,13 @@ class PageSeeder extends Seeder
                         'id' => 'about-hero',
                         'type' => 'hero',
                         'props' => [
-                            'badgeText' => 'TENTANG KAMI',
-                            'title' => 'Membangun Web yang Bersih, Fleksibel, dan Cepat',
-                            'subtitle' => 'Rakitan didedikasikan untuk komunitas pengembang dan pemilik situs yang menginginkan sistem manajemen konten yang elegan tanpa beban teknis berlebih.',
-                            'primaryButtonText' => 'Kembali ke Beranda',
+                            'badgeText' => 'ABOUT US',
+                            'title' => 'Building a Clean, Flexible, and Fast Web',
+                            'subtitle' => 'Rakitan is dedicated to developers and site owners who desire an elegant content management system without unnecessary technical weight.',
+                            'primaryButtonText' => 'Back to Home',
                             'primaryButtonUrl' => '/',
-                            'secondaryButtonText' => 'Hubungi Kami',
-                            'secondaryButtonUrl' => '#',
+                            'secondaryButtonText' => 'GitHub Repository',
+                            'secondaryButtonUrl' => 'https://github.com',
                             'alignment' => 'center',
                             'bgStyle' => 'dark',
                             'imageUrl' => '',
@@ -193,20 +193,20 @@ class PageSeeder extends Seeder
                         'id' => 'about-text',
                         'type' => 'rich_text',
                         'props' => [
-                            'title' => 'Misi Kami',
+                            'title' => 'Our Core Mission',
                             'containerWidth' => 'narrow',
                             'alignment' => 'left',
                             'dropCap' => false,
-                            'content' => 'Di Rakitan, kami percaya bahwa pembuatan konten web modern seharusnya tidak rumit. Pendekatan modular memisahkan logika konten dari styling dasar, memungkinkan pembaruan desain secara global tanpa merusak struktur data.',
+                            'content' => 'At Rakitan, we believe building modern websites should be as intuitive as assembling puzzle pieces. Our modular paradigm separates pure content logic from base aesthetics, enabling global design updates without corrupting underlying data schemas.',
                         ],
                     ],
                     [
                         'id' => 'about-cta',
                         'type' => 'cta',
                         'props' => [
-                            'title' => 'Tertarik Berkontribusi pada Ekosistem Rakitan?',
-                            'description' => 'Kode sumber terbuka dan terbuka untuk partisipasi komunitas global.',
-                            'primaryButtonText' => 'Buka GitHub',
+                            'title' => 'Want to Contribute to Rakitan?',
+                            'description' => 'The codebase is completely open source and welcomes community participation across the globe.',
+                            'primaryButtonText' => 'View on GitHub',
                             'primaryButtonUrl' => 'https://github.com',
                             'secondaryButtonText' => '',
                             'secondaryButtonUrl' => '',
@@ -217,13 +217,13 @@ class PageSeeder extends Seeder
             ]
         );
 
-        // Seed Halaman Draf Contoh
+        // Seed Sample Draft Page
         Page::updateOrCreate(
-            ['slug' => 'draf-fitur-baru'],
+            ['slug' => 'upcoming-features-draft'],
             [
-                'title' => 'Draf Rilis Fitur Rakitan v2',
-                'meta_title' => 'Draf Fitur Baru - Hanya Internal',
-                'meta_description' => 'Catatan rilis internal fitur visual builder terbaru.',
+                'title' => 'Upcoming Rakitan v2 Roadmap',
+                'meta_title' => 'Upcoming Features Draft - Internal Only',
+                'meta_description' => 'Internal release notes for new visual builder components.',
                 'status' => 'draft',
                 'user_id' => $admin->id,
                 'blocks' => [
@@ -232,14 +232,14 @@ class PageSeeder extends Seeder
                         'type' => 'hero',
                         'props' => [
                             'badgeText' => 'INTERNAL PREVIEW',
-                            'title' => 'Inovasi Builder v2 yang Sedang Disiapkan',
-                            'subtitle' => 'Halaman ini masih dalam tahap draf dan tidak ditampilkan kepada publik.',
-                            'primaryButtonText' => 'Pratinjau',
+                            'title' => 'Innovations in Progress',
+                            'subtitle' => 'This page is in draft state and is not visible to public visitors.',
+                            'primaryButtonText' => 'Preview',
                             'primaryButtonUrl' => '#',
                             'secondaryButtonText' => '',
                             'secondaryButtonUrl' => '',
                             'alignment' => 'left',
-                            'bgStyle' => 'light',
+                            'bgStyle' => 'dark',
                             'imageUrl' => '',
                         ],
                     ],

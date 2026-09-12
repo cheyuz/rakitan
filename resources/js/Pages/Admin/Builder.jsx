@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     DndContext,
@@ -22,7 +22,6 @@ import {
     createBlockInstance,
 } from '@/Blocks/registry';
 import {
-    Puzzle,
     ArrowLeft,
     Save,
     Eye,
@@ -45,7 +44,9 @@ import {
     Undo2,
     Redo2,
     Search,
+    Puzzle,
 } from 'lucide-react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 /**
  * Sortable Canvas Item Wrapper
@@ -113,20 +114,20 @@ function SortableCanvasBlock({
                 }`}
             >
                 {/* Block Identifier Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-white border border-slate-700/80 shadow-lg backdrop-blur-md pointer-events-auto">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/95 text-white border border-slate-700/80 shadow-xl backdrop-blur-md pointer-events-auto">
                     <Icon className="w-3.5 h-3.5 text-indigo-400" />
                     <span>{def.label}</span>
                 </div>
 
                 {/* Floating Quick Action Buttons */}
-                <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-lg backdrop-blur-md pointer-events-auto">
+                <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-900/95 border border-slate-700/80 shadow-xl backdrop-blur-md pointer-events-auto">
                     {/* Drag Handle */}
                     <button
                         type="button"
                         {...attributes}
                         {...listeners}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-grab active:cursor-grabbing transition-colors"
-                        title="Tahan & Tarik untuk Mengubah Posisi"
+                        title="Drag to reorder"
                     >
                         <GripVertical className="w-4 h-4" />
                     </button>
@@ -140,7 +141,7 @@ function SortableCanvasBlock({
                             onMoveUp(block.id);
                         }}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                        title="Pindah ke Atas"
+                        title="Move Up"
                     >
                         <ChevronUp className="w-4 h-4" />
                     </button>
@@ -154,7 +155,7 @@ function SortableCanvasBlock({
                             onMoveDown(block.id);
                         }}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                        title="Pindah ke Bawah"
+                        title="Move Down"
                     >
                         <ChevronDown className="w-4 h-4" />
                     </button>
@@ -167,7 +168,7 @@ function SortableCanvasBlock({
                             onDuplicate(block.id);
                         }}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition-colors"
-                        title="Gandakan Blok"
+                        title="Duplicate Block"
                     >
                         <Copy className="w-4 h-4" />
                     </button>
@@ -180,7 +181,7 @@ function SortableCanvasBlock({
                             onDelete(block.id);
                         }}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
-                        title="Hapus Blok"
+                        title="Delete Block"
                     >
                         <Trash2 className="w-4 h-4" />
                     </button>
@@ -199,19 +200,19 @@ function SortableCanvasBlock({
  * Main Visual Page Builder
  */
 export default function Builder({ page }) {
-    // State Halaman
+    // Page State
     const [title, setTitle] = useState(page.title || '');
     const [slug, setSlug] = useState(page.slug || '');
     const [status, setStatus] = useState(page.status || 'draft');
     const [metaTitle, setMetaTitle] = useState(page.meta_title || '');
     const [metaDescription, setMetaDescription] = useState(page.meta_description || '');
 
-    // State Blok & Riwayat Undo/Redo
+    // Blocks & History State
     const [blocks, setBlocks] = useState(Array.isArray(page.blocks) ? page.blocks : []);
     const [history, setHistory] = useState([Array.isArray(page.blocks) ? page.blocks : []]);
     const [historyIndex, setHistoryIndex] = useState(0);
 
-    // State UI Builder
+    // Builder UI State
     const [selectedBlockId, setSelectedBlockId] = useState(
         blocks.length > 0 ? blocks[0].id : null
     );
@@ -219,12 +220,12 @@ export default function Builder({ page }) {
     const [activeTabRight, setActiveTabRight] = useState('block'); // 'block' | 'page'
     const [deviceMode, setDeviceMode] = useState('desktop'); // 'desktop' | 'tablet' | 'mobile'
     const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const [paletteFilter, setPaletteFilter] = useState('Semua');
+    const [paletteFilter, setPaletteFilter] = useState('All');
     const [paletteSearch, setPaletteSearch] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
 
-    // Konfigurasi Dnd-Kit Sensor
+    // Dnd-Kit Sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -236,7 +237,6 @@ export default function Builder({ page }) {
         })
     );
 
-    // Update Blocks dengan Riwayat Undo/Redo
     const updateBlocksWithHistory = (newBlocks) => {
         setBlocks(newBlocks);
         const newHistory = history.slice(0, historyIndex + 1);
@@ -259,7 +259,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Tambah Blok Baru dari Palet
     const handleAddBlock = (type) => {
         const newBlock = createBlockInstance(type);
         const newBlocks = [...blocks, newBlock];
@@ -268,7 +267,6 @@ export default function Builder({ page }) {
         setActiveTabRight('block');
     };
 
-    // Drag and drop sorting selesai
     const handleDragEnd = (event) => {
         const { active, over } = event;
         if (!over || active.id === over.id) return;
@@ -282,7 +280,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Pindah ke atas
     const handleMoveUp = (id) => {
         const index = blocks.findIndex((b) => b.id === id);
         if (index > 0) {
@@ -291,7 +288,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Pindah ke bawah
     const handleMoveDown = (id) => {
         const index = blocks.findIndex((b) => b.id === id);
         if (index < blocks.length - 1) {
@@ -300,7 +296,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Gandakan blok
     const handleDuplicate = (id) => {
         const index = blocks.findIndex((b) => b.id === id);
         if (index !== -1) {
@@ -317,7 +312,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Hapus blok
     const handleDelete = (id) => {
         const newBlocks = blocks.filter((b) => b.id !== id);
         updateBlocksWithHistory(newBlocks);
@@ -326,7 +320,6 @@ export default function Builder({ page }) {
         }
     };
 
-    // Update Properti Blok Aktif dari Inspector
     const handleUpdateBlockProps = (updatedProps) => {
         const newBlocks = blocks.map((b) => {
             if (b.id === selectedBlockId) {
@@ -343,7 +336,6 @@ export default function Builder({ page }) {
         setBlocks(newBlocks);
     };
 
-    // Simpan Perubahan ke Database
     const handleSave = () => {
         setIsSaving(true);
         setSaveSuccess(false);
@@ -372,22 +364,19 @@ export default function Builder({ page }) {
         );
     };
 
-    // Selected block definition & component
     const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
     const selectedDef = selectedBlock ? getBlockDefinition(selectedBlock.type) : null;
 
-    // Filter palet
     const allAvailableBlocks = getAllBlocks();
-    const categories = ['Semua', 'Header', 'Konten', 'Media', 'Konversi', 'Tata Letak'];
+    const categories = ['All', 'Header', 'Content', 'Media', 'Conversion', 'Layout'];
     const filteredPalette = allAvailableBlocks.filter((b) => {
-        const matchCategory = paletteFilter === 'Semua' || b.category === paletteFilter;
+        const matchCategory = paletteFilter === 'All' || b.category === paletteFilter;
         const matchSearch =
             b.label.toLowerCase().includes(paletteSearch.toLowerCase()) ||
             b.description.toLowerCase().includes(paletteSearch.toLowerCase());
         return matchCategory && matchSearch;
     });
 
-    // Device preview width
     const deviceWidthClass = {
         desktop: 'w-full',
         tablet: 'max-w-[768px] mx-auto shadow-2xl rounded-2xl overflow-hidden border border-slate-800',
@@ -396,7 +385,7 @@ export default function Builder({ page }) {
 
     return (
         <div className="h-screen flex flex-col bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden selection:bg-indigo-500 selection:text-white">
-            <Head title={`Rakit: ${title} - Rakitan Visual Builder`} />
+            <Head title={`Builder: ${title} - Rakitan Visual CMS`} />
 
             {/* Topbar Builder Navigation */}
             <header className="h-16 px-4 sm:px-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between z-40 flex-shrink-0">
@@ -405,17 +394,15 @@ export default function Builder({ page }) {
                     <Link
                         href="/admin/pages"
                         className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                        title="Kembali ke Daftar Halaman"
+                        title="Back to Pages"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
 
                     <div className="h-6 w-px bg-slate-800" />
 
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
-                            <Puzzle className="w-4 h-4" />
-                        </div>
+                    <div className="flex items-center gap-2.5">
+                        <ApplicationLogo className="w-8 h-8 rounded-xl shadow-md shadow-indigo-600/20" />
                         <div>
                             <input
                                 type="text"
@@ -436,7 +423,7 @@ export default function Builder({ page }) {
                                             : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
                                     }`}
                                 >
-                                    {status === 'published' ? 'Terbit' : 'Draf'}
+                                    {status === 'published' ? 'Published' : 'Draft'}
                                 </button>
                             </div>
                         </div>
@@ -450,7 +437,7 @@ export default function Builder({ page }) {
                         {[
                             { id: 'desktop', icon: Monitor, label: 'Desktop' },
                             { id: 'tablet', icon: Tablet, label: 'Tablet (768px)' },
-                            { id: 'mobile', icon: Smartphone, label: 'Ponsel (375px)' },
+                            { id: 'mobile', icon: Smartphone, label: 'Mobile (375px)' },
                         ].map((dev) => {
                             const Icon = dev.icon;
                             return (
@@ -482,7 +469,7 @@ export default function Builder({ page }) {
                         }`}
                     >
                         {isPreviewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        <span>{isPreviewMode ? 'Keluar Preview' : 'Mode Preview'}</span>
+                        <span>{isPreviewMode ? 'Exit Preview' : 'Preview Mode'}</span>
                     </button>
 
                     {/* Undo / Redo */}
@@ -492,7 +479,7 @@ export default function Builder({ page }) {
                             disabled={historyIndex <= 0}
                             onClick={handleUndo}
                             className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
-                            title="Undo (Kembalikan)"
+                            title="Undo"
                         >
                             <Undo2 className="w-4 h-4" />
                         </button>
@@ -501,7 +488,7 @@ export default function Builder({ page }) {
                             disabled={historyIndex >= history.length - 1}
                             onClick={handleRedo}
                             className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
-                            title="Redo (Ulangi)"
+                            title="Redo"
                         >
                             <Redo2 className="w-4 h-4" />
                         </button>
@@ -516,7 +503,7 @@ export default function Builder({ page }) {
                         className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800 transition-colors"
                     >
                         <ExternalLink className="w-4 h-4" />
-                        <span>Lihat Publik</span>
+                        <span>View Public</span>
                     </Link>
 
                     <button
@@ -532,12 +519,12 @@ export default function Builder({ page }) {
                         {saveSuccess ? (
                             <>
                                 <CheckCircle2 className="w-4 h-4 text-white animate-bounce" />
-                                <span>Tersimpan!</span>
+                                <span>Saved!</span>
                             </>
                         ) : (
                             <>
                                 <Save className="w-4 h-4" />
-                                <span>{isSaving ? 'Menyimpan...' : 'Simpan Halaman'}</span>
+                                <span>{isSaving ? 'Saving...' : 'Save Page'}</span>
                             </>
                         )}
                     </button>
@@ -548,7 +535,7 @@ export default function Builder({ page }) {
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Panel: Block Palette & Outline Tree */}
                 {!isPreviewMode && (
-                    <aside className="w-80 border-r border-slate-800 bg-slate-900/70 backdrop-blur-md flex flex-col flex-shrink-0 z-30">
+                    <aside className="w-80 border-r border-slate-800 bg-slate-900/80 backdrop-blur-md flex flex-col flex-shrink-0 z-30">
                         {/* Tab Switcher Left */}
                         <div className="flex border-b border-slate-800 p-2 gap-1 bg-slate-900">
                             <button
@@ -561,7 +548,7 @@ export default function Builder({ page }) {
                                 }`}
                             >
                                 <Puzzle className="w-3.5 h-3.5" />
-                                <span>Palet Puzzle</span>
+                                <span>Puzzle Palette</span>
                             </button>
                             <button
                                 type="button"
@@ -573,7 +560,7 @@ export default function Builder({ page }) {
                                 }`}
                             >
                                 <Layers className="w-3.5 h-3.5" />
-                                <span>Struktur ({blocks.length})</span>
+                                <span>Structure ({blocks.length})</span>
                             </button>
                         </div>
 
@@ -587,7 +574,7 @@ export default function Builder({ page }) {
                                         type="text"
                                         value={paletteSearch}
                                         onChange={(e) => setPaletteSearch(e.target.value)}
-                                        placeholder="Cari potongan blok..."
+                                        placeholder="Search puzzle pieces..."
                                         className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     />
                                 </div>
@@ -630,7 +617,7 @@ export default function Builder({ page }) {
                                                                 {item.label}
                                                             </h4>
                                                             <span className="text-[10px] text-indigo-400/80 uppercase font-semibold">
-                                                                + Tambah
+                                                                + Add
                                                             </span>
                                                         </div>
                                                         <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
@@ -647,7 +634,7 @@ export default function Builder({ page }) {
                             /* Outline Tree View */
                             <div className="flex-1 overflow-y-auto p-4 space-y-2">
                                 <p className="text-[11px] text-slate-400 mb-3">
-                                    Urutan blok pada halaman ini. Klik item untuk membuka pengaturannya.
+                                    Current page structure. Click any item to configure its properties.
                                 </p>
                                 {blocks.map((b, idx) => {
                                     const def = getBlockDefinition(b.type);
@@ -662,7 +649,7 @@ export default function Builder({ page }) {
                                             }}
                                             className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                                                 isSelected
-                                                    ? 'bg-indigo-600/15 border-indigo-500 text-white'
+                                                    ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm'
                                                     : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
                                             }`}
                                         >
@@ -684,7 +671,7 @@ export default function Builder({ page }) {
                                                         handleDuplicate(b.id);
                                                     }}
                                                     className="p-1 rounded text-slate-400 hover:text-white"
-                                                    title="Gandakan"
+                                                    title="Duplicate"
                                                 >
                                                     <Copy className="w-3.5 h-3.5" />
                                                 </button>
@@ -695,7 +682,7 @@ export default function Builder({ page }) {
                                                         handleDelete(b.id);
                                                     }}
                                                     className="p-1 rounded text-slate-400 hover:text-red-400"
-                                                    title="Hapus"
+                                                    title="Delete"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
@@ -709,22 +696,14 @@ export default function Builder({ page }) {
                 )}
 
                 {/* Center Canvas */}
-                <main
-                    className="flex-1 overflow-y-auto bg-slate-950/60 p-4 sm:p-8 flex flex-col items-center"
-                    onClick={() => {
-                        // Deselect block when clicking background
-                        // setSelectedBlockId(null);
-                    }}
-                >
+                <main className="flex-1 overflow-y-auto bg-slate-950/60 p-4 sm:p-8 flex flex-col items-center">
                     <div className={`transition-all duration-300 ${deviceWidthClass} min-h-[600px] flex flex-col`}>
                         {blocks.length === 0 ? (
                             <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto">
-                                <div className="w-16 h-16 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4">
-                                    <Puzzle className="w-8 h-8" />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Canvas Masih Kosong</h3>
+                                <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
+                                <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
                                 <p className="text-xs text-slate-400 max-w-sm mb-6">
-                                    Mulai merakit website Anda dengan memilih blok puzzle dari panel sebelah kiri.
+                                    Start building your webpage by dragging or clicking puzzle pieces from the left palette.
                                 </p>
                                 <button
                                     type="button"
@@ -732,7 +711,7 @@ export default function Builder({ page }) {
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
                                 >
                                     <Plus className="w-4 h-4" />
-                                    <span>Tambahkan Hero Section Awal</span>
+                                    <span>Add Initial Hero Section</span>
                                 </button>
                             </div>
                         ) : (
@@ -770,7 +749,7 @@ export default function Builder({ page }) {
 
                 {/* Right Panel: Inspector & Settings */}
                 {!isPreviewMode && (
-                    <aside className="w-80 border-l border-slate-800 bg-slate-900/70 backdrop-blur-md flex flex-col flex-shrink-0 z-30">
+                    <aside className="w-80 border-l border-slate-800 bg-slate-900/90 backdrop-blur-md flex flex-col flex-shrink-0 z-30">
                         {/* Tab Switcher Right */}
                         <div className="flex border-b border-slate-800 p-2 gap-1 bg-slate-900">
                             <button
@@ -783,7 +762,7 @@ export default function Builder({ page }) {
                                 }`}
                             >
                                 <Sliders className="w-3.5 h-3.5" />
-                                <span>Pengaturan Blok</span>
+                                <span>Block Settings</span>
                             </button>
                             <button
                                 type="button"
@@ -795,25 +774,25 @@ export default function Builder({ page }) {
                                 }`}
                             >
                                 <Settings className="w-3.5 h-3.5" />
-                                <span>Halaman & SEO</span>
+                                <span>Page & SEO</span>
                             </button>
                         </div>
 
                         {/* Content Tab Right */}
-                        <div className="flex-1 overflow-y-auto p-5">
+                        <div className="flex-1 overflow-y-auto p-5 text-slate-100">
                             {activeTabRight === 'block' ? (
                                 selectedBlock && selectedDef ? (
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
                                                     <selectedDef.icon className="w-4 h-4" />
                                                 </div>
                                                 <div>
                                                     <h3 className="text-xs font-bold text-white">
                                                         {selectedDef.label}
                                                     </h3>
-                                                    <p className="text-[10px] font-mono text-slate-500">
+                                                    <p className="text-[10px] font-mono text-slate-400">
                                                         ID: {selectedBlock.id.substring(0, 16)}...
                                                     </p>
                                                 </div>
@@ -822,24 +801,24 @@ export default function Builder({ page }) {
                                                 type="button"
                                                 onClick={() => handleDelete(selectedBlock.id)}
                                                 className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-                                                title="Hapus Blok Ini"
+                                                title="Delete This Block"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
 
-                                        {/* Render Specific Block Settings Form */}
+                                        {/* Render Block Inspector Form */}
                                         <selectedDef.SettingsComponent
                                             props={selectedBlock.props || {}}
                                             updateProps={handleUpdateBlockProps}
                                         />
                                     </div>
                                 ) : (
-                                    <div className="py-16 text-center text-slate-500">
-                                        <Sliders className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                        <p className="text-xs font-medium">Pilih blok pada canvas</p>
-                                        <p className="text-[11px] text-slate-500 mt-1">
-                                            Klik salah satu blok untuk mengedit teks, tata letak, dan gaya visualnya.
+                                    <div className="py-16 text-center text-slate-400">
+                                        <Sliders className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-500" />
+                                        <p className="text-xs font-semibold text-slate-300">Select a block on the canvas</p>
+                                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                            Click any block to adjust its text, layout, colors, and visual styling.
                                         </p>
                                     </div>
                                 )
@@ -847,73 +826,73 @@ export default function Builder({ page }) {
                                 /* Page & SEO Settings */
                                 <div className="space-y-4 text-xs">
                                     <div>
-                                        <label className="block font-medium text-slate-300 mb-1">
-                                            Judul Halaman
+                                        <label className="block font-semibold text-slate-300 mb-1.5">
+                                            Page Title <span className="text-red-400">*</span>
                                         </label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-medium text-slate-300 mb-1">
+                                        <label className="block font-semibold text-slate-300 mb-1.5">
                                             URL Slug
                                         </label>
                                         <input
                                             type="text"
                                             value={slug}
                                             onChange={(e) => setSlug(e.target.value)}
-                                            className="w-full px-3 py-2 font-mono rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            className="w-full px-3 py-2 font-mono rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                                         />
-                                        <p className="mt-1 text-[11px] text-slate-500">
-                                            URL publik: /{slug === 'home' ? '' : slug}
+                                        <p className="mt-1.5 text-[11px] text-slate-400">
+                                            Public URL: /{slug === 'home' ? '' : slug}
                                         </p>
                                     </div>
 
                                     <div>
-                                        <label className="block font-medium text-slate-300 mb-1">
-                                            Status Publikasi
+                                        <label className="block font-semibold text-slate-300 mb-1.5">
+                                            Publication Status
                                         </label>
                                         <select
                                             value={status}
                                             onChange={(e) => setStatus(e.target.value)}
-                                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                                         >
-                                            <option value="draft">Draf (Hanya Admin)</option>
-                                            <option value="published">Terbit (Dapat Diakses Publik)</option>
+                                            <option value="draft">Draft (Private to Admin)</option>
+                                            <option value="published">Published (Publicly Accessible)</option>
                                         </select>
                                     </div>
 
                                     <div className="pt-4 border-t border-slate-800">
-                                        <h4 className="font-bold text-white mb-3">Pengaturan SEO</h4>
+                                        <h4 className="font-bold text-white mb-3">SEO & Metadata</h4>
 
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="block font-medium text-slate-300 mb-1">
+                                                <label className="block font-semibold text-slate-300 mb-1.5">
                                                     Meta Title
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={metaTitle}
                                                     onChange={(e) => setMetaTitle(e.target.value)}
-                                                    placeholder="Judul di hasil pencarian Google..."
-                                                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                    placeholder="Search engine title tag..."
+                                                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                                                 />
                                             </div>
 
                                             <div>
-                                                <label className="block font-medium text-slate-300 mb-1">
+                                                <label className="block font-semibold text-slate-300 mb-1.5">
                                                     Meta Description
                                                 </label>
                                                 <textarea
                                                     rows={4}
                                                     value={metaDescription}
                                                     onChange={(e) => setMetaDescription(e.target.value)}
-                                                    placeholder="Ringkasan isi halaman untuk mesin pencari..."
-                                                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                    placeholder="Search engine summary description..."
+                                                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none leading-relaxed"
                                                 />
                                             </div>
                                         </div>

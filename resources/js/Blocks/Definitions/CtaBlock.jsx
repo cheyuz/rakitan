@@ -3,25 +3,25 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const CtaComponent = ({ props = {} }) => {
     const {
-        title = 'Siap Merakit Website Generasi Berikutnya?',
-        description = 'Bergabunglah sekarang, kelola halaman Anda dengan efisiensi tak tertandingi menggunakan blok modular.',
-        primaryButtonText = 'Mulai Sekarang',
+        title = 'Ready to Assemble the Next-Gen Web?',
+        description = 'Join thousands of creators and build clean, lightning-fast pages with modular puzzle blocks.',
+        primaryButtonText = 'Get Started Now',
         primaryButtonUrl = '#',
-        secondaryButtonText = 'Dokumentasi',
+        secondaryButtonText = 'View Documentation',
         secondaryButtonUrl = '#',
         variant = 'gradient',
     } = props;
 
     if (variant === 'boxed') {
         return (
-            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 transition-colors duration-200">
-                <div className="max-w-5xl mx-auto rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 shadow-xl relative overflow-hidden">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-950 transition-colors duration-200">
+                <div className="max-w-5xl mx-auto rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-800 bg-slate-900/70 shadow-2xl relative overflow-hidden">
                     <div className="relative z-10 max-w-3xl text-center mx-auto">
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
                             {title}
                         </h2>
                         {description && (
-                            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8">
+                            <p className="text-base sm:text-lg text-slate-300 mb-8">
                                 {description}
                             </p>
                         )}
@@ -29,7 +29,7 @@ export const CtaComponent = ({ props = {} }) => {
                             {primaryButtonText && (
                                 <a
                                     href={primaryButtonUrl || '#'}
-                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/25 transition-all"
+                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/25 transition-all active:scale-95"
                                 >
                                     <span>{primaryButtonText}</span>
                                     <ArrowRight className="w-4 h-4" />
@@ -38,7 +38,7 @@ export const CtaComponent = ({ props = {} }) => {
                             {secondaryButtonText && (
                                 <a
                                     href={secondaryButtonUrl || '#'}
-                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm border border-slate-700 text-slate-200 hover:bg-slate-800 transition-all active:scale-95"
                                 >
                                     <span>{secondaryButtonText}</span>
                                 </a>
@@ -52,13 +52,13 @@ export const CtaComponent = ({ props = {} }) => {
 
     if (variant === 'minimal') {
         return (
-            <section className="py-20 px-4 sm:px-6 lg:px-8 border-y border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center transition-colors">
+            <section className="py-20 px-4 sm:px-6 lg:px-8 border-y border-slate-800 bg-slate-950 text-center transition-colors">
                 <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
                         {title}
                     </h2>
                     {description && (
-                        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-8">
+                        <p className="text-base sm:text-lg text-slate-400 mb-8">
                             {description}
                         </p>
                     )}
@@ -66,7 +66,7 @@ export const CtaComponent = ({ props = {} }) => {
                         {primaryButtonText && (
                             <a
                                 href={primaryButtonUrl || '#'}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-white hover:bg-slate-100 transition-all active:scale-95"
                             >
                                 <span>{primaryButtonText}</span>
                                 <ArrowRight className="w-4 h-4" />
@@ -75,7 +75,7 @@ export const CtaComponent = ({ props = {} }) => {
                         {secondaryButtonText && (
                             <a
                                 href={secondaryButtonUrl || '#'}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline underline-offset-4"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:text-white underline underline-offset-4"
                             >
                                 <span>{secondaryButtonText}</span>
                             </a>
@@ -94,7 +94,7 @@ export const CtaComponent = ({ props = {} }) => {
             <div className="relative z-10 max-w-4xl mx-auto text-center">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 mb-6">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Langkah Selanjutnya</span>
+                    <span>Next Steps</span>
                 </div>
                 <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
                     {title}
@@ -132,65 +132,67 @@ export const CtaSettings = ({ props, updateProps }) => {
     return (
         <div className="space-y-4 text-xs">
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Judul Ajakan (Headline)</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Action Headline</label>
                 <textarea
                     rows={2}
                     value={props.title || ''}
                     onChange={(e) => updateProps({ title: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="Enter call to action headline..."
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none leading-relaxed"
                 />
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Deskripsi Pendukung</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Supporting Description</label>
                 <textarea
                     rows={3}
                     value={props.description || ''}
                     onChange={(e) => updateProps({ description: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="Explain why visitors should take this action..."
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none leading-relaxed"
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tombol Utama</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Primary Button</label>
                     <input
                         type="text"
                         value={props.primaryButtonText || ''}
                         onChange={(e) => updateProps({ primaryButtonText: e.target.value })}
-                        placeholder="Teks"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-1.5"
+                        placeholder="Button Text"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-1.5"
                     />
                     <input
                         type="text"
                         value={props.primaryButtonUrl || ''}
                         onChange={(e) => updateProps({ primaryButtonUrl: e.target.value })}
-                        placeholder="URL"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder="Target URL"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tombol Sekunder</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Secondary Button</label>
                     <input
                         type="text"
                         value={props.secondaryButtonText || ''}
                         onChange={(e) => updateProps({ secondaryButtonText: e.target.value })}
-                        placeholder="Teks"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-1.5"
+                        placeholder="Button Text"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-1.5"
                     />
                     <input
                         type="text"
                         value={props.secondaryButtonUrl || ''}
                         onChange={(e) => updateProps({ secondaryButtonUrl: e.target.value })}
-                        placeholder="URL"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder="Target URL"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     />
                 </div>
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Pilihan Varian Desain</label>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <label className="block font-semibold text-slate-300 mb-1.5">Design Variant</label>
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
                     {[
                         { id: 'gradient', label: 'Gradient' },
                         { id: 'boxed', label: 'Boxed Card' },
@@ -200,10 +202,10 @@ export const CtaSettings = ({ props, updateProps }) => {
                             key={v.id}
                             type="button"
                             onClick={() => updateProps({ variant: v.id })}
-                            className={`py-1.5 rounded text-xs font-semibold transition-all ${
+                            className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 (props.variant || 'gradient') === v.id
                                     ? 'bg-indigo-600 text-white shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
                             }`}
                         >
                             {v.label}

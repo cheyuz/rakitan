@@ -15,25 +15,25 @@ import {
 export default function Dashboard({ stats, recentPages = [] }) {
     const statCards = [
         {
-            label: 'Total Halaman',
+            label: 'Total Pages',
             value: stats.totalPages,
             icon: FileText,
             color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
         },
         {
-            label: 'Halaman Terbit',
+            label: 'Published Pages',
             value: stats.publishedPages,
             icon: CheckCircle2,
             color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
         },
         {
-            label: 'Draf Halaman',
+            label: 'Draft Pages',
             value: stats.draftPages,
             icon: Clock,
             color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
         },
         {
-            label: 'Blok Puzzle Terpasang',
+            label: 'Installed Puzzle Blocks',
             value: stats.totalBlocks,
             icon: Layers,
             color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
@@ -41,7 +41,7 @@ export default function Dashboard({ stats, recentPages = [] }) {
     ];
 
     return (
-        <AdminLayout title="Ringkasan CMS">
+        <AdminLayout title="CMS Overview">
             <Head title="Admin Dashboard - Rakitan" />
 
             <div className="space-y-8 max-w-7xl mx-auto">
@@ -50,20 +50,20 @@ export default function Dashboard({ stats, recentPages = [] }) {
                     <div className="relative z-10 max-w-2xl">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-4">
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Visual Modular Builder</span>
+                            <span>Component-Driven Visual Builder</span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
-                            Selamat Datang di Rakitan CMS
+                            Welcome to Rakitan CMS
                         </h2>
                         <p className="text-sm text-slate-300 leading-relaxed mb-6">
-                            Kendalikan dan susun tata letak halaman website Anda dengan sistem blok puzzle modular yang fleksibel, cepat, dan modern.
+                            Construct and manage your website layouts with flexible, modular puzzle blocks designed for superior speed and visual elegance.
                         </p>
                         <div className="flex items-center gap-3">
                             <Link
                                 href="/admin/pages"
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/25 transition-all"
                             >
-                                <span>Kelola Semua Halaman</span>
+                                <span>Manage All Pages</span>
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                             <Link
@@ -72,7 +72,7 @@ export default function Dashboard({ stats, recentPages = [] }) {
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-slate-700 bg-slate-800/40 hover:bg-slate-800 transition-all"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" />
-                                <span>Kunjungi Situs Publik</span>
+                                <span>Visit Public Site</span>
                             </Link>
                         </div>
                     </div>
@@ -88,7 +88,7 @@ export default function Dashboard({ stats, recentPages = [] }) {
                                 className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm flex items-center justify-between shadow-sm hover:border-slate-700 transition-all"
                             >
                                 <div>
-                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
                                         {card.label}
                                     </p>
                                     <h3 className="text-3xl font-black text-white">
@@ -107,14 +107,14 @@ export default function Dashboard({ stats, recentPages = [] }) {
                 <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 overflow-hidden shadow-sm">
                     <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-bold text-white">Halaman Baru Diedit</h3>
-                            <p className="text-xs text-slate-400">Aktivitas pembaharuan halaman CMS terakhir</p>
+                            <h3 className="text-sm font-bold text-white">Recently Updated Pages</h3>
+                            <p className="text-xs text-slate-400">Latest content edits across your website</p>
                         </div>
                         <Link
                             href="/admin/pages"
                             className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
                         >
-                            Lihat Semua →
+                            View All →
                         </Link>
                     </div>
 
@@ -122,19 +122,19 @@ export default function Dashboard({ stats, recentPages = [] }) {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-800/80 bg-slate-950/40 text-[11px] uppercase tracking-wider font-semibold text-slate-400">
-                                    <th className="py-3 px-5">Judul Halaman</th>
+                                    <th className="py-3 px-5">Page Title</th>
                                     <th className="py-3 px-5">Slug</th>
                                     <th className="py-3 px-5">Status</th>
-                                    <th className="py-3 px-5">Jumlah Blok</th>
-                                    <th className="py-3 px-5">Terakhir Diubah</th>
-                                    <th className="py-3 px-5 text-right">Aksi</th>
+                                    <th className="py-3 px-5">Blocks</th>
+                                    <th className="py-3 px-5">Last Modified</th>
+                                    <th className="py-3 px-5 text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/60 text-xs">
                                 {recentPages.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="py-8 text-center text-slate-500">
-                                            Belum ada halaman yang dibuat.
+                                            No pages created yet.
                                         </td>
                                     </tr>
                                 ) : (
@@ -152,13 +152,13 @@ export default function Dashboard({ stats, recentPages = [] }) {
                                                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                                         : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                                                 }`}>
-                                                    {page.status === 'published' ? 'Terbit' : 'Draf'}
+                                                    {page.status === 'published' ? 'Published' : 'Draft'}
                                                 </span>
                                             </td>
                                             <td className="py-3.5 px-5 text-slate-300">
                                                 <span className="inline-flex items-center gap-1 font-semibold">
                                                     <Layers className="w-3.5 h-3.5 text-indigo-400" />
-                                                    {page.blocks_count} blok
+                                                    {page.blocks_count} blocks
                                                 </span>
                                             </td>
                                             <td className="py-3.5 px-5 text-slate-400">
@@ -168,17 +168,17 @@ export default function Dashboard({ stats, recentPages = [] }) {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         href={`/admin/pages/${page.id}/builder`}
-                                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white font-medium text-[11px] transition-all"
-                                                        title="Buka Visual Drag & Drop Builder"
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white font-semibold text-[11px] transition-all"
+                                                        title="Open Visual Builder"
                                                     >
                                                         <Edit3 className="w-3.5 h-3.5" />
-                                                        <span>Rakit</span>
+                                                        <span>Build</span>
                                                     </Link>
                                                     <Link
                                                         href={page.slug === 'home' ? '/' : `/${page.slug}`}
                                                         target="_blank"
                                                         className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                                                        title="Lihat Pratinjau Publik"
+                                                        title="View Public Preview"
                                                     >
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                     </Link>

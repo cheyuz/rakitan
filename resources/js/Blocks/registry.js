@@ -20,14 +20,14 @@ export const BLOCK_REGISTRY = {
         label: 'Hero Section',
         category: 'Header',
         icon: Sparkles,
-        description: 'Seksi pembuka dengan judul besar, subjudul, tombol CTA, dan latar belakang estetis.',
+        description: 'Engaging opening banner with large headline, subtitle, dual action buttons, and customizable background.',
         defaultProps: {
-            badgeText: '✨ CMS Visual Modular',
-            title: 'Judul Hero Baru yang Memukau',
-            subtitle: 'Tambahkan penjelasan yang meyakinkan pengunjung mengenai penawaran atau konten Anda.',
-            primaryButtonText: 'Mulai Sekarang',
+            badgeText: '✨ Next-Gen Modular CMS',
+            title: 'Craft Your Dream Website Like Building a Puzzle',
+            subtitle: 'Rakitan CMS empowers developers and creators with independent modular blocks, lightning performance, and complete visual freedom.',
+            primaryButtonText: 'Get Started Now',
             primaryButtonUrl: '#',
-            secondaryButtonText: 'Pelajari Lebih Lanjut',
+            secondaryButtonText: 'Explore Docs',
             secondaryButtonUrl: '#',
             alignment: 'center',
             bgStyle: 'gradient',
@@ -39,33 +39,33 @@ export const BLOCK_REGISTRY = {
     },
     features: {
         type: 'features',
-        label: 'Grid Fitur',
-        category: 'Konten',
+        label: 'Feature Grid',
+        category: 'Content',
         icon: Grid3X3,
-        description: 'Daftar keunggulan dalam format kolom grid responsif dengan ikon dan lencana.',
+        description: 'Responsive multi-column showcase grid with dynamic Lucide icons, badges, and titles.',
         defaultProps: {
-            badge: 'KEUNGGULAN',
-            title: 'Fitur Unggulan Kami',
-            subtitle: 'Berbagai kemampuan canggih yang dirancang untuk mendukung produktivitas Anda.',
+            badge: 'CORE CAPABILITIES',
+            title: 'Everything You Need for Modern Web Experiences',
+            subtitle: 'Built from the ground up for maximum flexibility, instant responsiveness, and zero plugin bloat.',
             columns: 3,
             items: [
                 {
                     icon: 'Layers',
-                    title: 'Modular & Fleksibel',
-                    description: 'Setiap blok tersusun rapi dan dapat disesuaikan tanpa batas.',
-                    badge: 'Komponen',
+                    title: 'Puzzle-Driven Architecture',
+                    description: 'Each block is an independent component with defined props, default state, and clean JSON payloads.',
+                    badge: 'Core',
                 },
                 {
                     icon: 'Zap',
-                    title: 'Performa Cepat',
-                    description: 'Pemuatan instan berkat integrasi Laravel 11 dan Inertia React.',
-                    badge: 'Kilat',
+                    title: 'Blazing Fast Performance',
+                    description: 'Powered by Laravel 11 and Inertia.js React for instantaneous client-side navigation without API overhead.',
+                    badge: 'Fast',
                 },
                 {
                     icon: 'ShieldCheck',
-                    title: 'Aman & Terpercaya',
-                    description: 'Perlindungan XSS otomatis dan pengelolaan data terstruktur.',
-                    badge: 'Aman',
+                    title: 'Enterprise-Grade Security',
+                    description: 'Built-in DOMPurify sanitization, automatic CSRF verification, and secure server-side session controls.',
+                    badge: 'Secure',
                 },
             ],
         },
@@ -74,29 +74,29 @@ export const BLOCK_REGISTRY = {
     },
     rich_text: {
         type: 'rich_text',
-        label: 'Teks Kaya / Artikel',
-        category: 'Konten',
+        label: 'Rich Text / Article',
+        category: 'Content',
         icon: FileText,
-        description: 'Area paragraf tulisan, artikel blog, dan kutipan dengan sanitasi konten aman.',
+        description: 'Clean typography for storytelling, long-form articles, and documentation with XSS sanitization.',
         defaultProps: {
-            title: 'Tentang Gagasan Kami',
+            title: 'About Our Architecture',
             containerWidth: 'normal',
             alignment: 'left',
             dropCap: true,
-            content: '<p>Tuliskan cerita inspiratif atau informasi lengkap Anda di sini. Komponen ini mendukung tipografi modern dengan format HTML aman.</p>',
+            content: '<p>Rakitan was born from the vision to deliver a CMS that does not bloat servers with conflicting plugins, while still giving creators the freedom to assemble stunning web pages.</p>',
         },
         Component: RichTextComponent,
         SettingsComponent: RichTextSettings,
     },
     gallery: {
         type: 'gallery',
-        label: 'Galeri Gambar',
+        label: 'Media Gallery',
         category: 'Media',
         icon: Image,
-        description: 'Showcase visual dalam grid interaktif dengan efek perbesaran saat disentuh.',
+        description: 'Interactive visual grid with hover captions and smooth image scale transitions.',
         defaultProps: {
-            title: 'Koleksi Visual',
-            subtitle: 'Eksplorasi dokumentasi dan karya terbaik kami',
+            title: 'Visual Showcase',
+            subtitle: 'Explore our latest documentation and creative assets',
             columns: 3,
             gap: 'md',
             images: [
@@ -107,12 +107,12 @@ export const BLOCK_REGISTRY = {
                 },
                 {
                     url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-                    caption: 'Dashboard Metrik',
+                    caption: 'Analytics Dashboard',
                     alt: 'Dashboard',
                 },
                 {
                     url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-                    caption: 'Kustomisasi Komponen',
+                    caption: 'Developer Experience',
                     alt: 'Code',
                 },
             ],
@@ -123,15 +123,15 @@ export const BLOCK_REGISTRY = {
     cta: {
         type: 'cta',
         label: 'Call to Action (CTA)',
-        category: 'Konversi',
+        category: 'Conversion',
         icon: Megaphone,
-        description: 'Bagian penutup persuasif untuk mengonversi pengunjung menjadi pengguna atau pelanggan.',
+        description: 'High-conversion closing banner with modern gradients and dual action triggers.',
         defaultProps: {
-            title: 'Siap Mengambil Langkah Berikutnya?',
-            description: 'Hubungi tim kami atau mulai gunakan platform hari ini secara gratis.',
-            primaryButtonText: 'Hubungi Kami',
+            title: 'Ready to Assemble the Next-Gen Web?',
+            description: 'Join thousands of creators and build clean, lightning-fast pages with modular puzzle blocks.',
+            primaryButtonText: 'Get Started Now',
             primaryButtonUrl: '#',
-            secondaryButtonText: 'Jadwalkan Demo',
+            secondaryButtonText: 'View Documentation',
             secondaryButtonUrl: '#',
             variant: 'gradient',
         },
@@ -141,9 +141,9 @@ export const BLOCK_REGISTRY = {
     spacer: {
         type: 'spacer',
         label: 'Spacer & Divider',
-        category: 'Tata Letak',
+        category: 'Layout',
         icon: SeparatorHorizontal,
-        description: 'Pemberi jarak vertikal antar-seksi atau garis batas pemisah dekoratif.',
+        description: 'Vertical whitespace spacer and elegant customizable divider line.',
         defaultProps: {
             height: 'md',
             showDivider: true,
@@ -156,26 +156,26 @@ export const BLOCK_REGISTRY = {
 };
 
 /**
- * Ambil definisi blok berdasarkan type string
+ * Get block definition by type identifier
  */
 export function getBlockDefinition(type) {
     return BLOCK_REGISTRY[type] || null;
 }
 
 /**
- * Ambil seluruh daftar blok yang terdaftar
+ * Get all registered block definitions
  */
 export function getAllBlocks() {
     return Object.values(BLOCK_REGISTRY);
 }
 
 /**
- * Buat instance blok baru dengan ID unik dan default props
+ * Create a new block instance with unique ID and default props
  */
 export function createBlockInstance(type) {
     const def = getBlockDefinition(type);
     if (!def) {
-        throw new Error(`Block type "${type}" tidak terdaftar dalam BLOCK_REGISTRY.`);
+        throw new Error(`Block type "${type}" is not registered in BLOCK_REGISTRY.`);
     }
 
     const uniqueId = `block-${type}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;

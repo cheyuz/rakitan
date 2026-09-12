@@ -3,12 +3,12 @@ import { AlignLeft, AlignCenter, AlignRight, Sparkles, ArrowRight } from 'lucide
 
 export const HeroComponent = ({ props = {} }) => {
     const {
-        badgeText = 'CMS Visual Modular Masa Depan',
-        title = 'Rancang Web Impian Seperti Menyusun Puzzle',
-        subtitle = 'Rakitan CMS memberikan kebebasan berkarya tanpa batas dengan arsitektur blok modular independen.',
-        primaryButtonText = 'Mulai Sekarang',
+        badgeText = '✨ Next-Gen Modular CMS',
+        title = 'Craft Your Dream Website Like Building a Puzzle',
+        subtitle = 'Rakitan CMS empowers developers and creators with independent modular blocks, lightning performance, and complete visual freedom.',
+        primaryButtonText = 'Get Started Now',
         primaryButtonUrl = '#',
-        secondaryButtonText = 'Pelajari Selengkapnya',
+        secondaryButtonText = 'Explore Docs',
         secondaryButtonUrl = '#',
         alignment = 'center',
         bgStyle = 'gradient',
@@ -31,7 +31,7 @@ export const HeroComponent = ({ props = {} }) => {
     const bgStyles = {
         gradient: 'bg-gradient-to-b from-indigo-950/40 via-slate-900 to-slate-950 text-white',
         dark: 'bg-slate-900 text-slate-100',
-        light: 'bg-slate-50 text-slate-900',
+        light: 'bg-slate-100 text-slate-900',
         image: 'relative text-white bg-slate-950',
     }[bgStyle] || 'bg-gradient-to-b from-indigo-950/40 via-slate-900 to-slate-950 text-white';
 
@@ -44,7 +44,6 @@ export const HeroComponent = ({ props = {} }) => {
                 />
             )}
 
-            {/* Ambient Lighting Orbs for modern aesthetics */}
             {bgStyle === 'gradient' && (
                 <>
                     <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
@@ -87,7 +86,7 @@ export const HeroComponent = ({ props = {} }) => {
                                 href={secondaryButtonUrl || '#'}
                                 className={`inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 border active:scale-95 ${
                                     bgStyle === 'light'
-                                        ? 'border-slate-300 text-slate-700 hover:bg-slate-100'
+                                        ? 'border-slate-300 text-slate-700 hover:bg-slate-200'
                                         : 'border-white/20 text-white hover:bg-white/10'
                                 }`}
                             >
@@ -105,82 +104,82 @@ export const HeroSettings = ({ props, updateProps }) => {
     return (
         <div className="space-y-4 text-xs">
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Badge Teks</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Badge Text</label>
                 <input
                     type="text"
                     value={props.badgeText || ''}
                     onChange={(e) => updateProps({ badgeText: e.target.value })}
-                    placeholder="Contoh: ✨ Rilis Versi 1.0"
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="e.g. ✨ Version 1.0 Released"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                 />
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Judul Utama (Headline)</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Main Headline</label>
                 <textarea
                     rows={2}
                     value={props.title || ''}
                     onChange={(e) => updateProps({ title: e.target.value })}
-                    placeholder="Judul Hero Section..."
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="Enter main headline..."
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all leading-relaxed"
                 />
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Subjudul (Deskripsi)</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Subtitle / Description</label>
                 <textarea
                     rows={3}
                     value={props.subtitle || ''}
                     onChange={(e) => updateProps({ subtitle: e.target.value })}
-                    placeholder="Deskripsi pendukung..."
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="Enter supporting description..."
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all leading-relaxed"
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tombol Utama</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Primary Action</label>
                     <input
                         type="text"
                         value={props.primaryButtonText || ''}
                         onChange={(e) => updateProps({ primaryButtonText: e.target.value })}
-                        placeholder="Teks Tombol"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-1.5"
+                        placeholder="Button Label"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-1.5"
                     />
                     <input
                         type="text"
                         value={props.primaryButtonUrl || ''}
                         onChange={(e) => updateProps({ primaryButtonUrl: e.target.value })}
-                        placeholder="URL (mis: /login)"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder="Target URL (e.g. /login)"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tombol Sekunder</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Secondary Action</label>
                     <input
                         type="text"
                         value={props.secondaryButtonText || ''}
                         onChange={(e) => updateProps({ secondaryButtonText: e.target.value })}
-                        placeholder="Teks Tombol"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-1.5"
+                        placeholder="Button Label"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-1.5"
                     />
                     <input
                         type="text"
                         value={props.secondaryButtonUrl || ''}
                         onChange={(e) => updateProps({ secondaryButtonUrl: e.target.value })}
-                        placeholder="URL (mis: /about)"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder="Target URL (e.g. /about)"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     />
                 </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1.5">Perataan Konten</label>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+            <div className="pt-2 border-t border-slate-800">
+                <label className="block font-semibold text-slate-300 mb-1.5">Content Alignment</label>
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
                     {[
-                        { id: 'left', label: 'Kiri', icon: AlignLeft },
-                        { id: 'center', label: 'Tengah', icon: AlignCenter },
-                        { id: 'right', label: 'Kanan', icon: AlignRight },
+                        { id: 'left', label: 'Left', icon: AlignLeft },
+                        { id: 'center', label: 'Center', icon: AlignCenter },
+                        { id: 'right', label: 'Right', icon: AlignRight },
                     ].map((align) => {
                         const Icon = align.icon;
                         const isSelected = (props.alignment || 'center') === align.id;
@@ -189,10 +188,10 @@ export const HeroSettings = ({ props, updateProps }) => {
                                 key={align.id}
                                 type="button"
                                 onClick={() => updateProps({ alignment: align.id })}
-                                className={`flex items-center justify-center gap-1 py-1.5 rounded text-xs font-medium transition-all ${
+                                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                     isSelected
-                                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                                        ? 'bg-indigo-600 text-white shadow-sm'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
                                 }`}
                             >
                                 <Icon className="w-3.5 h-3.5" />
@@ -204,44 +203,44 @@ export const HeroSettings = ({ props, updateProps }) => {
             </div>
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Gaya Latar Belakang</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Background Style</label>
                 <select
                     value={props.bgStyle || 'gradient'}
                     onChange={(e) => updateProps({ bgStyle: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 >
-                    <option value="gradient">Gradient Modern (Gelap)</option>
+                    <option value="gradient">Modern Dark Gradient</option>
                     <option value="dark">Solid Dark Slate</option>
-                    <option value="light">Solid Light (Putih Bersih)</option>
-                    <option value="image">Gambar Background</option>
+                    <option value="light">Solid Light Background</option>
+                    <option value="image">Custom Background Image</option>
                 </select>
             </div>
 
             {props.bgStyle === 'image' && (
                 <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">URL Gambar Background</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Background Image URL</label>
                     <input
                         type="url"
                         value={props.imageUrl || ''}
                         onChange={(e) => updateProps({ imageUrl: e.target.value })}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     />
                 </div>
             )}
 
             <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Jarak Padding</label>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <label className="block font-semibold text-slate-300 mb-1.5">Vertical Padding</label>
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
                     {['sm', 'md', 'lg'].map((pad) => (
                         <button
                             key={pad}
                             type="button"
                             onClick={() => updateProps({ padding: pad })}
-                            className={`py-1 rounded text-xs uppercase font-medium transition-all ${
+                            className={`py-1.5 rounded-lg text-xs uppercase font-semibold transition-all ${
                                 (props.padding || 'lg') === pad
-                                    ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                                    ? 'bg-indigo-600 text-white shadow-sm'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
                             }`}
                         >
                             {pad}

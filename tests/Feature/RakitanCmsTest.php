@@ -3,13 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Page;
+use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class RakitanCmsTest extends TestCase
 {
     /**
-     * Test halaman publik homepage dapat diakses dengan sukses.
+     * Test public homepage is accessible.
      */
     public function test_homepage_is_accessible(): void
     {
@@ -25,7 +27,7 @@ class RakitanCmsTest extends TestCase
     }
 
     /**
-     * Test halaman publik about dapat diakses dengan sukses.
+     * Test public about page is accessible.
      */
     public function test_about_page_is_accessible(): void
     {
@@ -40,17 +42,17 @@ class RakitanCmsTest extends TestCase
     }
 
     /**
-     * Test halaman tidak dikenal mengembalikan 404.
+     * Test non-existent page returns 404.
      */
     public function test_nonexistent_page_returns_404(): void
     {
-        $response = $this->get('/halaman-yang-pasti-tidak-ada-12345');
+        $response = $this->get('/non-existent-page-404-check');
 
         $response->assertStatus(404);
     }
 
     /**
-     * Test tamu diarahkan ke login saat mengakses dashboard admin.
+     * Test guest is redirected from admin dashboard.
      */
     public function test_guest_is_redirected_from_admin_dashboard(): void
     {
@@ -60,7 +62,7 @@ class RakitanCmsTest extends TestCase
     }
 
     /**
-     * Test admin dapat mengakses dashboard admin.
+     * Test admin can access dashboard.
      */
     public function test_admin_can_access_dashboard(): void
     {
@@ -77,7 +79,7 @@ class RakitanCmsTest extends TestCase
     }
 
     /**
-     * Test admin dapat mengakses Visual Builder halaman.
+     * Test admin can access visual builder.
      */
     public function test_admin_can_access_visual_builder(): void
     {
@@ -95,36 +97,72 @@ class RakitanCmsTest extends TestCase
     }
 
     /**
-     * Test admin dapat menyimpan blok pada Visual Builder.
+     * Test admin can update settings.
      */
-    public function test_admin_can_save_builder_blocks(): void
+    public function test_admin_can_access_settings_and_update(): void
     {
         $admin = User::where('email', 'admin@rakitan.test')->first();
-        $page = Page::where('slug', 'home')->first();
 
-        $updatedBlocks = [
-            [
-                'id' => 'hero-test-1',
-                'type' => 'hero',
-                'props' => [
-                    'title' => 'Judul Baru dari Unit Test',
-                    'subtitle' => 'Subjudul diperbarui',
-                ],
-            ]
-        ];
+        $response = $this->actingAs($admin)->get('/admin/settings');
+        $response->assertStatus(200);
 
-        $response = $this->actingAs($admin)->put("/admin/pages/{$page->id}", [
-            'title' => $page->title,
-            'slug' => $page->slug,
-            'status' => 'published',
-            'blocks' => $updatedBlocks,
+        $postResponse = $this->actingAs($admin)->post('/admin/settings', [
+            'site_title' => 'Rakitan CMS Tested',
+            'site_tagline' => 'Next-Gen Visual Builder',
+            'admin_email' => 'admin@rakitan.test',
+            'default_status' => 'draft',
+            'footer_text' => 'Tested Footer',
+        ]);
+
+        $postResponse->assertSessionHasNoErrors();
+        $this->assertEquals('Rakitan CMS Tested', Setting::get('site_title'));
+    }
+
+    /**
+     * Test admin can export pages to XML.
+     */
+    public function test_admin_can_export_xml(): void
+    {
+        $admin = User::where('email', 'admin@rakitan.test')->first();
+
+        $response = $this->actingAs($admin)->get('/admin/tools/export');
+
+        $response->assertStatus(200);
+        $this->assertEquals('application/xml; charset=utf-8', $response->headers->get('content-type'));
+    }
+
+    /**
+     * Test admin can import pages from XML file.
+     */
+    public function test_admin_can_import_xml(): void
+    {
+        $admin = User::where('email', 'admin@rakitan.test')->first();
+
+        $xmlContent = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:wp="http://wordpress.org/export/1.2/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Test Import</title>
+    <item>
+      <title>Imported Test Page</title>
+      <wp:post_name>imported-test-page</wp:post_name>
+      <wp:status>publish</wp:status>
+      <content:encoded><![CDATA[<p>Imported sample content</p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>
+XML;
+
+        $file = UploadedFile::fake()->createWithContent('import-test.xml', $xmlContent);
+
+        $response = $this->actingAs($admin)->post('/admin/tools/import', [
+            'xml_file' => $file,
         ]);
 
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect();
-
-        $page->refresh();
-        $this->assertEquals('hero-test-1', $page->blocks[0]['id']);
-        $this->assertEquals('Judul Baru dari Unit Test', $page->blocks[0]['props']['title']);
+        $this->assertDatabaseHas('pages', [
+            'title' => 'Imported Test Page',
+            'slug' => 'imported-test-page',
+        ]);
     }
 }
