@@ -353,6 +353,9 @@ export const BLOCK_REGISTRY = {
         icon: LayoutGrid,
         description: 'Flexible multi-column section container to assemble dynamic micro-components freely.',
         defaultProps: {
+            containerWidthType: 'boxed',
+            maxWidth: 'wide',
+            customMaxWidth: '1280px',
             badgeText: '✨ DYNAMIC COMPONENTS',
             title: 'Assemble Sub-Components Freely',
             subtitle: 'Insert custom buttons, badges, ratings, callouts, and micro cards directly into this container.',

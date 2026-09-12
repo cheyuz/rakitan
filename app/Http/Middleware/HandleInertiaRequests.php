@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
             'active_theme' => $activeTheme['id'],
             'theme' => $activeTheme,
             'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
+            'active_plugins' => app(\App\Services\PluginManager::class)->getActivePluginIds(),
         ];
     }
 }
