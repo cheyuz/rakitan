@@ -45,6 +45,10 @@ import {
     Redo2,
     Search,
     Puzzle,
+    Wifi,
+    Battery,
+    ZoomIn,
+    ZoomOut,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -220,6 +224,7 @@ export default function Builder({ page }) {
     const [activeTabLeft, setActiveTabLeft] = useState('palette'); // 'palette' | 'outline'
     const [activeTabRight, setActiveTabRight] = useState('block'); // 'block' | 'page'
     const [deviceMode, setDeviceMode] = useState('desktop'); // 'desktop' | 'tablet' | 'mobile'
+    const [zoomScale, setZoomScale] = useState(1); // 1 | 0.85 | 0.75
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [paletteFilter, setPaletteFilter] = useState('All');
     const [paletteSearch, setPaletteSearch] = useState('');
@@ -385,6 +390,59 @@ export default function Builder({ page }) {
         mobile: 'max-w-[375px] mx-auto shadow-2xl rounded-3xl overflow-hidden border-2 border-slate-800',
     }[deviceMode] || 'w-full';
 
+    const renderCanvasBlocks = () => {
+        if (blocks.length === 0) {
+            return (
+                <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto min-h-[400px]">
+                    <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mb-6">
+                        Start building your webpage by dragging or clicking puzzle pieces from the left palette.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => handleAddBlock('hero')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Initial Hero Section</span>
+                    </button>
+                </div>
+            );
+        }
+
+        return (
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={blocks.map((b) => b.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="w-full flex flex-col space-y-0.5">
+                        {blocks.map((block, idx) => (
+                            <SortableCanvasBlock
+                                key={block.id}
+                                block={block}
+                                isSelected={block.id === selectedBlockId}
+                                onSelect={setSelectedBlockId}
+                                onDuplicate={handleDuplicate}
+                                onDelete={handleDelete}
+                                onMoveUp={handleMoveUp}
+                                onMoveDown={handleMoveDown}
+                                isFirst={idx === 0}
+                                isLast={idx === blocks.length - 1}
+                                isPreviewMode={isPreviewMode}
+                            />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+        );
+    };
+
     return (
         <div className="h-screen flex flex-col bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden selection:bg-indigo-500 selection:text-white">
             <Head title={`Builder: ${title} - Rakitan Visual CMS`} />
@@ -437,7 +495,7 @@ export default function Builder({ page }) {
                     {/* Device Switcher */}
                     <div className="flex items-center p-1 rounded-xl bg-slate-950 border border-slate-800">
                         {[
-                            { id: 'desktop', icon: Monitor, label: 'Desktop' },
+                            { id: 'desktop', icon: Monitor, label: 'Desktop (100%)' },
                             { id: 'tablet', icon: Tablet, label: 'Tablet (768px)' },
                             { id: 'mobile', icon: Smartphone, label: 'Mobile (375px)' },
                         ].map((dev) => {
@@ -446,7 +504,10 @@ export default function Builder({ page }) {
                                 <button
                                     key={dev.id}
                                     type="button"
-                                    onClick={() => setDeviceMode(dev.id)}
+                                    onClick={() => {
+                                        setDeviceMode(dev.id);
+                                        if (dev.id === 'desktop') setZoomScale(1);
+                                    }}
                                     className={`p-2 rounded-lg text-xs font-medium transition-all ${
                                         deviceMode === dev.id
                                             ? 'bg-indigo-600 text-white shadow-sm'
@@ -459,6 +520,24 @@ export default function Builder({ page }) {
                             );
                         })}
                     </div>
+
+                    {/* Resolution & Zoom Controls */}
+                    {deviceMode !== 'desktop' && (
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px]">
+                            <span className="font-mono text-indigo-400 font-semibold">
+                                {deviceMode === 'tablet' ? '768 × 1024' : '375 × 812'}
+                            </span>
+                            <div className="h-3 w-px bg-slate-800" />
+                            <button
+                                type="button"
+                                onClick={() => setZoomScale(zoomScale === 1 ? 0.85 : zoomScale === 0.85 ? 0.75 : 1)}
+                                className="text-slate-300 hover:text-white font-medium hover:bg-slate-800 px-1.5 py-0.5 rounded transition-colors"
+                                title="Click to change scale"
+                            >
+                                {Math.round(zoomScale * 100)}%
+                            </button>
+                        </div>
+                    )}
 
                     {/* Preview Toggle */}
                     <button
@@ -699,52 +778,55 @@ export default function Builder({ page }) {
 
                 {/* Center Canvas */}
                 <main className="flex-1 overflow-y-auto bg-slate-950/60 p-4 sm:p-8 flex flex-col items-center">
-                    <div className={`transition-all duration-300 ${deviceWidthClass} min-h-[600px] flex flex-col`}>
-                        {blocks.length === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto">
-                                <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
-                                <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
-                                <p className="text-xs text-slate-400 max-w-sm mb-6">
-                                    Start building your webpage by dragging or clicking puzzle pieces from the left palette.
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => handleAddBlock('hero')}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    <span>Add Initial Hero Section</span>
-                                </button>
+                    <div
+                        className="transition-all duration-300 w-full flex flex-col items-center"
+                        style={{
+                            transform: zoomScale !== 1 ? `scale(${zoomScale})` : undefined,
+                            transformOrigin: 'top center',
+                        }}
+                    >
+                        {deviceMode === 'mobile' ? (
+                            <div className="w-[395px] rounded-[52px] border-[12px] border-slate-800 bg-slate-950 shadow-2xl shadow-slate-950/90 overflow-hidden relative flex flex-col my-4 ring-1 ring-slate-700/50">
+                                {/* Mobile Top Notch & Status Bar */}
+                                <div className="h-10 bg-slate-950 px-6 flex items-center justify-between text-[11px] font-semibold text-slate-400 select-none z-30 border-b border-slate-900 flex-shrink-0">
+                                    <span>9:41</span>
+                                    {/* Dynamic Island */}
+                                    <div className="w-24 h-5 rounded-full bg-black border border-slate-800/80 flex items-center justify-end px-2 gap-1.5 shadow-inner">
+                                        <div className="w-2 h-2 rounded-full bg-indigo-950 border border-indigo-500/40" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <Wifi className="w-3.5 h-3.5" />
+                                        <Battery className="w-3.5 h-3.5" />
+                                    </div>
+                                </div>
+
+                                {/* Mobile Scrollable Viewport */}
+                                <div className="w-full max-h-[720px] overflow-y-auto bg-slate-950 custom-scrollbar">
+                                    {renderCanvasBlocks()}
+                                </div>
+
+                                {/* Mobile Bottom Home Bar */}
+                                <div className="h-6 bg-slate-950 flex items-center justify-center border-t border-slate-900 flex-shrink-0">
+                                    <div className="w-28 h-1 rounded-full bg-slate-600" />
+                                </div>
+                            </div>
+                        ) : deviceMode === 'tablet' ? (
+                            <div className="w-[790px] max-w-full rounded-[36px] border-[14px] border-slate-800 bg-slate-950 shadow-2xl shadow-slate-950/90 overflow-hidden relative flex flex-col my-4 ring-1 ring-slate-700/50">
+                                {/* Tablet Top Camera Bezel */}
+                                <div className="h-6 bg-slate-950 flex items-center justify-center border-b border-slate-900 flex-shrink-0">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-700 border border-slate-600/50" />
+                                </div>
+
+                                {/* Tablet Scrollable Viewport */}
+                                <div className="w-full max-h-[820px] overflow-y-auto bg-slate-950 custom-scrollbar">
+                                    {renderCanvasBlocks()}
+                                </div>
                             </div>
                         ) : (
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={blocks.map((b) => b.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    <div className="w-full flex flex-col space-y-0.5">
-                                        {blocks.map((block, idx) => (
-                                            <SortableCanvasBlock
-                                                key={block.id}
-                                                block={block}
-                                                isSelected={block.id === selectedBlockId}
-                                                onSelect={setSelectedBlockId}
-                                                onDuplicate={handleDuplicate}
-                                                onDelete={handleDelete}
-                                                onMoveUp={handleMoveUp}
-                                                onMoveDown={handleMoveDown}
-                                                isFirst={idx === 0}
-                                                isLast={idx === blocks.length - 1}
-                                                isPreviewMode={isPreviewMode}
-                                            />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
+                            <div className="w-full min-h-[600px] flex flex-col">
+                                {renderCanvasBlocks()}
+                            </div>
                         )}
                     </div>
                 </main>

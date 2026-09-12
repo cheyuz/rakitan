@@ -125,6 +125,9 @@ class ThemeManager
      */
     public function activateTheme(string $themeId): bool
     {
+        if ($themeId === 'default_light') $themeId = 'default-light';
+        if ($themeId === 'default_dark') $themeId = 'default-dark';
+
         $themes = $this->scanThemes();
         $found = false;
 

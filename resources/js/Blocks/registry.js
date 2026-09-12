@@ -6,6 +6,10 @@ import {
     Image,
     SeparatorHorizontal,
     BookOpen,
+    CreditCard,
+    HelpCircle,
+    MessageSquareQuote,
+    Mail,
 } from 'lucide-react';
 
 import { HeroComponent, HeroSettings } from './Definitions/HeroBlock';
@@ -15,6 +19,10 @@ import { CtaComponent, CtaSettings } from './Definitions/CtaBlock';
 import { GalleryComponent, GallerySettings } from './Definitions/GalleryBlock';
 import { SpacerComponent, SpacerSettings } from './Definitions/SpacerBlock';
 import { LatestPostsComponent, LatestPostsSettings } from './Definitions/LatestPostsBlock';
+import { PricingComponent, PricingSettings } from './Definitions/PricingBlock';
+import { FaqComponent, FaqSettings } from './Definitions/FaqBlock';
+import { TestimonialsComponent, TestimonialsSettings } from './Definitions/TestimonialsBlock';
+import { ContactFormComponent, ContactFormSettings } from './Definitions/ContactFormBlock';
 
 export const BLOCK_REGISTRY = {
     hero: {
@@ -174,6 +182,160 @@ export const BLOCK_REGISTRY = {
         },
         Component: LatestPostsComponent,
         SettingsComponent: LatestPostsSettings,
+    },
+    pricing: {
+        type: 'pricing',
+        label: 'Pricing Table',
+        category: 'Marketing',
+        icon: CreditCard,
+        description: 'Multi-tiered pricing table with monthly/annual billing toggle, highlighted popular tier, and feature checklist.',
+        defaultProps: {
+            badge: 'TRANSPARENT PRICING',
+            title: 'Simple, Predictable Plans for Everyone',
+            subtitle: 'Choose the tier that fits your stage. No hidden fees or surprise upgrades.',
+            annualDiscountBadge: 'Save 20%',
+            plans: [
+                {
+                    name: 'Starter',
+                    priceMonthly: '$19',
+                    priceAnnual: '$15',
+                    period: '/month',
+                    description: 'Perfect for indie hackers, bloggers, and personal projects.',
+                    features: [
+                        'Up to 5 Rakitan Websites',
+                        'All Core Puzzle Blocks',
+                        'Standard Community Support',
+                        '10GB Media Storage',
+                    ],
+                    isPopular: false,
+                    buttonText: 'Get Started',
+                    buttonUrl: '#',
+                },
+                {
+                    name: 'Professional',
+                    priceMonthly: '$49',
+                    priceAnnual: '$39',
+                    period: '/month',
+                    description: 'Ideal for growing businesses, digital creators, and teams.',
+                    features: [
+                        'Unlimited Websites',
+                        'All Puzzle Blocks & Addons',
+                        'Custom Themes & Plugins',
+                        'Priority Support',
+                        '100GB Fast Cloud Storage',
+                    ],
+                    isPopular: true,
+                    buttonText: 'Start 14-Day Free Trial',
+                    buttonUrl: '#',
+                },
+                {
+                    name: 'Enterprise',
+                    priceMonthly: '$129',
+                    priceAnnual: '$99',
+                    period: '/month',
+                    description: 'For high-scale enterprises requiring custom SLAs and dedicated setups.',
+                    features: [
+                        'Dedicated Infrastructure',
+                        'Custom Block & Plugin SLA',
+                        '24/7 Dedicated Account Rep',
+                        'Unlimited Media Storage',
+                        'White-label Branding',
+                    ],
+                    isPopular: false,
+                    buttonText: 'Contact Sales',
+                    buttonUrl: '#',
+                },
+            ],
+        },
+        Component: PricingComponent,
+        SettingsComponent: PricingSettings,
+    },
+    faq: {
+        type: 'faq',
+        label: 'FAQ / Accordion',
+        category: 'Content',
+        icon: HelpCircle,
+        description: 'Collapsible accordion questions and answers for clean documentation and customer support.',
+        defaultProps: {
+            badge: 'FAQ',
+            title: 'Frequently Asked Questions',
+            subtitle: 'Everything you need to know about Rakitan modular architecture and workflow.',
+            items: [
+                {
+                    question: 'What is Rakitan CMS and how does it compare to WordPress?',
+                    answer: 'Rakitan CMS is a next-generation modular CMS built with Laravel 11 and Inertia.js React. Unlike WordPress which suffers from plugin bloat and heavy PHP template rendering, Rakitan uses a lightweight JSON puzzle block system, lightning-fast client transitions, and clean modular themes.',
+                },
+                {
+                    question: 'Can developers build custom puzzle blocks?',
+                    answer: 'Yes! Developers can create new blocks simply by defining a React component and an optional settings panel, and registering them via the Block Registry or third-party modular plugins in the /plugins/ directory.',
+                },
+                {
+                    question: 'How do themes work in Rakitan?',
+                    answer: 'Themes reside in the /themes/ directory with an intuitive theme.json manifest, screenshot, and style.css. Administrators can upload themes as .zip files, switch themes in 1-click, or customize stylesheets directly.',
+                },
+                {
+                    question: 'Is Rakitan CMS completely open source?',
+                    answer: 'Yes, Rakitan CMS is 100% open source under the MIT license. We welcome contributions, custom blocks, and community plugins from web developers worldwide.',
+                },
+            ],
+        },
+        Component: FaqComponent,
+        SettingsComponent: FaqSettings,
+    },
+    testimonials: {
+        type: 'testimonials',
+        label: 'Testimonials',
+        category: 'Marketing',
+        icon: MessageSquareQuote,
+        description: 'Customer reviews showcase with 5-star ratings, quotes, avatar images, and author credentials.',
+        defaultProps: {
+            badge: 'TESTIMONIALS',
+            title: 'Loved by Developers & Agencies Worldwide',
+            subtitle: 'Here is what modern web engineers and content teams are saying about Rakitan.',
+            columns: 3,
+            items: [
+                {
+                    quote: 'Rakitan gave our agency the visual speed of a page builder without any of the sluggish performance or plugin hell of WordPress. It is truly next-gen.',
+                    author: 'Sarah Jenkins',
+                    role: 'Head of Engineering at CloudCraft',
+                    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+                    rating: 5,
+                },
+                {
+                    quote: 'Building custom puzzle blocks is a breeze. It took us less than 20 minutes to ship a custom pricing calculator block for our client.',
+                    author: 'David Chen',
+                    role: 'Full-Stack Developer',
+                    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+                    rating: 5,
+                },
+                {
+                    quote: 'The modular theme system and media library feel so clean and intuitive. The UI design is stunning right out of the box.',
+                    author: 'Elena Rostova',
+                    role: 'UI/UX Lead at StudioPixel',
+                    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                    rating: 5,
+                },
+            ],
+        },
+        Component: TestimonialsComponent,
+        SettingsComponent: TestimonialsSettings,
+    },
+    contact_form: {
+        type: 'contact_form',
+        label: 'Contact Form',
+        category: 'Forms',
+        icon: Mail,
+        description: 'Interactive contact form with live AJAX submission connected directly to the Admin Inbox.',
+        defaultProps: {
+            badge: 'GET IN TOUCH',
+            title: 'Have a Project or Question? Let’s Talk.',
+            subtitle: 'Send us a message and our team will get back to you within 24 hours.',
+            formName: 'contact',
+            buttonText: 'Send Message',
+            successMessage: 'Thank you! Your message has been sent successfully. We will be in touch soon.',
+        },
+        Component: ContactFormComponent,
+        SettingsComponent: ContactFormSettings,
     },
 };
 

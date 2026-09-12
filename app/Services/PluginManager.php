@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Setting;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use RuntimeException;
+use ZipArchive;
+
+class PluginManager
+{
+    /**
+     * Get the root plugins directory path.
+     */
+    public function getPluginsPath(): string
+    {
+        return base_path('plugins');
+    }
+
+    /**
+     * Scan and retrieve all valid installed plugins.
+     */
+    public function scanPlugins(): array
+    {
+        $pluginsPath = $this->getPluginsPath();
+
+        if (!File::isDirectory($pluginsPath)) {
+            File::makeDirectory($pluginsPath, 0755, true);
+        }
+
+        $activePluginIds = $this->getActivePluginIds();
+        $pluginDirs = File::directories($pluginsPath);
+        $plugins = [];
+
+        foreach ($pluginDirs as $dir) {
+            $manifestPath = $dir . '/plugin.json';
+
+            if (!File::exists($manifestPath)) {
+                continue;
+            }
+
+            try {
+                $manifest = json_decode(File::get($manifestPath), true);
+                if (!is_array($manifest) || empty($manifest['id']) || empty($manifest['name'])) {
+                    continue;
+                }
+
+                $pluginId = $manifest['id'];
+                $isActive = in_array($pluginId, $activePluginIds, true);
+
+                $plugins[] = [
+                    'id' => $pluginId,
+                    'name' => $manifest['name'],
+                    'version' => $manifest['version'] ?? '1.0.0',
+                    'author' => $manifest['author'] ?? 'Community',
+                    'description' => $manifest['description'] ?? '',
+                    'is_builtin' => !empty($manifest['is_builtin']),
+                    'is_active' => $isActive,
+                    'settings' => $manifest['settings'] ?? [],
+                    'path' => $dir,
+                ];
+            } catch (\Throwable $e) {
+                // Ignore malformed plugins
+                continue;
+            }
+        }
+
+        return $plugins;
+    }
+
+    /**
+     * Get array of active plugin IDs.
+     */
+    public function getActivePluginIds(): array
+    {
+        $active = Setting::get('active_plugins', ['hello-rakitan']);
+        return is_array($active) ? $active : (json_decode($active, true) ?? []);
+    }
+
+    /**
+     * Toggle plugin active state.
+     */
+    public function togglePlugin(string $pluginId): bool
+    {
+        $activePlugins = $this->getActivePluginIds();
+
+        if (in_array($pluginId, $activePlugins, true)) {
+            $activePlugins = array_values(array_filter($activePlugins, fn ($id) => $id !== $pluginId));
+            $newStatus = false;
+        } else {
+            // Verify plugin exists
+            $plugins = $this->scanPlugins();
+            $exists = false;
+            foreach ($plugins as $p) {
+                if ($p['id'] === $pluginId) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if (!$exists) {
+                throw new RuntimeException("Plugin '{$pluginId}' is not installed.");
+            }
+
+            $activePlugins[] = $pluginId;
+            $newStatus = true;
+        }
+
+        Setting::set('active_plugins', array_values(array_unique($activePlugins)));
+        return $newStatus;
+    }
+
+    /**
+     * Upload and extract a plugin ZIP package.
+     */
+    public function uploadPlugin(UploadedFile $zipFile): array
+    {
+        if (!class_exists('ZipArchive')) {
+            throw new RuntimeException('PHP ZipArchive extension is required to install plugins.');
+        }
+
+        $zip = new ZipArchive();
+        $res = $zip->open($zipFile->getRealPath());
+
+        if ($res !== true) {
+            throw new RuntimeException('Failed to open plugin ZIP archive.');
+        }
+
+        $tempExtractPath = storage_path('app/temp_plugin_' . uniqid());
+        File::makeDirectory($tempExtractPath, 0755, true);
+
+        // Extract with Zip Slip prevention
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $filename = $zip->getNameIndex($i);
+
+            // Prevent path traversal
+            if (str_contains($filename, '..') || str_starts_with($filename, '/') || str_starts_with($filename, '\\')) {
+                continue;
+            }
+
+            $zip->extractTo($tempExtractPath, $filename);
+        }
+
+        $zip->close();
+
+        // Locate plugin.json
+        $manifestPath = null;
+        $pluginSourceDir = null;
+
+        if (File::exists($tempExtractPath . '/plugin.json')) {
+            $manifestPath = $tempExtractPath . '/plugin.json';
+            $pluginSourceDir = $tempExtractPath;
+        } else {
+            $subdirs = File::directories($tempExtractPath);
+            foreach ($subdirs as $subdir) {
+                if (File::exists($subdir . '/plugin.json')) {
+                    $manifestPath = $subdir . '/plugin.json';
+                    $pluginSourceDir = $subdir;
+                    break;
+                }
+            }
+        }
+
+        if (!$manifestPath) {
+            File::deleteDirectory($tempExtractPath);
+            throw new RuntimeException("Plugin archive is missing a valid 'plugin.json' manifest file.");
+        }
+
+        $manifest = json_decode(File::get($manifestPath), true);
+        if (!is_array($manifest) || empty($manifest['id']) || empty($manifest['name'])) {
+            File::deleteDirectory($tempExtractPath);
+            throw new RuntimeException("Invalid 'plugin.json': 'id' and 'name' are required fields.");
+        }
+
+        $pluginId = Str::slug($manifest['id']);
+        $destinationDir = $this->getPluginsPath() . '/' . $pluginId;
+
+        if (File::isDirectory($destinationDir)) {
+            File::deleteDirectory($destinationDir);
+        }
+
+        File::moveDirectory($pluginSourceDir, $destinationDir);
+        File::deleteDirectory($tempExtractPath);
+
+        return [
+            'id' => $pluginId,
+            'name' => $manifest['name'],
+            'version' => $manifest['version'] ?? '1.0.0',
+            'author' => $manifest['author'] ?? 'Unknown',
+            'description' => $manifest['description'] ?? '',
+        ];
+    }
+
+    /**
+     * Delete an installed plugin directory.
+     */
+    public function deletePlugin(string $pluginId): bool
+    {
+        $activePlugins = $this->getActivePluginIds();
+        if (in_array($pluginId, $activePlugins, true)) {
+            $activePlugins = array_values(array_filter($activePlugins, fn ($id) => $id !== $pluginId));
+            Setting::set('active_plugins', $activePlugins);
+        }
+
+        $dir = $this->getPluginsPath() . '/' . $pluginId;
+
+        if (File::isDirectory($dir)) {
+            return File::deleteDirectory($dir);
+        }
+
+        return false;
+    }
+}

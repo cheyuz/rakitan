@@ -1,0 +1,12 @@
+{
+    "id": "seo-optimizer",
+    "name": "Rakitan SEO Optimizer",
+    "version": "1.2.0",
+    "author": "Rakitan Ecosystem",
+    "description": "Automated meta tag generation, XML sitemaps, OpenGraph social previews, and Google SERP verification.",
+    "is_builtin": false,
+    "settings": {
+        "autoSitemap": true,
+        "twitterCard": "summary_large_image"
+    }
+}

@@ -33,14 +33,14 @@ class ThemeManagementTest extends TestCase
         $admin = User::first() ?? User::factory()->create();
 
         $response = $this->actingAs($admin)->post('/admin/themes/activate', [
-            'theme' => 'default_light',
+            'theme' => 'default-light',
         ]);
 
         $response->assertRedirect();
-        $this->assertEquals('default_light', Setting::get('active_theme'));
+        $this->assertEquals('default-light', Setting::get('active_theme'));
 
-        // Switch back to default_dark
-        Setting::set('active_theme', 'default_dark');
+        // Switch back to default-dark
+        Setting::set('active_theme', 'default-dark');
     }
 
     /**

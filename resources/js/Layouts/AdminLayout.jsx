@@ -16,12 +16,19 @@ import {
     User,
     CheckCircle2,
     AlertCircle,
+    Puzzle,
+    Users,
+    Inbox,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
     const { auth, flash } = usePage().props;
     const currentUrl = window.location.pathname;
+    const userRole = auth?.user?.role || 'admin';
+    const isAdmin = userRole === 'admin';
+    const isEditor = userRole === 'editor';
+    const canManageContent = isAdmin || isEditor;
 
     const navItems = [
         {
@@ -29,56 +36,86 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             href: '/admin/dashboard',
             icon: LayoutDashboard,
             active: currentUrl === '/admin/dashboard',
+            show: true,
         },
         {
             label: 'Pages',
             href: '/admin/pages',
             icon: FileText,
             active: currentUrl.startsWith('/admin/pages') && !currentUrl.includes('/builder'),
+            show: canManageContent,
         },
         {
             label: 'Posts',
             href: '/admin/posts',
             icon: BookOpen,
             active: currentUrl.startsWith('/admin/posts'),
+            show: true,
         },
         {
             label: 'Categories',
             href: '/admin/categories',
             icon: Tag,
             active: currentUrl.startsWith('/admin/categories'),
+            show: canManageContent,
         },
         {
             label: 'Media Library',
             href: '/admin/media',
             icon: ImageIcon,
             active: currentUrl.startsWith('/admin/media'),
+            show: true,
         },
         {
             label: 'Menus',
             href: '/admin/menus',
             icon: MenuIcon,
             active: currentUrl.startsWith('/admin/menus'),
+            show: canManageContent,
+        },
+        {
+            label: 'Inquiries / Inbox',
+            href: '/admin/submissions',
+            icon: Inbox,
+            active: currentUrl.startsWith('/admin/submissions'),
+            show: canManageContent,
+        },
+        {
+            label: 'Plugins',
+            href: '/admin/plugins',
+            icon: Puzzle,
+            active: currentUrl.startsWith('/admin/plugins'),
+            show: isAdmin,
         },
         {
             label: 'Themes',
             href: '/admin/themes',
             icon: Palette,
             active: currentUrl.startsWith('/admin/themes'),
+            show: isAdmin,
+        },
+        {
+            label: 'Users & Roles',
+            href: '/admin/users',
+            icon: Users,
+            active: currentUrl.startsWith('/admin/users'),
+            show: isAdmin,
         },
         {
             label: 'Tools & Migration',
             href: '/admin/tools',
             icon: Wrench,
             active: currentUrl.startsWith('/admin/tools'),
+            show: isAdmin,
         },
         {
             label: 'Settings',
             href: '/admin/settings',
             icon: Settings,
             active: currentUrl.startsWith('/admin/settings'),
+            show: isAdmin,
         },
-    ];
+    ].filter((item) => item.show);
 
     return (
         <div className="min-h-screen flex bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
@@ -139,8 +176,13 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                             <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-300">
                                 <User className="w-4 h-4" />
                             </div>
-                            <div className="text-[11px] leading-tight truncate max-w-[110px]">
-                                <p className="font-semibold text-white truncate">{auth?.user?.name || 'Admin'}</p>
+                            <div className="text-[11px] leading-tight truncate max-w-[120px]">
+                                <div className="font-semibold text-white truncate flex items-center gap-1">
+                                    <span className="truncate">{auth?.user?.name || 'Admin'}</span>
+                                    <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-indigo-500/20 text-indigo-400 capitalize flex-shrink-0">
+                                        {userRole}
+                                    </span>
+                                </div>
                                 <p className="text-slate-400 truncate">{auth?.user?.email || 'admin@rakitan'}</p>
                             </div>
                         </div>

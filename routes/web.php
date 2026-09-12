@@ -2,16 +2,20 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormSubmissionController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\ToolsController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBlogController;
+use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\PublicPageController;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -26,17 +30,7 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Pages & Visual Builder
-    Route::prefix('pages')->name('pages.')->group(function () {
-        Route::get('/', [PageController::class, 'index'])->name('index');
-        Route::post('/', [PageController::class, 'store'])->name('store');
-        Route::get('/{page}/builder', [PageController::class, 'builder'])->name('builder');
-        Route::put('/{page}', [PageController::class, 'update'])->name('update');
-        Route::post('/{page}/duplicate', [PageController::class, 'duplicate'])->name('duplicate');
-        Route::delete('/{page}', [PageController::class, 'destroy'])->name('destroy');
-    });
-
-    // Posts Management
+    // Posts Management (Admin, Editor, Author)
     Route::prefix('posts')->name('posts.')->group(function () {
         Route::get('/', [PostController::class, 'index'])->name('index');
         Route::get('/create', [PostController::class, 'create'])->name('create');
@@ -47,21 +41,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
     });
 
-    // Categories Management
-    Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', [CategoryController::class, 'index'])->name('index');
-        Route::post('/', [CategoryController::class, 'store'])->name('store');
-        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
-        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
-    });
-
-    // Menu Navigation Management
-    Route::prefix('menus')->name('menus.')->group(function () {
-        Route::get('/', [MenuController::class, 'index'])->name('index');
-        Route::post('/', [MenuController::class, 'update'])->name('update');
-    });
-
-    // Media Library
+    // Media Library (Admin, Editor, Author)
     Route::prefix('media')->name('media.')->group(function () {
         Route::get('/', [MediaController::class, 'index'])->name('index');
         Route::post('/', [MediaController::class, 'store'])->name('store');
@@ -70,22 +50,75 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/folders/{folder}', [MediaController::class, 'destroyFolder'])->name('folders.destroy');
     });
 
-    // Themes Management
-    Route::prefix('themes')->name('themes.')->group(function () {
-        Route::get('/', [ThemeController::class, 'index'])->name('index');
-        Route::post('/activate', [ThemeController::class, 'activate'])->name('activate');
-        Route::post('/upload', [ThemeController::class, 'upload'])->name('upload');
-        Route::delete('/{theme}', [ThemeController::class, 'destroy'])->name('destroy');
+    // Form Submissions Inbox (Admin, Editor)
+    Route::prefix('submissions')->name('submissions.')->middleware(['role:admin,editor'])->group(function () {
+        Route::get('/', [FormSubmissionController::class, 'index'])->name('index');
+        Route::post('/{submission}/toggle-read', [FormSubmissionController::class, 'toggleRead'])->name('toggle-read');
+        Route::delete('/{submission}', [FormSubmissionController::class, 'destroy'])->name('destroy');
     });
 
-    // Site Settings
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    // Content Management (Admin, Editor)
+    Route::middleware(['role:admin,editor'])->group(function () {
+        // Pages & Visual Builder
+        Route::prefix('pages')->name('pages.')->group(function () {
+            Route::get('/', [PageController::class, 'index'])->name('index');
+            Route::post('/', [PageController::class, 'store'])->name('store');
+            Route::get('/{page}/builder', [PageController::class, 'builder'])->name('builder');
+            Route::put('/{page}', [PageController::class, 'update'])->name('update');
+            Route::post('/{page}/duplicate', [PageController::class, 'duplicate'])->name('duplicate');
+            Route::delete('/{page}', [PageController::class, 'destroy'])->name('destroy');
+        });
 
-    // Tools (XML Export / Import)
-    Route::get('/tools', [ToolsController::class, 'index'])->name('tools.index');
-    Route::get('/tools/export', [ToolsController::class, 'export'])->name('tools.export');
-    Route::post('/tools/import', [ToolsController::class, 'import'])->name('tools.import');
+        // Categories Management
+        Route::prefix('categories')->name('categories.')->group(function () {
+            Route::get('/', [CategoryController::class, 'index'])->name('index');
+            Route::post('/', [CategoryController::class, 'store'])->name('store');
+            Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+            Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
+        });
+
+        // Menu Navigation Management
+        Route::prefix('menus')->name('menus.')->group(function () {
+            Route::get('/', [MenuController::class, 'index'])->name('index');
+            Route::post('/', [MenuController::class, 'update'])->name('update');
+        });
+    });
+
+    // System Administration (Super Admin Only)
+    Route::middleware(['role:admin'])->group(function () {
+        // Users & Role Management
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::put('/{user}', [UserController::class, 'update'])->name('update');
+            Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+        });
+
+        // Plugins Management
+        Route::prefix('plugins')->name('plugins.')->group(function () {
+            Route::get('/', [PluginController::class, 'index'])->name('index');
+            Route::post('/toggle', [PluginController::class, 'toggle'])->name('toggle');
+            Route::post('/upload', [PluginController::class, 'upload'])->name('upload');
+            Route::delete('/{plugin}', [PluginController::class, 'destroy'])->name('destroy');
+        });
+
+        // Themes Management
+        Route::prefix('themes')->name('themes.')->group(function () {
+            Route::get('/', [ThemeController::class, 'index'])->name('index');
+            Route::post('/activate', [ThemeController::class, 'activate'])->name('activate');
+            Route::post('/upload', [ThemeController::class, 'upload'])->name('upload');
+            Route::delete('/{theme}', [ThemeController::class, 'destroy'])->name('destroy');
+        });
+
+        // Site Settings
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+        // Tools (XML Export / Import)
+        Route::get('/tools', [ToolsController::class, 'index'])->name('tools.index');
+        Route::get('/tools/export', [ToolsController::class, 'export'])->name('tools.export');
+        Route::post('/tools/import', [ToolsController::class, 'import'])->name('tools.import');
+    });
 });
 
 // Profile Routes
@@ -142,11 +175,14 @@ Route::get('/api/latest-posts', function (Request $request) {
     return response()->json($posts);
 })->name('api.latest-posts');
 
+// Public Form Submissions API
+Route::post('/api/forms/submit', [PublicFormController::class, 'submit'])->name('api.forms.submit');
+
 // Public Theme Assets (Stylesheet and Screenshot)
 Route::get('/themes/{theme}/screenshot', [ThemeController::class, 'screenshot'])->name('themes.screenshot');
 Route::get('/themes/{theme}/style.css', [ThemeController::class, 'style'])->name('themes.style');
 
 // Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
 Route::get('/{slug?}', [PublicPageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes).*$')
+    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes|plugins).*$')
     ->name('public.page');
