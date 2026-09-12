@@ -140,7 +140,7 @@ export default function SubComponentRenderer({
                             <InlineText
                                 value={text}
                                 onChange={(val) => handlePropChange('text', val)}
-                                placeholder="Teks Tombol"
+                                placeholder="Button Text"
                             />
                             {getIcon(icon, size === 'sm' ? 'w-3 h-3' : 'w-4 h-4')}
                         </a>
@@ -177,7 +177,7 @@ export default function SubComponentRenderer({
                             <InlineText
                                 value={text}
                                 onChange={(val) => handlePropChange('text', val)}
-                                placeholder="Teks Badge"
+                                placeholder="Badge Text"
                             />
                         </div>
                     </div>
@@ -222,7 +222,7 @@ export default function SubComponentRenderer({
                             as="div"
                             multiline={variant === 'body' || variant === 'lead'}
                             className={`${variantStyles} ${colorStyles}`}
-                            placeholder="Tuliskan teks di sini..."
+                            placeholder="Write text here..."
                         />
                     </div>
                 );
@@ -298,14 +298,14 @@ export default function SubComponentRenderer({
                                 <InlineText
                                     value={title}
                                     onChange={(val) => handlePropChange('title', val)}
-                                    placeholder="Judul Ikon"
+                                    placeholder="Icon Title"
                                 />
                             </h5>
                             <p className="text-xs text-slate-400 mt-0.5">
                                 <InlineText
                                     value={description}
                                     onChange={(val) => handlePropChange('description', val)}
-                                    placeholder="Keterangan singkat"
+                                    placeholder="Short caption"
                                 />
                             </p>
                         </div>
@@ -351,7 +351,7 @@ export default function SubComponentRenderer({
                                     <InlineText
                                         value={title}
                                         onChange={(val) => handlePropChange('title', val)}
-                                        placeholder="Judul Catatan"
+                                        placeholder="Notice Title"
                                     />
                                 </h6>
                             )}
@@ -359,7 +359,7 @@ export default function SubComponentRenderer({
                                 <InlineText
                                     value={content}
                                     onChange={(val) => handlePropChange('content', val)}
-                                    placeholder="Isi catatan informasi..."
+                                    placeholder="Notice content details..."
                                     multiline
                                 />
                             </div>
@@ -395,7 +395,7 @@ export default function SubComponentRenderer({
                                 <InlineText
                                     value={count}
                                     onChange={(val) => handlePropChange('count', val)}
-                                    placeholder="100+ ulasan"
+                                    placeholder="1,250+ reviews"
                                 />
                                 )
                             </span>
@@ -421,7 +421,7 @@ export default function SubComponentRenderer({
                                 <InlineText
                                     value={text}
                                     onChange={(val) => handlePropChange('text', val)}
-                                    placeholder="Teks Pembatas"
+                                    placeholder="Divider Text"
                                 />
                             </span>
                             <div className="flex-1 h-px bg-slate-800" />
@@ -470,14 +470,14 @@ export default function SubComponentRenderer({
                             <InlineText
                                 value={title}
                                 onChange={(val) => handlePropChange('title', val)}
-                                placeholder="Judul Kartu"
+                                placeholder="Card Title"
                             />
                         </h4>
                         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                             <InlineText
                                 value={description}
                                 onChange={(val) => handlePropChange('description', val)}
-                                placeholder="Deskripsi kartu..."
+                                placeholder="Card description..."
                                 multiline
                             />
                         </p>
@@ -535,15 +535,15 @@ export default function SubComponentRenderer({
                             >
                                 {isEditing && (
                                     <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-800 text-[10px] text-slate-400 font-mono">
-                                        <span className="font-semibold text-slate-300">Kolom #{cIdx + 1}</span>
-                                        <span>{col.subComponents?.length || 0} item</span>
+                                        <span className="font-semibold text-slate-300">Column #{cIdx + 1}</span>
+                                        <span>{col.subComponents?.length || 0} item{col.subComponents?.length === 1 ? '' : 's'}</span>
                                     </div>
                                 )}
                                 <SubComponentSlot
                                     blockId={blockId}
                                     subComponents={col.subComponents || []}
                                     slotPath={{ parentSubId: id, columnIndex: cIdx }}
-                                    emptyPlaceholder={`+ Isi Kolom ${cIdx + 1}`}
+                                    emptyPlaceholder={`+ Add to Column ${cIdx + 1}`}
                                 />
                             </div>
                         ))}
@@ -576,12 +576,12 @@ export default function SubComponentRenderer({
                     {...attributes}
                     {...listeners}
                     className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 cursor-grab active:cursor-grabbing transition-colors"
-                    title="Tarik untuk memindahkan urutan"
+                    title="Drag to reorder"
                 >
                     <GripVertical className="w-3 h-3" />
                 </button>
 
-                {/* Geser Atas */}
+                {/* Move Up */}
                 <button
                     type="button"
                     disabled={isFirst}
@@ -590,12 +590,12 @@ export default function SubComponentRenderer({
                         onMoveSubComponent(blockId, id, 'up', slotPath);
                     }}
                     className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30"
-                    title="Geser ke atas"
+                    title="Move Up"
                 >
                     <ChevronUp className="w-3 h-3" />
                 </button>
 
-                {/* Geser Bawah */}
+                {/* Move Down */}
                 <button
                     type="button"
                     disabled={isLast}
@@ -604,7 +604,7 @@ export default function SubComponentRenderer({
                         onMoveSubComponent(blockId, id, 'down', slotPath);
                     }}
                     className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30"
-                    title="Geser ke bawah"
+                    title="Move Down"
                 >
                     <ChevronDown className="w-3 h-3" />
                 </button>
@@ -619,12 +619,12 @@ export default function SubComponentRenderer({
                     className={`p-1 rounded transition-colors ${
                         showQuickSettings ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                     }`}
-                    title="Pengaturan Gaya"
+                    title="Style Settings"
                 >
                     <Settings2 className="w-3 h-3" />
                 </button>
 
-                {/* Duplikasi */}
+                {/* Duplicate */}
                 <button
                     type="button"
                     onClick={(e) => {
@@ -632,12 +632,12 @@ export default function SubComponentRenderer({
                         onDuplicateSubComponent(blockId, id, slotPath);
                     }}
                     className="p-1 rounded text-slate-400 hover:text-indigo-400 hover:bg-slate-800"
-                    title="Duplikat"
+                    title="Duplicate"
                 >
                     <Copy className="w-3 h-3" />
                 </button>
 
-                {/* Hapus */}
+                {/* Delete */}
                 <button
                     type="button"
                     onClick={(e) => {
@@ -645,7 +645,7 @@ export default function SubComponentRenderer({
                         onRemoveSubComponent(blockId, id, slotPath);
                     }}
                     className="p-1 rounded text-slate-400 hover:text-red-400 hover:bg-slate-800"
-                    title="Hapus"
+                    title="Delete"
                 >
                     <Trash2 className="w-3 h-3" />
                 </button>
@@ -658,7 +658,7 @@ export default function SubComponentRenderer({
                     className="absolute top-6 right-0 z-40 w-64 p-3 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl text-xs text-slate-200"
                 >
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 font-bold">
-                        <span>Atribut Sub-Komponen</span>
+                        <span>Sub-Component Settings</span>
                         <button
                             type="button"
                             onClick={() => setShowQuickSettings(false)}
@@ -671,7 +671,7 @@ export default function SubComponentRenderer({
                     {type === 'sub_button' && (
                         <div className="space-y-2">
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">URL / Link Target</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Target URL / Link</label>
                                 <input
                                     type="text"
                                     value={props.url || ''}
@@ -682,7 +682,7 @@ export default function SubComponentRenderer({
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label className="block text-[10px] text-slate-400 mb-1">Varian Gaya</label>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Style Variant</label>
                                     <select
                                         value={props.variant || 'primary'}
                                         onChange={(e) => handlePropChange('variant', e.target.value)}
@@ -696,15 +696,15 @@ export default function SubComponentRenderer({
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] text-slate-400 mb-1">Ukuran</label>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Size</label>
                                     <select
                                         value={props.size || 'md'}
                                         onChange={(e) => handlePropChange('size', e.target.value)}
                                         className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                     >
-                                        <option value="sm">Kecil</option>
-                                        <option value="md">Sedang</option>
-                                        <option value="lg">Besar</option>
+                                        <option value="sm">Small</option>
+                                        <option value="md">Medium</option>
+                                        <option value="lg">Large</option>
                                     </select>
                                 </div>
                             </div>
@@ -714,34 +714,34 @@ export default function SubComponentRenderer({
                     {type === 'sub_badge' && (
                         <div className="space-y-2">
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">Tema Warna</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Color Theme</label>
                                 <select
                                     value={props.color || 'indigo'}
                                     onChange={(e) => handlePropChange('color', e.target.value)}
                                     className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                 >
                                     <option value="indigo">Indigo</option>
-                                    <option value="emerald">Emerald Hijau</option>
-                                    <option value="amber">Amber Oranye</option>
-                                    <option value="rose">Rose Merah</option>
-                                    <option value="purple">Ungu Modern</option>
-                                    <option value="blue">Biru Langit</option>
-                                    <option value="slate">Slate Netral</option>
+                                    <option value="emerald">Emerald Green</option>
+                                    <option value="amber">Amber Orange</option>
+                                    <option value="rose">Rose Red</option>
+                                    <option value="purple">Modern Purple</option>
+                                    <option value="blue">Sky Blue</option>
+                                    <option value="slate">Neutral Slate</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">Ikon</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Icon</label>
                                 <select
                                     value={props.icon || 'Sparkles'}
                                     onChange={(e) => handlePropChange('icon', e.target.value)}
                                     className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                 >
                                     <option value="Sparkles">Sparkles ✨</option>
-                                    <option value="Zap">Zap Petir ⚡</option>
-                                    <option value="ShieldCheck">Shield Aman 🛡️</option>
-                                    <option value="Flame">Flame Api 🔥</option>
-                                    <option value="Heart">Heart Cinta ❤️</option>
-                                    <option value="None">Tanpa Ikon</option>
+                                    <option value="Zap">Zap ⚡</option>
+                                    <option value="ShieldCheck">Shield 🛡️</option>
+                                    <option value="Flame">Flame 🔥</option>
+                                    <option value="Heart">Heart ❤️</option>
+                                    <option value="None">None</option>
                                 </select>
                             </div>
                         </div>
@@ -750,7 +750,7 @@ export default function SubComponentRenderer({
                     {type === 'sub_image' && (
                         <div className="space-y-2">
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">URL Gambar</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Image URL</label>
                                 <input
                                     type="text"
                                     value={props.imageUrl || ''}
@@ -761,29 +761,29 @@ export default function SubComponentRenderer({
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label className="block text-[10px] text-slate-400 mb-1">Ukuran</label>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Width</label>
                                     <select
                                         value={props.width || 'md'}
                                         onChange={(e) => handlePropChange('width', e.target.value)}
                                         className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                     >
-                                        <option value="sm">Kecil</option>
-                                        <option value="md">Sedang</option>
-                                        <option value="lg">Besar</option>
-                                        <option value="full">Penuh</option>
+                                        <option value="sm">Small</option>
+                                        <option value="md">Medium</option>
+                                        <option value="lg">Large</option>
+                                        <option value="full">Full Width</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] text-slate-400 mb-1">Sudut (Rounded)</label>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Corner Radius</label>
                                     <select
                                         value={props.rounded || 'xl'}
                                         onChange={(e) => handlePropChange('rounded', e.target.value)}
                                         className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                     >
-                                        <option value="none">Siku-siku</option>
-                                        <option value="md">Rounded Sedang</option>
-                                        <option value="xl">Rounded Halus</option>
-                                        <option value="full">Bulat Lingkaran</option>
+                                        <option value="none">Square</option>
+                                        <option value="md">Medium Rounded</option>
+                                        <option value="xl">Smooth Rounded</option>
+                                        <option value="full">Circle / Pill</option>
                                     </select>
                                 </div>
                             </div>
@@ -792,16 +792,16 @@ export default function SubComponentRenderer({
 
                     {type === 'sub_alert' && (
                         <div>
-                            <label className="block text-[10px] text-slate-400 mb-1">Tipe Alert</label>
+                            <label className="block text-[10px] text-slate-400 mb-1">Callout Type</label>
                             <select
                                 value={props.type || 'info'}
                                 onChange={(e) => handlePropChange('type', e.target.value)}
                                 className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                             >
-                                <option value="info">Info (Biru)</option>
-                                <option value="success">Sukses (Hijau)</option>
-                                <option value="warning">Peringatan (Kuning)</option>
-                                <option value="tip">Tips / Fitur (Ungu)</option>
+                                <option value="info">Info (Blue)</option>
+                                <option value="success">Success (Green)</option>
+                                <option value="warning">Warning (Yellow)</option>
+                                <option value="tip">Tip / Feature (Purple)</option>
                             </select>
                         </div>
                     )}
@@ -809,15 +809,15 @@ export default function SubComponentRenderer({
                     {type === 'sub_divider' && (
                         <div className="space-y-2">
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">Gaya Garis</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Line Style</label>
                                 <select
                                     value={props.style || 'solid'}
                                     onChange={(e) => handlePropChange('style', e.target.value)}
                                     className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                 >
-                                    <option value="solid">Garis Lurus Solid</option>
-                                    <option value="dashed">Garis Putus-Putus</option>
-                                    <option value="gradient">Gradien Halus</option>
+                                    <option value="solid">Solid Line</option>
+                                    <option value="dashed">Dashed Line</option>
+                                    <option value="gradient">Smooth Gradient</option>
                                 </select>
                             </div>
                         </div>
@@ -825,16 +825,16 @@ export default function SubComponentRenderer({
 
                     {type === 'sub_spacer' && (
                         <div>
-                            <label className="block text-[10px] text-slate-400 mb-1">Tinggi Ruang Kosong</label>
+                            <label className="block text-[10px] text-slate-400 mb-1">Spacer Height</label>
                             <select
                                 value={props.size || 'md'}
                                 onChange={(e) => handlePropChange('size', e.target.value)}
                                 className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                             >
-                                <option value="sm">Kecil (16px)</option>
-                                <option value="md">Sedang (32px)</option>
-                                <option value="lg">Besar (64px)</option>
-                                <option value="xl">Ekstra Besar (96px)</option>
+                                <option value="sm">Small (16px)</option>
+                                <option value="md">Medium (32px)</option>
+                                <option value="lg">Large (64px)</option>
+                                <option value="xl">Extra Large (96px)</option>
                             </select>
                         </div>
                     )}
@@ -842,7 +842,7 @@ export default function SubComponentRenderer({
                     {type === 'sub_row' && (
                         <div className="space-y-2">
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">Jumlah Kolom</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Columns Count</label>
                                 <div className="grid grid-cols-4 gap-1.5">
                                     {[1, 2, 3, 4].map((num) => (
                                         <button
@@ -862,21 +862,21 @@ export default function SubComponentRenderer({
                                                     : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
                                             }`}
                                         >
-                                            {num} Kol
+                                            {num} Col{num > 1 ? 's' : ''}
                                         </button>
                                     ))}
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] text-slate-400 mb-1">Jarak Antar Kolom (Gap)</label>
+                                <label className="block text-[10px] text-slate-400 mb-1">Column Gap</label>
                                 <select
                                     value={props.gap || 'md'}
                                     onChange={(e) => handlePropChange('gap', e.target.value)}
                                     className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
                                 >
-                                    <option value="sm">Rapat (Kecil)</option>
-                                    <option value="md">Standar (Sedang)</option>
-                                    <option value="lg">Lebar (Besar)</option>
+                                    <option value="sm">Compact (Small)</option>
+                                    <option value="md">Standard (Medium)</option>
+                                    <option value="lg">Wide (Large)</option>
                                 </select>
                             </div>
                         </div>

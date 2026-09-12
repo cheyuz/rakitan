@@ -88,7 +88,7 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                                     <InlineText
                                         value={badgeText}
                                         onChange={(val) => handlePropChange('badgeText', val)}
-                                        placeholder="Teks Badge Hero"
+                                        placeholder="Hero Badge Text"
                                     />
                                 </div>
                             </DefaultElementWrapper>
@@ -104,7 +104,7 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                                 <InlineText
                                     value={title}
                                     onChange={(val) => handlePropChange('title', val)}
-                                    placeholder="Judul Hero Section"
+                                    placeholder="Hero Headline Title"
                                     as="span"
                                 />
                             </h1>
@@ -114,14 +114,14 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="subtitle"
-                                label="Subjudul"
+                                label="Subtitle"
                                 isCustom={isCustom}
                             >
                                 <p className={`text-lg sm:text-xl font-normal leading-relaxed mb-10 ${bgStyle === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
                                     <InlineText
                                         value={subtitle}
                                         onChange={(val) => handlePropChange('subtitle', val)}
-                                        placeholder="Tuliskan subjudul pengantar..."
+                                        placeholder="Write introductory subtitle..."
                                         multiline
                                         as="span"
                                     />
@@ -132,7 +132,7 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="buttons"
-                            label="Tombol Aksi"
+                            label="Action Buttons"
                             isCustom={isCustom}
                         >
                             <div className="flex flex-wrap items-center gap-4">
@@ -147,7 +147,7 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                                         <InlineText
                                             value={primaryButtonText}
                                             onChange={(val) => handlePropChange('primaryButtonText', val)}
-                                            placeholder="Tombol Utama"
+                                            placeholder="Primary Button"
                                         />
                                         <ArrowRight className="w-4 h-4" />
                                     </a>
@@ -168,7 +168,7 @@ export const HeroComponent = ({ props = {}, blockId }) => {
                                         <InlineText
                                             value={secondaryButtonText}
                                             onChange={(val) => handlePropChange('secondaryButtonText', val)}
-                                            placeholder="Tombol Kedua"
+                                            placeholder="Secondary Button"
                                         />
                                     </a>
                                 )}

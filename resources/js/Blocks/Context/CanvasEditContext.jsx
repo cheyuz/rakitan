@@ -15,6 +15,9 @@ export const CanvasEditContext = createContext({
     onReorderSubComponents: () => {},
     onConvertBlockToCustom: () => {},
     onResetBlockToDefault: () => {},
+    draggingPaletteItem: null,
+    onStartDragPaletteItem: () => {},
+    onEndDragPaletteItem: () => {},
 });
 
 export const useCanvasEdit = () => useContext(CanvasEditContext);

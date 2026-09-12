@@ -88,7 +88,7 @@ export const FeaturesComponent = ({ props = {}, blockId }) => {
                                         <InlineText
                                             value={badge}
                                             onChange={(val) => handlePropChange('badge', val)}
-                                            placeholder="Badge Kategori"
+                                            placeholder="Category Badge"
                                         />
                                     </div>
                                 </DefaultElementWrapper>
@@ -97,14 +97,14 @@ export const FeaturesComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="title"
-                                label="Judul Fitur"
+                                label="Feature Title"
                                 isCustom={isCustom}
                             >
                                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
                                     <InlineText
                                         value={title}
                                         onChange={(val) => handlePropChange('title', val)}
-                                        placeholder="Judul Bagian Fitur"
+                                        placeholder="Features Section Title"
                                         as="span"
                                     />
                                 </h2>
@@ -114,14 +114,14 @@ export const FeaturesComponent = ({ props = {}, blockId }) => {
                                 <DefaultElementWrapper
                                     blockId={blockId}
                                     elementKey="subtitle"
-                                    label="Subjudul"
+                                    label="Subtitle"
                                     isCustom={isCustom}
                                 >
                                     <p className="text-base sm:text-lg text-slate-400">
                                         <InlineText
                                             value={subtitle}
                                             onChange={(val) => handlePropChange('subtitle', val)}
-                                            placeholder="Deskripsi fitur..."
+                                            placeholder="Feature description..."
                                             multiline
                                             as="span"
                                         />
@@ -134,7 +134,7 @@ export const FeaturesComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="items"
-                            label="Grid Fitur"
+                            label="Features Grid"
                             isCustom={isCustom}
                         >
                             <div className={`grid gap-8 ${colClasses}`}>

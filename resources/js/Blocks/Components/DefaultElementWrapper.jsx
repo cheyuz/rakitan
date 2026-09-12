@@ -12,14 +12,14 @@ import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 export default function DefaultElementWrapper({
     blockId,
     elementKey,
-    label = 'Elemen Bawaan',
+    label = 'Default Element',
     isCustom = false,
     className = '',
     children,
 }) {
     const { isEditing, onConvertBlockToCustom } = useCanvasEdit();
 
-    // Jika sedang tidak dalam editor atau blok sudah berstatus custom, render biasa tanpa wrapper editor
+    // If not in editing mode or block is already custom, render children directly
     if (!isEditing || isCustom) {
         return children;
     }
@@ -39,11 +39,11 @@ export default function DefaultElementWrapper({
             <button
                 type="button"
                 onClick={handleDelete}
-                title={`Hapus ${label} bawaan & aktifkan mode custom`}
+                title={`Remove default ${label} & switch to custom mode`}
                 className="opacity-0 group-hover/elem:opacity-100 pointer-events-auto absolute -top-3 right-0 z-30 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600/90 hover:bg-red-500 text-white text-[10px] font-medium shadow-md shadow-red-950/40 backdrop-blur-sm transition-all duration-150 transform hover:scale-105 active:scale-95"
             >
                 <Trash2 className="w-2.5 h-2.5 text-red-100" />
-                <span>Hapus {label}</span>
+                <span>Remove {label}</span>
             </button>
         </div>
     );

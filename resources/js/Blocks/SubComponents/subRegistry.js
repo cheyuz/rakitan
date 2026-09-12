@@ -25,11 +25,11 @@ import {
 export const SUB_COMPONENTS_REGISTRY = {
     sub_button: {
         type: 'sub_button',
-        label: 'Tombol Kustom',
+        label: 'Custom Button',
         icon: MousePointerClick,
-        description: 'Tombol interaktif dengan varian gaya, link, dan ikon.',
+        description: 'Interactive button with style variants, link destination, and icon.',
         defaultProps: {
-            text: 'Klik Di Sini',
+            text: 'Click Here',
             url: '#',
             variant: 'primary', // 'primary' | 'secondary' | 'gradient' | 'outline' | 'ghost'
             size: 'md', // 'sm' | 'md' | 'lg'
@@ -41,9 +41,9 @@ export const SUB_COMPONENTS_REGISTRY = {
         type: 'sub_badge',
         label: 'Badge / Pill Tag',
         icon: Tag,
-        description: 'Label pill ringkas untuk highlight status, versi, atau penawaran.',
+        description: 'Compact pill label to highlight status, version, or special offers.',
         defaultProps: {
-            text: '✨ Fitur Unggulan',
+            text: '✨ Featured',
             color: 'indigo', // 'indigo' | 'emerald' | 'amber' | 'rose' | 'purple' | 'blue' | 'slate'
             icon: 'Sparkles', // 'Sparkles' | 'Zap' | 'ShieldCheck' | 'Flame' | 'None'
             pill: true,
@@ -51,11 +51,11 @@ export const SUB_COMPONENTS_REGISTRY = {
     },
     sub_text: {
         type: 'sub_text',
-        label: 'Teks / Tipografi',
+        label: 'Text / Typography',
         icon: Type,
-        description: 'Blok teks fleksibel untuk subjudul, kutipan, atau paragraf penjelasan.',
+        description: 'Flexible text block for subtitles, quotes, or descriptive paragraphs.',
         defaultProps: {
-            text: 'Tambahkan paragraf penjelasan ringkas atau kutipan penting di sini.',
+            text: 'Add a concise explanatory paragraph or important quote here.',
             variant: 'body', // 'h2' | 'h3' | 'h4' | 'lead' | 'body' | 'small'
             align: 'left', // 'left' | 'center' | 'right'
             color: 'default', // 'default' | 'muted' | 'gradient' | 'indigo'
@@ -63,12 +63,12 @@ export const SUB_COMPONENTS_REGISTRY = {
     },
     sub_image: {
         type: 'sub_image',
-        label: 'Gambar / Logo',
+        label: 'Image / Logo',
         icon: ImageIcon,
-        description: 'Gambar ilustrasi, logo mitra, atau avatar dengan opsi framing.',
+        description: 'Illustration image, partner logo, or avatar with framing options.',
         defaultProps: {
             imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-            alt: 'Gambar ilustrasi',
+            alt: 'Illustration image',
             width: 'md', // 'sm' | 'md' | 'lg' | 'full'
             rounded: 'xl', // 'none' | 'md' | 'xl' | 'full'
             shadow: true,
@@ -77,44 +77,44 @@ export const SUB_COMPONENTS_REGISTRY = {
     },
     sub_icon: {
         type: 'sub_icon',
-        label: 'Kotak Ikon & Poin',
+        label: 'Icon & Feature Box',
         icon: Smile,
-        description: 'Ikon visual dengan judul dan keterangan singkat.',
+        description: 'Visual icon with title and short caption.',
         defaultProps: {
             icon: 'Zap', // 'Zap' | 'Sparkles' | 'ShieldCheck' | 'Heart' | 'Flame'
-            title: 'Kecepatan Maksimal',
-            description: 'Dioptimalkan untuk performa tinggi tanpa lag.',
+            title: 'Maximum Speed',
+            description: 'Optimized for high performance without lag.',
             style: 'soft', // 'soft' | 'solid' | 'outline'
         },
     },
     sub_alert: {
         type: 'sub_alert',
-        label: 'Kotak Catatan / Alert',
+        label: 'Callout / Alert Box',
         icon: AlertCircle,
-        description: 'Kotak informasi penting, pengumuman, atau catatan tips.',
+        description: 'Highlighted info box, announcement, or tip callout.',
         defaultProps: {
             type: 'info', // 'info' | 'success' | 'warning' | 'tip'
-            title: 'Pemberitahuan Penting',
-            content: 'Gunakan fitur ini untuk menyampaikan informasi penting kepada pengunjung Anda.',
+            title: 'Important Notice',
+            content: 'Use this feature to communicate important announcements to your visitors.',
         },
     },
     sub_rating: {
         type: 'sub_rating',
-        label: 'Rating & Ulasan',
+        label: 'Rating & Social Proof',
         icon: Star,
-        description: 'Widget skor bintang dan kepuasan pelanggan sosial proof.',
+        description: 'Star rating score and customer satisfaction proof widget.',
         defaultProps: {
             score: '4.9',
             stars: 5,
-            count: '1,250+ Ulasan',
-            label: 'Dipercaya oleh kreator',
+            count: '1,250+ Reviews',
+            label: 'Trusted by creators',
         },
     },
     sub_divider: {
         type: 'sub_divider',
-        label: 'Garis Pemisah',
+        label: 'Divider Line',
         icon: Minus,
-        description: 'Garis pembatas visual antar konten dengan varian gaya.',
+        description: 'Visual separation line between sections with style variants.',
         defaultProps: {
             style: 'solid', // 'solid' | 'dashed' | 'gradient' | 'text'
             text: '',
@@ -123,12 +123,12 @@ export const SUB_COMPONENTS_REGISTRY = {
     },
     sub_card: {
         type: 'sub_card',
-        label: 'Kartu Mikro',
+        label: 'Micro Card',
         icon: Layers,
-        description: 'Kontainer kartu kecil untuk menonjolkan satu informasi khusus.',
+        description: 'Card container to highlight specific information.',
         defaultProps: {
-            title: 'Kartu Sorotan',
-            description: 'Berikan deskripsi detail di dalam kartu elegan berbingkai halus ini.',
+            title: 'Featured Card',
+            description: 'Provide detailed information inside this sleek framed card container.',
             bgStyle: 'slate', // 'slate' | 'dark' | 'glass'
             border: true,
             padding: 'md',
@@ -136,18 +136,18 @@ export const SUB_COMPONENTS_REGISTRY = {
     },
     sub_spacer: {
         type: 'sub_spacer',
-        label: 'Jarak / Spacer',
+        label: 'Vertical Spacer',
         icon: MoveVertical,
-        description: 'Ruang kosong vertikal untuk mengatur pernapasan tata letak.',
+        description: 'Vertical whitespace block to adjust layout breathing room.',
         defaultProps: {
             size: 'md', // 'sm' | 'md' | 'lg' | 'xl'
         },
     },
     sub_row: {
         type: 'sub_row',
-        label: 'Baris Kolom (Row)',
+        label: 'Columns Row',
         icon: Columns3,
-        description: 'Baris fleksibel 1-4 kolom yang dapat dimasukkan komponen mikro ke setiap kolomnya.',
+        description: 'Flexible 1-4 column row container to nest micro-components inside each column.',
         defaultProps: {
             columns: 2,
             gap: 'md',

@@ -104,7 +104,7 @@ export const PricingComponent = ({ props = {}, blockId }) => {
                                         <InlineText
                                             value={badge}
                                             onChange={(val) => handlePropChange('badge', val)}
-                                            placeholder="Badge Harga"
+                                            placeholder="Pricing Badge"
                                         />
                                     </div>
                                 </DefaultElementWrapper>
@@ -112,14 +112,14 @@ export const PricingComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="title"
-                                label="Judul Pricing"
+                                label="Pricing Title"
                                 isCustom={isCustom}
                             >
                                 <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
                                     <InlineText
                                         value={title}
                                         onChange={(val) => handlePropChange('title', val)}
-                                        placeholder="Judul Pricing"
+                                        placeholder="Pricing Plans Title"
                                         as="span"
                                     />
                                 </h2>
@@ -128,14 +128,14 @@ export const PricingComponent = ({ props = {}, blockId }) => {
                                 <DefaultElementWrapper
                                     blockId={blockId}
                                     elementKey="subtitle"
-                                    label="Subjudul"
+                                    label="Subtitle"
                                     isCustom={isCustom}
                                 >
                                     <p className="text-base sm:text-lg text-slate-400">
                                         <InlineText
                                             value={subtitle}
                                             onChange={(val) => handlePropChange('subtitle', val)}
-                                            placeholder="Deskripsi paket harga..."
+                                            placeholder="Pricing plans description..."
                                             multiline
                                             as="span"
                                         />
@@ -179,7 +179,7 @@ export const PricingComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="plans"
-                            label="Daftar Paket Harga"
+                            label="Pricing Plans Grid"
                             isCustom={isCustom}
                         >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">

@@ -53,7 +53,7 @@ export const RichTextComponent = ({ props = {}, blockId }) => {
                         <SubComponentSlot
                             blockId={blockId}
                             subComponents={subComponents}
-                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Rich Text Kustom Ini"
+                            emptyPlaceholder="+ Add Sub-Component to this Custom Rich Text Block"
                         />
                     </div>
                 ) : (
@@ -62,14 +62,14 @@ export const RichTextComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="title"
-                                label="Judul Artikel"
+                                label="Article Title"
                                 isCustom={isCustom}
                             >
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-8">
                                     <InlineText
                                         value={title}
                                         onChange={(val) => handlePropChange('title', val)}
-                                        placeholder="Judul Artikel / Rich Text"
+                                        placeholder="Article / Rich Text Title"
                                         as="span"
                                     />
                                 </h2>
@@ -79,7 +79,7 @@ export const RichTextComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="content"
-                            label="Konten HTML"
+                            label="HTML Content"
                             isCustom={isCustom}
                         >
                             <div

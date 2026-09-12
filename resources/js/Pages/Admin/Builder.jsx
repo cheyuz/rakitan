@@ -24,7 +24,7 @@ import {
     createSubComponentInstance,
 } from '@/Blocks/registry';
 import { convertBlockToCustom } from '@/Blocks/Helpers/blockConverter';
-import { CanvasEditProvider } from '@/Blocks/Context/CanvasEditContext';
+import { CanvasEditProvider, useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 import {
     ArrowLeft,
     Save,
@@ -63,6 +63,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
  */
 function SortableCanvasBlock({
     block,
+    index,
     isSelected,
     onSelect,
     onDuplicate,
@@ -71,6 +72,8 @@ function SortableCanvasBlock({
     onMoveDown,
     onConvertToCustom,
     onResetToDefault,
+    onAddSubComponent,
+    onAddBlockAt,
     isFirst,
     isLast,
     isPreviewMode,
@@ -83,6 +86,9 @@ function SortableCanvasBlock({
         transition,
         isDragging,
     } = useSortable({ id: block.id });
+
+    const { draggingPaletteItem, onEndDragPaletteItem } = useCanvasEdit();
+    const [isDragOverBlock, setIsDragOverBlock] = useState(false);
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -107,20 +113,107 @@ function SortableCanvasBlock({
 
     const isCustom = Boolean(block.props?.isCustom);
 
+    const handleBlockNativeDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+    };
+
+    const handleBlockNativeDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOverBlock(true);
+    };
+
+    const handleBlockNativeDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setIsDragOverBlock(false);
+        }
+    };
+
+    const handleBlockNativeDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOverBlock(false);
+
+        // 1. Cek jika yang di-drop adalah sub-komponen
+        let subType = null;
+        try {
+            const rawSub = e.dataTransfer.getData('application/rakitan-subcomponent');
+            if (rawSub) {
+                subType = JSON.parse(rawSub).type;
+            }
+        } catch (err) {}
+
+        if (!subType && draggingPaletteItem?.category === 'subcomponent') {
+            subType = draggingPaletteItem.type;
+        }
+
+        if (subType) {
+            if (!isCustom && onConvertToCustom) {
+                onConvertToCustom(block.id);
+            }
+            if (onAddSubComponent) {
+                onAddSubComponent(block.id, subType);
+            }
+            if (onEndDragPaletteItem) onEndDragPaletteItem();
+            return;
+        }
+
+        // 2. Cek jika yang di-drop adalah blok
+        let blockType = null;
+        try {
+            const rawBlock = e.dataTransfer.getData('application/rakitan-block');
+            if (rawBlock) {
+                blockType = JSON.parse(rawBlock).type;
+            }
+        } catch (err) {}
+
+        if (!blockType && draggingPaletteItem?.category === 'block') {
+            blockType = draggingPaletteItem.type;
+        }
+
+        if (blockType && onAddBlockAt) {
+            onAddBlockAt(blockType, index + 1);
+            if (onEndDragPaletteItem) onEndDragPaletteItem();
+        }
+    };
+
     return (
         <div
             ref={setNodeRef}
             style={style}
+            onDragOver={handleBlockNativeDragOver}
+            onDragEnter={handleBlockNativeDragEnter}
+            onDragLeave={handleBlockNativeDragLeave}
+            onDrop={handleBlockNativeDrop}
             onClick={(e) => {
                 e.stopPropagation();
                 onSelect(block.id);
             }}
             className={`group relative transition-all duration-200 ${
-                isSelected
+                isDragOverBlock
+                    ? 'ring-4 ring-indigo-500 ring-offset-2 ring-offset-slate-950 shadow-2xl scale-[1.005]'
+                    : isSelected
                     ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950 shadow-2xl'
                     : 'hover:ring-1 hover:ring-indigo-500/50'
             }`}
         >
+            {/* Overlay feedback saat ada komponen/blok di-drag ke atas blok ini */}
+            {isDragOverBlock && (
+                <div className="absolute inset-0 z-40 bg-indigo-950/75 border-2 border-dashed border-indigo-400 backdrop-blur-sm rounded-2xl flex items-center justify-center pointer-events-none animate-pulse">
+                    <div className="px-5 py-3 rounded-2xl bg-slate-900 border border-indigo-500/60 shadow-2xl text-xs font-bold text-white flex items-center gap-2.5">
+                        <Sparkles className="w-4 h-4 text-indigo-400 animate-spin" />
+                        <span>
+                            {draggingPaletteItem?.category === 'subcomponent'
+                                ? `Release to insert ${draggingPaletteItem.label || 'micro-component'} into this block`
+                                : `Release to add ${draggingPaletteItem?.label || ''} block below this block`}
+                        </span>
+                    </div>
+                </div>
+            )}
             {/* Top Action Toolbar */}
             <div
                 className={`absolute top-2 left-4 right-4 z-30 flex items-center justify-between pointer-events-none transition-all duration-200 ${
@@ -161,7 +254,7 @@ function SortableCanvasBlock({
                                 if (onResetToDefault) onResetToDefault(block.id);
                             }}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors"
-                            title="Reset kembali ke Template Bawaan"
+                            title="Reset back to Default Template"
                         >
                             <RotateCcw className="w-4 h-4" />
                         </button>
@@ -173,7 +266,7 @@ function SortableCanvasBlock({
                                 if (onConvertToCustom) onConvertToCustom(block.id);
                             }}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-slate-800 transition-colors"
-                            title="Konversi blok ini menjadi Mode Kustom (Full Editable)"
+                            title="Convert this block into Custom Mode (Full Editable)"
                         >
                             <Wand2 className="w-4 h-4" />
                         </button>
@@ -274,6 +367,7 @@ export default function Builder({ page }) {
     const [subSearch, setSubSearch] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [draggingPaletteItem, setDraggingPaletteItem] = useState(null);
 
     // Dnd-Kit Sensors
     const sensors = useSensors(
@@ -613,6 +707,20 @@ export default function Builder({ page }) {
         updateBlocksWithHistory(newBlocks);
     };
 
+    // Sisipkan blok baru di posisi tertentu
+    const handleAddBlockAt = (type, targetIndex = null) => {
+        const newBlock = createBlockInstance(type);
+        if (!newBlock) return;
+        const copy = [...blocks];
+        if (targetIndex !== null && targetIndex >= 0 && targetIndex <= copy.length) {
+            copy.splice(targetIndex, 0, newBlock);
+        } else {
+            copy.push(newBlock);
+        }
+        updateBlocksWithHistory(copy);
+        setSelectedBlockId(newBlock.id);
+    };
+
     const handleSave = () => {
         setIsSaving(true);
         setSaveSuccess(false);
@@ -675,17 +783,89 @@ export default function Builder({ page }) {
         onReorderSubComponents: handleReorderSubComponents,
         onConvertBlockToCustom: handleConvertBlockToCustom,
         onResetBlockToDefault: handleResetBlockToDefault,
+        draggingPaletteItem,
+        onStartDragPaletteItem: (item) => setDraggingPaletteItem(item),
+        onEndDragPaletteItem: () => setDraggingPaletteItem(null),
+        onAddBlockAt: handleAddBlockAt,
+    };
+
+    const [isEmptyDragOver, setIsEmptyDragOver] = useState(false);
+
+    const handleEmptyDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsEmptyDragOver(false);
+
+        // Cek jika sub-komponen di-drop ke kanvas kosong
+        let subType = null;
+        try {
+            const rawSub = e.dataTransfer.getData('application/rakitan-subcomponent');
+            if (rawSub) subType = JSON.parse(rawSub).type;
+        } catch (err) {}
+        if (!subType && draggingPaletteItem?.category === 'subcomponent') {
+            subType = draggingPaletteItem.type;
+        }
+
+        if (subType) {
+            // Otomatis buat Container Block dan masukkan sub-komponen
+            const containerBlock = createBlockInstance('container');
+            const subInstance = createSubComponentInstance(subType);
+            if (containerBlock && subInstance) {
+                containerBlock.props = {
+                    ...containerBlock.props,
+                    subComponents: [subInstance],
+                };
+                updateBlocksWithHistory([containerBlock]);
+                setSelectedBlockId(containerBlock.id);
+            }
+            setDraggingPaletteItem(null);
+            return;
+        }
+
+        // Cek jika blok di-drop ke kanvas kosong
+        let blockType = null;
+        try {
+            const rawBlock = e.dataTransfer.getData('application/rakitan-block');
+            if (rawBlock) blockType = JSON.parse(rawBlock).type;
+        } catch (err) {}
+        if (!blockType && draggingPaletteItem?.category === 'block') {
+            blockType = draggingPaletteItem.type;
+        }
+
+        if (blockType) {
+            handleAddBlock(blockType);
+            setDraggingPaletteItem(null);
+        }
     };
 
     const renderCanvasBlocks = () => {
         return (
             <CanvasEditProvider value={canvasEditContextValue}>
                 {blocks.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-center my-auto min-h-[400px]">
+                    <div
+                        onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'copy';
+                        }}
+                        onDragEnter={() => setIsEmptyDragOver(true)}
+                        onDragLeave={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget)) {
+                                setIsEmptyDragOver(false);
+                            }
+                        }}
+                        onDrop={handleEmptyDrop}
+                        className={`flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-3xl text-center my-auto min-h-[400px] transition-all ${
+                            isEmptyDragOver
+                                ? 'border-indigo-400 bg-indigo-500/15 ring-4 ring-indigo-500/20 scale-[1.01]'
+                                : 'border-slate-800 bg-slate-900/30'
+                        }`}
+                    >
                         <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-white mb-2">Canvas is Empty</h3>
+                        <h3 className="text-xl font-bold text-white mb-2">
+                            {isEmptyDragOver ? '📥 Drop Component Here' : 'Canvas is Empty'}
+                        </h3>
                         <p className="text-xs text-slate-400 max-w-sm mb-6">
-                            Start building your webpage by dragging or clicking puzzle pieces from the left palette.
+                            Drag components or puzzle pieces from the left panel and drop them in this area to get started.
                         </p>
                         <button
                             type="button"
@@ -693,7 +873,7 @@ export default function Builder({ page }) {
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
                         >
                             <Plus className="w-4 h-4" />
-                            <span>Add Initial Hero Section</span>
+                            <span>Add Hero Section</span>
                         </button>
                     </div>
                 ) : (
@@ -711,6 +891,7 @@ export default function Builder({ page }) {
                                     <SortableCanvasBlock
                                         key={block.id}
                                         block={block}
+                                        index={idx}
                                         isSelected={block.id === selectedBlockId}
                                         onSelect={setSelectedBlockId}
                                         onDuplicate={handleDuplicate}
@@ -719,6 +900,8 @@ export default function Builder({ page }) {
                                         onMoveDown={handleMoveDown}
                                         onConvertToCustom={handleConvertBlockToCustom}
                                         onResetToDefault={handleResetBlockToDefault}
+                                        onAddSubComponent={handleAddSubComponent}
+                                        onAddBlockAt={handleAddBlockAt}
                                         isFirst={idx === 0}
                                         isLast={idx === blocks.length - 1}
                                         isPreviewMode={isPreviewMode}
@@ -921,10 +1104,10 @@ export default function Builder({ page }) {
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                 }`}
-                                title="Katalog Blok Penuh"
+                                title="Full Block Catalog"
                             >
                                 <Puzzle className="w-3.5 h-3.5" />
-                                <span>Blok</span>
+                                <span>Blocks</span>
                             </button>
                             <button
                                 type="button"
@@ -934,10 +1117,10 @@ export default function Builder({ page }) {
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                 }`}
-                                title="Mikro Komponen Dinamis"
+                                title="Dynamic Micro-Components"
                             >
                                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                                <span>Mikro</span>
+                                <span>Micro</span>
                             </button>
                             <button
                                 type="button"
@@ -947,10 +1130,10 @@ export default function Builder({ page }) {
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                 }`}
-                                title="Struktur Halaman"
+                                title="Page Structure"
                             >
                                 <Layers className="w-3.5 h-3.5" />
-                                <span>Pohon</span>
+                                <span>Outline</span>
                             </button>
                         </div>
 
@@ -960,19 +1143,10 @@ export default function Builder({ page }) {
                                 <div className="mb-3 p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 text-xs">
                                     <div className="text-[11px] text-indigo-300 font-bold mb-1 flex items-center gap-1.5">
                                         <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                                        <span>Mikro Komponen Dinamis</span>
+                                        <span>Drag & Drop Micro-Components</span>
                                     </div>
                                     <p className="text-[11px] text-slate-300 leading-relaxed">
-                                        {selectedBlock ? (
-                                            <>
-                                                Menyisipkan ke blok:{' '}
-                                                <span className="font-bold text-white bg-indigo-500/20 px-1.5 py-0.5 rounded">
-                                                    {selectedDef?.label || selectedBlock.type}
-                                                </span>
-                                            </>
-                                        ) : (
-                                            'Pilih blok di canvas terlebih dahulu atau langsung klik tombol di bawah.'
-                                        )}
+                                        <strong>Drag</strong> components into slots, row columns, or canvas blocks, or <strong>click</strong> to insert directly.
                                     </p>
                                 </div>
 
@@ -983,7 +1157,7 @@ export default function Builder({ page }) {
                                         type="text"
                                         value={subSearch}
                                         onChange={(e) => setSubSearch(e.target.value)}
-                                        placeholder="Cari mikro komponen..."
+                                        placeholder="Search micro-components..."
                                         className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     />
                                 </div>
@@ -1001,6 +1175,22 @@ export default function Builder({ page }) {
                                             return (
                                                 <div
                                                     key={item.type}
+                                                    draggable={true}
+                                                    onDragStart={(e) => {
+                                                        e.dataTransfer.setData(
+                                                            'application/rakitan-subcomponent',
+                                                            JSON.stringify({ type: item.type })
+                                                        );
+                                                        e.dataTransfer.effectAllowed = 'copy';
+                                                        setDraggingPaletteItem({
+                                                            category: 'subcomponent',
+                                                            type: item.type,
+                                                            label: item.label,
+                                                        });
+                                                    }}
+                                                    onDragEnd={() => {
+                                                        setDraggingPaletteItem(null);
+                                                    }}
                                                     onClick={() => {
                                                         if (blocks.length === 0) {
                                                             handleAddBlock('container');
@@ -1008,7 +1198,8 @@ export default function Builder({ page }) {
                                                             handleAddSubComponent(selectedBlockId, item.type);
                                                         }
                                                     }}
-                                                    className="group p-3 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:bg-slate-900/90 cursor-pointer transition-all duration-200"
+                                                    className="group p-3 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:bg-slate-900/90 cursor-grab active:cursor-grabbing transition-all duration-200 select-none"
+                                                    title="Drag to center canvas or click to insert"
                                                 >
                                                     <div className="flex items-start gap-2.5">
                                                         <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all">
@@ -1016,12 +1207,15 @@ export default function Builder({ page }) {
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center justify-between mb-0.5">
-                                                                <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
-                                                                    {item.label}
+                                                                <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                                                                    <span>{item.label}</span>
                                                                 </h4>
-                                                                <span className="text-[10px] text-indigo-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    + Sisipkan
-                                                                </span>
+                                                                <div className="flex items-center gap-1">
+                                                                    <span className="text-[10px] text-indigo-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        Drag / + Insert
+                                                                    </span>
+                                                                    <GripVertical className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
+                                                                </div>
                                                             </div>
                                                             <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
                                                                 {item.description}
@@ -1035,6 +1229,16 @@ export default function Builder({ page }) {
                             </div>
                         ) : activeTabLeft === 'palette' ? (
                             <div className="flex-1 flex flex-col overflow-hidden p-4">
+                                <div className="mb-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs">
+                                    <div className="text-[11px] text-indigo-300 font-bold mb-1 flex items-center gap-1.5">
+                                        <Puzzle className="w-3.5 h-3.5 text-indigo-400" />
+                                        <span>Drag & Drop Page Blocks</span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                                        <strong>Drag</strong> blocks onto the center canvas to insert at your desired position.
+                                    </p>
+                                </div>
+
                                 {/* Search Box */}
                                 <div className="relative mb-3">
                                     <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -1066,14 +1270,31 @@ export default function Builder({ page }) {
                                 </div>
 
                                 {/* Available Blocks List */}
-                                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
                                     {filteredPalette.map((item) => {
                                         const Icon = item.icon;
                                         return (
                                             <div
                                                 key={item.type}
+                                                draggable={true}
+                                                onDragStart={(e) => {
+                                                    e.dataTransfer.setData(
+                                                        'application/rakitan-block',
+                                                        JSON.stringify({ type: item.type })
+                                                    );
+                                                    e.dataTransfer.effectAllowed = 'copy';
+                                                    setDraggingPaletteItem({
+                                                        category: 'block',
+                                                        type: item.type,
+                                                        label: item.label,
+                                                    });
+                                                }}
+                                                onDragEnd={() => {
+                                                    setDraggingPaletteItem(null);
+                                                }}
                                                 onClick={() => handleAddBlock(item.type)}
-                                                className="group p-3.5 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 cursor-pointer transition-all duration-200"
+                                                className="group p-3.5 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 cursor-grab active:cursor-grabbing transition-all duration-200 select-none"
+                                                title="Drag to center canvas or click to add"
                                             >
                                                 <div className="flex items-start gap-3">
                                                     <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
@@ -1084,9 +1305,12 @@ export default function Builder({ page }) {
                                                             <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
                                                                 {item.label}
                                                             </h4>
-                                                            <span className="text-[10px] text-indigo-400/80 uppercase font-semibold">
-                                                                + Add
-                                                            </span>
+                                                            <div className="flex items-center gap-1">
+                                                                <span className="text-[10px] text-indigo-400/80 uppercase font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    Drag / + Add
+                                                                </span>
+                                                                <GripVertical className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
+                                                            </div>
                                                         </div>
                                                         <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
                                                             {item.description}
@@ -1278,26 +1502,26 @@ export default function Builder({ page }) {
                                             </button>
                                         </div>
 
-                                        {/* Status Mode Kustom vs Template Bawaan */}
+                                        {/* Status Mode Custom vs Default Template */}
                                         {selectedBlock.props?.isCustom ? (
                                             <div className="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs flex flex-col gap-2">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1.5 font-bold text-purple-300">
                                                         <Wand2 className="w-4 h-4 text-purple-400" />
-                                                        <span>Mode Kustom (Full Editable)</span>
+                                                        <span>Custom Mode (Full Editable)</span>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleResetBlockToDefault(selectedBlock.id)}
                                                         className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-purple-900/50 hover:bg-purple-800/80 text-purple-200 transition-colors"
-                                                        title="Kembalikan ke format template default"
+                                                        title="Revert back to default template format"
                                                     >
                                                         <RotateCcw className="w-3 h-3" />
                                                         <span>Reset Template</span>
                                                     </button>
                                                 </div>
                                                 <p className="text-[11px] text-slate-300 leading-relaxed">
-                                                    Blok ini sekarang berstatus kustom bebas. Anda dapat menghapus sub-komponen, menambah komponen mikro di mana saja, serta men-drag & drop urutan posisi elemen.
+                                                    This block is now in free custom mode. You can remove sub-components, add micro-components anywhere, and drag & drop element order.
                                                 </p>
                                             </div>
                                         ) : (
@@ -1305,20 +1529,20 @@ export default function Builder({ page }) {
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1.5 font-semibold text-slate-300">
                                                         <Sparkles className="w-4 h-4 text-indigo-400" />
-                                                        <span>Template Bawaan</span>
+                                                        <span>Default Template</span>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleConvertBlockToCustom(selectedBlock.id)}
                                                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-sm shadow-indigo-600/30"
-                                                        title="Buka kebebasan edit penuh dengan memecah elemen bawaan menjadi sub-komponen"
+                                                        title="Unlock full editing freedom by converting default elements into sub-components"
                                                     >
                                                         <Wand2 className="w-3 h-3" />
-                                                        <span>Jadikan Kustom</span>
+                                                        <span>Make Custom</span>
                                                     </button>
                                                 </div>
                                                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                                                    Arahkan kursor ke elemen mana saja pada kanvas (Badge, Judul, Tombol) lalu klik Hapus untuk otomatis mengubahnya menjadi mode kustom yang bebas diedit.
+                                                    Hover over any element on the canvas (Badge, Title, Buttons) and click Remove to automatically switch to freely editable custom mode.
                                                 </p>
                                             </div>
                                         )}

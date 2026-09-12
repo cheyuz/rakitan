@@ -44,14 +44,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                 <DefaultElementWrapper
                                     blockId={blockId}
                                     elementKey="title"
-                                    label="Judul CTA"
+                                    label="CTA Title"
                                     isCustom={isCustom}
                                 >
                                     <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
                                         <InlineText
                                             value={title}
                                             onChange={(val) => handlePropChange('title', val)}
-                                            placeholder="Judul CTA"
+                                            placeholder="CTA Title"
                                             as="span"
                                         />
                                     </h2>
@@ -61,14 +61,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                     <DefaultElementWrapper
                                         blockId={blockId}
                                         elementKey="description"
-                                        label="Deskripsi"
+                                        label="Description"
                                         isCustom={isCustom}
                                     >
                                         <p className="text-base sm:text-lg text-slate-300 mb-8">
                                             <InlineText
                                                 value={description}
                                                 onChange={(val) => handlePropChange('description', val)}
-                                                placeholder="Deskripsi ajakan bertindak..."
+                                                placeholder="Call to action description..."
                                                 multiline
                                                 as="span"
                                             />
@@ -79,7 +79,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                 <DefaultElementWrapper
                                     blockId={blockId}
                                     elementKey="buttons"
-                                    label="Tombol Aksi"
+                                    label="Action Buttons"
                                     isCustom={isCustom}
                                 >
                                     <div className="flex flex-wrap justify-center items-center gap-4">
@@ -150,14 +150,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="title"
-                                label="Judul CTA"
+                                label="CTA Title"
                                 isCustom={isCustom}
                             >
                                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
                                     <InlineText
                                         value={title}
                                         onChange={(val) => handlePropChange('title', val)}
-                                        placeholder="Judul CTA"
+                                        placeholder="CTA Title"
                                         as="span"
                                     />
                                 </h2>
@@ -167,14 +167,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                 <DefaultElementWrapper
                                     blockId={blockId}
                                     elementKey="description"
-                                    label="Deskripsi"
+                                    label="Description"
                                     isCustom={isCustom}
                                 >
                                     <p className="text-base sm:text-lg text-slate-400 mb-8">
                                         <InlineText
                                             value={description}
                                             onChange={(val) => handlePropChange('description', val)}
-                                            placeholder="Deskripsi ajakan bertindak..."
+                                            placeholder="Call to action description..."
                                             multiline
                                             as="span"
                                         />
@@ -185,7 +185,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="buttons"
-                                label="Tombol Aksi"
+                                label="Action Buttons"
                                 isCustom={isCustom}
                             >
                                 <div className="flex flex-wrap justify-center items-center gap-4">
@@ -200,7 +200,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                             <InlineText
                                                 value={primaryButtonText}
                                                 onChange={(val) => handlePropChange('primaryButtonText', val)}
-                                                placeholder="Tombol Utama"
+                                                placeholder="Primary Button"
                                             />
                                             <ArrowRight className="w-4 h-4" />
                                         </a>
@@ -216,7 +216,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                             <InlineText
                                                 value={secondaryButtonText}
                                                 onChange={(val) => handlePropChange('secondaryButtonText', val)}
-                                                placeholder="Tombol Kedua"
+                                                placeholder="Secondary Button"
                                             />
                                         </a>
                                     )}
@@ -228,7 +228,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                                 <SubComponentSlot
                                     blockId={blockId}
                                     subComponents={subComponents}
-                                    emptyPlaceholder="+ Tambah Sub-Komponen ke Minimal CTA"
+                                    emptyPlaceholder="+ Add Sub-Component to Minimal CTA"
                                 />
                             </div>
                         </>
@@ -249,7 +249,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                         <SubComponentSlot
                             blockId={blockId}
                             subComponents={subComponents}
-                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Gradient CTA Kustom Ini"
+                            emptyPlaceholder="+ Add Sub-Component to this Custom Gradient CTA"
                         />
                     </div>
                 ) : (
@@ -261,14 +261,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="title"
-                            label="Judul CTA"
+                            label="CTA Title"
                             isCustom={isCustom}
                         >
                             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
                                 <InlineText
                                     value={title}
                                     onChange={(val) => handlePropChange('title', val)}
-                                    placeholder="Judul Call to Action"
+                                    placeholder="Call to Action Title"
                                     as="span"
                                 />
                             </h2>
@@ -278,14 +278,14 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                             <DefaultElementWrapper
                                 blockId={blockId}
                                 elementKey="description"
-                                label="Deskripsi"
+                                label="Description"
                                 isCustom={isCustom}
                             >
                                 <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
                                     <InlineText
                                         value={description}
                                         onChange={(val) => handlePropChange('description', val)}
-                                        placeholder="Deskripsi ajakan bertindak..."
+                                        placeholder="Call to action description..."
                                         multiline
                                         as="span"
                                     />
@@ -296,7 +296,7 @@ export const CtaComponent = ({ props = {}, blockId }) => {
                         <DefaultElementWrapper
                             blockId={blockId}
                             elementKey="buttons"
-                            label="Tombol Aksi"
+                            label="Action Buttons"
                             isCustom={isCustom}
                         >
                             <div className="flex flex-wrap justify-center items-center gap-4">

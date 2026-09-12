@@ -3,12 +3,14 @@ import { Plus, Sparkles, X, ChevronRight } from 'lucide-react';
 import {
     DndContext,
     closestCenter,
+    KeyboardSensor,
     PointerSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
 import {
     SortableContext,
+    sortableKeyboardCoordinates,
     verticalListSortingStrategy,
     arrayMove,
 } from '@dnd-kit/sortable';
@@ -27,18 +29,17 @@ export default function SubComponentSlot({
     className = '',
     emptyPlaceholder = 'Tambahkan komponen mikro dinamis ke blok ini...',
 }) {
-    const { isEditing, onAddSubComponent, onReorderSubComponents } = useCanvasEdit();
+    const {
+        isEditing,
+        onAddSubComponent,
+        onReorderSubComponents,
+        draggingPaletteItem,
+        onEndDragPaletteItem,
+    } = useCanvasEdit();
     const [isOpenPicker, setIsOpenPicker] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
 
     const allAvailableSubComponents = getAllSubComponents();
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 5,
-            },
-        })
-    );
 
     const handleSelectSub = (type) => {
         if (onAddSubComponent) {
@@ -46,6 +47,69 @@ export default function SubComponentSlot({
         }
         setIsOpenPicker(false);
     };
+
+    // Native HTML5 Drag and Drop handlers to receive drop from left panel
+    const handleNativeDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+        if (!isDragOver) setIsDragOver(true);
+    };
+
+    const handleNativeDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleNativeDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only turn off if cursor leaves the slot container entirely
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setIsDragOver(false);
+        }
+    };
+
+    const handleNativeDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        let subType = null;
+        try {
+            const rawData = e.dataTransfer.getData('application/rakitan-subcomponent');
+            if (rawData) {
+                const parsed = JSON.parse(rawData);
+                subType = parsed.type;
+            }
+        } catch (err) {}
+
+        // Fallback to draggingPaletteItem in context
+        if (!subType && draggingPaletteItem?.category === 'subcomponent') {
+            subType = draggingPaletteItem.type;
+        }
+
+        if (subType && onAddSubComponent) {
+            onAddSubComponent(blockId, subType, slotPath);
+        }
+
+        if (onEndDragPaletteItem) {
+            onEndDragPaletteItem();
+        }
+    };
+
+    // Dnd-Kit Sensors for drag & drop between existing sub-components
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
@@ -55,12 +119,11 @@ export default function SubComponentSlot({
         const newIndex = subComponents.findIndex((s) => s.id === over.id);
 
         if (oldIndex !== -1 && newIndex !== -1 && onReorderSubComponents) {
-            const reordered = arrayMove(subComponents, oldIndex, newIndex);
-            onReorderSubComponents(blockId, reordered, slotPath);
+            onReorderSubComponents(blockId, oldIndex, newIndex, slotPath);
         }
     };
 
-    // Mode Publik / Non-Editing
+    // Public / Non-Editing Mode
     if (!isEditing) {
         if (!subComponents || subComponents.length === 0) return null;
 
@@ -80,10 +143,31 @@ export default function SubComponentSlot({
         );
     }
 
-    // Mode Builder Canvas dengan Drag and Drop
+    const isDraggingSubcomponent = draggingPaletteItem?.category === 'subcomponent';
+
+    // Canvas Builder Mode with Drag and Drop
     return (
-        <div className={`w-full my-1.5 transition-all relative ${className}`}>
-            {/* Daftar Sub-Komponen yang Sudah Ada dengan DnD Sortable */}
+        <div
+            onDragOver={handleNativeDragOver}
+            onDragEnter={handleNativeDragEnter}
+            onDragLeave={handleNativeDragLeave}
+            onDrop={handleNativeDrop}
+            className={`w-full my-1.5 transition-all duration-200 relative rounded-2xl ${
+                isDragOver
+                    ? 'ring-2 ring-indigo-400 bg-indigo-500/15 p-2 shadow-2xl scale-[1.01]'
+                    : isDraggingSubcomponent
+                    ? 'ring-1 ring-dashed ring-indigo-500/40 bg-indigo-500/5 p-1'
+                    : ''
+            } ${className}`}
+        >
+            {/* Active Drop Zone Indicator during Drag Hover */}
+            {isDragOver && (
+                <div className="w-full my-2 py-4 px-4 rounded-xl border-2 border-dashed border-indigo-400 bg-indigo-500/25 shadow-inner flex items-center justify-center gap-2 text-indigo-200 font-bold text-xs animate-pulse pointer-events-none">
+                    <Sparkles className="w-4 h-4 text-indigo-300 animate-spin" />
+                    <span>📥 Drop here to insert {draggingPaletteItem?.label || 'micro-component'}!</span>
+                </div>
+            )}
+            {/* Sub-Components List with DnD Sortable */}
             {subComponents && subComponents.length > 0 && (
                 <DndContext
                     sensors={sensors}
@@ -110,7 +194,7 @@ export default function SubComponentSlot({
                 </DndContext>
             )}
 
-            {/* Tombol Tambah Sub-Komponen */}
+            {/* Add Sub-Component Button */}
             <div className="relative flex items-center justify-center my-2">
                 <button
                     type="button"
@@ -125,10 +209,10 @@ export default function SubComponentSlot({
                     }`}
                 >
                     <Plus className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>{subComponents.length === 0 ? emptyPlaceholder : 'Tambah Sub-Komponen'}</span>
+                    <span>{subComponents.length === 0 ? emptyPlaceholder : 'Add Sub-Component'}</span>
                 </button>
 
-                {/* Popover Menu Pilihan Sub-Komponen */}
+                {/* Popover Menu for Sub-Components Selection */}
                 {isOpenPicker && (
                     <div
                         onClick={(e) => e.stopPropagation()}
@@ -137,7 +221,7 @@ export default function SubComponentSlot({
                         <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
                             <div className="flex items-center gap-1.5 text-xs font-bold text-white">
                                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                                <span>Pilih Mikro Komponen</span>
+                                <span>Select Micro-Component</span>
                             </div>
                             <button
                                 type="button"
