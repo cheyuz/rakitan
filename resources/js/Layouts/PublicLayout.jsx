@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowUpRight,
     LogIn,
@@ -41,12 +41,17 @@ export default function PublicLayout({
         setCurrentTheme(isLight ? 'default_dark' : 'default_light');
     };
 
+    const themeSlug = currentTheme.replace('_', '-');
+
     // If blank layout (e.g. Sales Funnel / Landing Page Canvas)
     if (layout === 'blank') {
         return (
             <div className={`min-h-screen selection:bg-indigo-500 selection:text-white font-sans antialiased ${
                 isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
             }`}>
+                <Head>
+                    <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
+                </Head>
                 {children}
             </div>
         );
@@ -63,6 +68,9 @@ export default function PublicLayout({
         <div className={`min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white font-sans antialiased transition-colors duration-200 ${
             isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
         }`}>
+            <Head>
+                <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
+            </Head>
             {/* Header Navigation */}
             <header className={`sticky top-0 z-50 w-full backdrop-blur-md transition-all ${
                 isLight

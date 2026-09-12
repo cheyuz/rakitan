@@ -74,6 +74,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::prefix('themes')->name('themes.')->group(function () {
         Route::get('/', [ThemeController::class, 'index'])->name('index');
         Route::post('/activate', [ThemeController::class, 'activate'])->name('activate');
+        Route::post('/upload', [ThemeController::class, 'upload'])->name('upload');
+        Route::delete('/{theme}', [ThemeController::class, 'destroy'])->name('destroy');
     });
 
     // Site Settings
@@ -140,7 +142,11 @@ Route::get('/api/latest-posts', function (Request $request) {
     return response()->json($posts);
 })->name('api.latest-posts');
 
+// Public Theme Assets (Stylesheet and Screenshot)
+Route::get('/themes/{theme}/screenshot', [ThemeController::class, 'screenshot'])->name('themes.screenshot');
+Route::get('/themes/{theme}/style.css', [ThemeController::class, 'style'])->name('themes.style');
+
 // Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
 Route::get('/{slug?}', [PublicPageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api).*$')
+    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes).*$')
     ->name('public.page');

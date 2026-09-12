@@ -1,0 +1,14 @@
+/* Rakitan Cyber Dark Theme Stylesheet */
+:root {
+    --rakitan-bg: #020617;
+    --rakitan-surface: #0f172a;
+    --rakitan-border: #1e293b;
+    --rakitan-primary: #6366f1;
+    --rakitan-text: #f8fafc;
+    --rakitan-muted: #94a3b8;
+}
+
+body.theme-default-dark {
+    background-color: var(--rakitan-bg);
+    color: var(--rakitan-text);
+}

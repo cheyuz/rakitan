@@ -1,0 +1,18 @@
+{
+    "id": "default-dark",
+    "name": "Rakitan Cyber Dark",
+    "version": "1.0.0",
+    "author": "Cecep Yusuf",
+    "description": "The signature dark theme for Rakitan CMS featuring deep midnight slate (#020617), glowing borders, and high contrast cyber typography.",
+    "screenshot": "screenshot.png",
+    "is_builtin": true,
+    "settings": {
+        "colorScheme": "dark",
+        "primaryColor": "#6366f1",
+        "backgroundColor": "#020617",
+        "surfaceColor": "#0f172a",
+        "borderColor": "#1e293b",
+        "textColor": "#f8fafc",
+        "mutedTextColor": "#94a3b8"
+    }
+}

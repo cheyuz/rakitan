@@ -1,0 +1,18 @@
+{
+    "id": "default-light",
+    "name": "Rakitan Clean Light",
+    "version": "1.0.0",
+    "author": "Cecep Yusuf",
+    "description": "Minimalist white and airy slate layout (#ffffff & #f8fafc) with subtle gray borders (#e2e8f0), dark typography, and soft ambient shadows.",
+    "screenshot": "screenshot.png",
+    "is_builtin": true,
+    "settings": {
+        "colorScheme": "light",
+        "primaryColor": "#6366f1",
+        "backgroundColor": "#f8fafc",
+        "surfaceColor": "#ffffff",
+        "borderColor": "#e2e8f0",
+        "textColor": "#0f172a",
+        "mutedTextColor": "#64748b"
+    }
+}

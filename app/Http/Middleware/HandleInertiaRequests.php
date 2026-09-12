@@ -29,12 +29,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $themeManager = app(\App\Services\ThemeManager::class);
+        $activeTheme = $themeManager->getActiveTheme();
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'active_theme' => \App\Models\Setting::get('active_theme', 'default_dark'),
+            'active_theme' => $activeTheme['id'],
+            'theme' => $activeTheme,
             'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
         ];
     }

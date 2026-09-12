@@ -1,0 +1,14 @@
+/* Rakitan Clean Light Theme Stylesheet */
+:root {
+    --rakitan-bg: #f8fafc;
+    --rakitan-surface: #ffffff;
+    --rakitan-border: #e2e8f0;
+    --rakitan-primary: #4f46e5;
+    --rakitan-text: #0f172a;
+    --rakitan-muted: #64748b;
+}
+
+body.theme-default-light {
+    background-color: var(--rakitan-bg);
+    color: var(--rakitan-text);
+}
