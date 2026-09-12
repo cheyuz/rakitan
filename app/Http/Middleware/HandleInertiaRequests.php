@@ -34,6 +34,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'active_theme' => \App\Models\Setting::get('active_theme', 'default_dark'),
+            'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
         ];
     }
 }

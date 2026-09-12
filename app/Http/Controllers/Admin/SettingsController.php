@@ -22,6 +22,7 @@ class SettingsController extends Controller
             'admin_email' => Setting::get('admin_email', 'admin@rakitan.test'),
             'default_status' => Setting::get('default_status', 'draft'),
             'footer_text' => Setting::get('footer_text', '© 2026 Rakitan CMS. Built for the open-source community.'),
+            'active_theme' => Setting::get('active_theme', 'default_dark'),
         ];
 
         return Inertia::render('Admin/Settings', [
@@ -40,6 +41,7 @@ class SettingsController extends Controller
             'admin_email' => ['required', 'email', 'max:255'],
             'default_status' => ['required', 'in:draft,published'],
             'footer_text' => ['nullable', 'string', 'max:500'],
+            'active_theme' => ['nullable', 'string', 'in:default_dark,default_light'],
         ]);
 
         foreach ($validated as $key => $value) {

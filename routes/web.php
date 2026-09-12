@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\ToolsController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\ProfileController;
@@ -57,6 +59,21 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');
         Route::post('/', [MenuController::class, 'update'])->name('update');
+    });
+
+    // Media Library
+    Route::prefix('media')->name('media.')->group(function () {
+        Route::get('/', [MediaController::class, 'index'])->name('index');
+        Route::post('/', [MediaController::class, 'store'])->name('store');
+        Route::delete('/{media}', [MediaController::class, 'destroy'])->name('destroy');
+        Route::post('/folders', [MediaController::class, 'storeFolder'])->name('folders.store');
+        Route::delete('/folders/{folder}', [MediaController::class, 'destroyFolder'])->name('folders.destroy');
+    });
+
+    // Themes Management
+    Route::prefix('themes')->name('themes.')->group(function () {
+        Route::get('/', [ThemeController::class, 'index'])->name('index');
+        Route::post('/activate', [ThemeController::class, 'activate'])->name('activate');
     });
 
     // Site Settings

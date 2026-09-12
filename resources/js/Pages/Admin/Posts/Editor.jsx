@@ -11,7 +11,10 @@ import {
     Clock,
     Globe,
     Sparkles,
+    FolderPlus,
+    X,
 } from 'lucide-react';
+import MediaPickerModal from '@/Components/MediaPickerModal';
 
 export default function Editor({ post = null, categories = [] }) {
     const isEdit = Boolean(post?.id);
@@ -28,6 +31,7 @@ export default function Editor({ post = null, categories = [] }) {
     });
 
     const [previewContent, setPreviewContent] = useState(false);
+    const [showMediaModal, setShowMediaModal] = useState(false);
 
     const handleTitleChange = (e) => {
         const val = e.target.value;
@@ -251,29 +255,69 @@ export default function Editor({ post = null, categories = [] }) {
 
                         {/* Featured Image */}
                         <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-3">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4 text-emerald-400" />
-                                <span>Featured Image (URL)</span>
-                            </h3>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 text-emerald-400" />
+                                    <span>Featured Image</span>
+                                </h3>
 
-                            <input
-                                type="text"
-                                value={data.featured_image}
-                                onChange={(e) => setData('featured_image', e.target.value)}
-                                placeholder="https://images.unsplash.com/photo-..."
-                                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                            />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMediaModal(true)}
+                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-1"
+                                >
+                                    <ImageIcon className="w-3.5 h-3.5" />
+                                    <span>Browse Media</span>
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={data.featured_image}
+                                    onChange={(e) => setData('featured_image', e.target.value)}
+                                    placeholder="Image URL or choose from library..."
+                                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                                />
+                                {data.featured_image && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setData('featured_image', '')}
+                                        className="p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-red-400"
+                                        title="Clear image"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
 
                             {data.featured_image && (
-                                <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 aspect-[16/10] bg-slate-950 relative">
+                                <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 aspect-[16/10] bg-slate-950 relative group">
                                     <img
                                         src={data.featured_image}
                                         alt="Preview"
                                         className="w-full h-full object-cover"
                                         onError={(e) => { e.target.style.display = 'none'; }}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowMediaModal(true)}
+                                        className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold transition-opacity"
+                                    >
+                                        Change Image
+                                    </button>
                                 </div>
                             )}
+
+                            {/* Media Picker Modal */}
+                            <MediaPickerModal
+                                isOpen={showMediaModal}
+                                onClose={() => setShowMediaModal(false)}
+                                onSelect={(media) => {
+                                    setData('featured_image', media.url);
+                                }}
+                                title="Choose Featured Image"
+                            />
                         </div>
 
                         {/* Status Preview Card */}

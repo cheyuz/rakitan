@@ -6,6 +6,8 @@ import {
     BookOpen,
     Tag,
     Menu as MenuIcon,
+    Image as ImageIcon,
+    Palette,
     Wrench,
     Settings,
     Globe,
@@ -47,10 +49,22 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             active: currentUrl.startsWith('/admin/categories'),
         },
         {
+            label: 'Media Library',
+            href: '/admin/media',
+            icon: ImageIcon,
+            active: currentUrl.startsWith('/admin/media'),
+        },
+        {
             label: 'Menus',
             href: '/admin/menus',
             icon: MenuIcon,
             active: currentUrl.startsWith('/admin/menus'),
+        },
+        {
+            label: 'Themes',
+            href: '/admin/themes',
+            icon: Palette,
+            active: currentUrl.startsWith('/admin/themes'),
         },
         {
             label: 'Tools & Migration',

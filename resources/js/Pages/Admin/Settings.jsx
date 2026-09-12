@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Settings as SettingsIcon, Save, Globe, Mail, Shield, CheckCircle2 } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Globe, Mail, Shield, CheckCircle2, Palette } from 'lucide-react';
 
 export default function Settings({ settings }) {
     const [form, setForm] = useState({
@@ -10,6 +10,7 @@ export default function Settings({ settings }) {
         admin_email: settings.admin_email || '',
         default_status: settings.default_status || 'draft',
         footer_text: settings.footer_text || '',
+        active_theme: settings.active_theme || 'default_dark',
     });
 
     const [isSaving, setIsSaving] = useState(false);
@@ -128,6 +129,34 @@ export default function Settings({ settings }) {
                                 >
                                     <option value="draft">Draft (Recommended)</option>
                                     <option value="published">Published</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-slate-800">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <Palette className="w-4 h-4 text-indigo-400" />
+                                <span>Website Theme Appearance</span>
+                            </div>
+                            <Link href="/admin/themes" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+                                Open Theme Manager →
+                            </Link>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                                    Active Website Theme
+                                </label>
+                                <select
+                                    value={form.active_theme}
+                                    onChange={(e) => setForm({ ...form, active_theme: e.target.value })}
+                                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                >
+                                    <option value="default_dark">Rakitan Cyber Dark (Default)</option>
+                                    <option value="default_light">Rakitan Clean Light (DefaultLight)</option>
                                 </select>
                             </div>
                         </div>
