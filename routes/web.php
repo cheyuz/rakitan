@@ -44,7 +44,14 @@ Route::middleware('auth')->group(function () {
 // Autentikasi Laravel Breeze
 require __DIR__.'/auth.php';
 
-// Dynamic Catch-All Public Routing (Me-render blok Rakitan berdasarkan slug)
+// Installer Routes (Setup Wizard)
+Route::prefix('install')->name('install.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\InstallController::class, 'index'])->name('index');
+    Route::post('/database', [\App\Http\Controllers\InstallController::class, 'setupDatabase'])->name('database');
+    Route::post('/site', [\App\Http\Controllers\InstallController::class, 'setupSite'])->name('site');
+});
+
+// Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
 Route::get('/{slug?}', [PublicPageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email).*$')
+    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install).*$')
     ->name('public.page');

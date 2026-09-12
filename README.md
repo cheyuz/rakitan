@@ -131,22 +131,21 @@ Populate initial demo pages (Homepage, About page, and administrator account):
 php artisan db:seed
 ```
 
-### 5. Start Development Servers
-Start the Laravel API server:
-```bash
-php artisan serve --port=8000
-```
+### 5. Web Installation Wizard (WordPress-Style)
+Alternatively, Rakitan CMS includes a modern, zero-config web setup wizard:
+1. Start the servers (`php artisan serve` and `npm run dev`).
+2. Open [http://localhost:8000/](http://localhost:8000/) in your browser.
+3. You will be automatically redirected to `/install`.
+4. Follow the 4-step wizard:
+   - **Step 1: System Requirements**: Automatically checks PHP version, required extensions, and file write permissions.
+   - **Step 2: Database Connection**: Enter MySQL host, port, database name, username, and password. If the database does not exist, check **"Automatically create database"** and Rakitan will create it for you!
+   - **Step 3: Site & Admin Account**: Enter your Site Title, Admin Name, Email, and Password.
+   - **Step 4: Complete**: Log in directly to your new dashboard!
 
-In a separate terminal, start the Vite development server:
-```bash
-npm run dev
-```
-
-Visit the application in your browser:
-- **Public Website**: [http://localhost:8000/](http://localhost:8000/)
-- **Admin Dashboard**: [http://localhost:8000/admin/dashboard](http://localhost:8000/admin/dashboard)
-- **Visual Builder**: [http://localhost:8000/admin/pages/1/builder](http://localhost:8000/admin/pages/1/builder)
-- **Login Page**: [http://localhost:8000/login](http://localhost:8000/login)
+> 💡 **To re-run the installer anytime**: Simply remove the lock file:
+> ```bash
+> rm -f storage/installed
+> ```
 
 ### 🔑 Default Administrator Credentials
 - **Email**: `admin@rakitan.test`
