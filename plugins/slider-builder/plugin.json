@@ -1,0 +1,16 @@
+{
+    "id": "slider-builder",
+    "name": "Slider Builder Pro",
+    "version": "1.0.0",
+    "author": "Rakitan Ecosystem",
+    "description": "Design dynamic responsive sliders and carousels with multiple customizable templates, autoplay, animation transitions, and seamless visual builder component integration.",
+    "is_builtin": false,
+    "blocks": [
+        "slider_builder"
+    ],
+    "manage_url": "/admin/sliders",
+    "settings": {
+        "badge": "Pro Suite",
+        "defaultInterval": 5000
+    }
+}

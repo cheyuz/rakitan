@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import {
     Puzzle,
@@ -15,6 +15,7 @@ import {
     Code2,
     Search,
     BookOpen,
+    SlidersHorizontal,
 } from 'lucide-react';
 
 export default function Index({ plugins = [], pluginsPath = '' }) {
@@ -210,18 +211,30 @@ export default function Index({ plugins = [], pluginsPath = '' }) {
                                 </div>
 
                                 <div className="px-6 py-4 bg-slate-950/50 border-t border-slate-800/80 flex items-center justify-between">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggle(plugin.id)}
-                                        className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
-                                            plugin.is_active
-                                                ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-                                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
-                                        }`}
-                                    >
-                                        <Power className="w-3.5 h-3.5" />
-                                        <span>{plugin.is_active ? 'Deactivate' : 'Activate'}</span>
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleToggle(plugin.id)}
+                                            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                                                plugin.is_active
+                                                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
+                                            }`}
+                                        >
+                                            <Power className="w-3.5 h-3.5" />
+                                            <span>{plugin.is_active ? 'Deactivate' : 'Activate'}</span>
+                                        </button>
+
+                                        {plugin.is_active && (plugin.manage_url || plugin.id === 'slider-builder') && (
+                                            <Link
+                                                href={plugin.manage_url || '/admin/sliders'}
+                                                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 transition-all"
+                                            >
+                                                <SlidersHorizontal className="w-3.5 h-3.5" />
+                                                <span>Manage</span>
+                                            </Link>
+                                        )}
+                                    </div>
 
                                     {!plugin.is_builtin && (
                                         <button

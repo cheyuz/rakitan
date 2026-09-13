@@ -10,8 +10,6 @@ import {
     Calendar,
     Menu as MenuIcon,
     X,
-    Sun,
-    Moon,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -36,11 +34,6 @@ export default function PublicLayout({
     }, [active_theme]);
 
     const isLight = currentTheme === 'default_light';
-
-    const toggleTheme = () => {
-        setCurrentTheme(isLight ? 'default_dark' : 'default_light');
-    };
-
     const themeSlug = currentTheme.replace('_', '-');
 
     // If blank layout (e.g. Sales Funnel / Landing Page Canvas)
@@ -104,22 +97,8 @@ export default function PublicLayout({
                         ))}
                     </nav>
 
-                    {/* Actions & Theme Toggle */}
+                    {/* Actions */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                        {/* Theme Switcher Button */}
-                        <button
-                            type="button"
-                            onClick={toggleTheme}
-                            className={`p-2 rounded-xl border transition-all ${
-                                isLight
-                                    ? 'bg-slate-100 border-slate-200 text-amber-500 hover:bg-slate-200'
-                                    : 'bg-slate-900 border-slate-800 text-indigo-400 hover:bg-slate-800'
-                            }`}
-                            title={`Switch to ${isLight ? 'Dark Theme' : 'Light Theme'}`}
-                        >
-                            {isLight ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                        </button>
-
                         {isAdmin ? (
                             <Link
                                 href="/admin/dashboard"

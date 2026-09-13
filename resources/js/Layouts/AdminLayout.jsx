@@ -19,6 +19,7 @@ import {
     Puzzle,
     Users,
     Inbox,
+    SlidersHorizontal,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -71,6 +72,13 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             href: '/admin/menus',
             icon: MenuIcon,
             active: currentUrl.startsWith('/admin/menus'),
+            show: canManageContent,
+        },
+        {
+            label: 'Sliders',
+            href: '/admin/sliders',
+            icon: SlidersHorizontal,
+            active: currentUrl.startsWith('/admin/sliders'),
             show: canManageContent,
         },
         {

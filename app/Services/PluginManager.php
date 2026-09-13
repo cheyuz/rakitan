@@ -59,6 +59,7 @@ class PluginManager
                     'is_builtin' => !empty($manifest['is_builtin']),
                     'is_active' => $isActive,
                     'blocks' => $manifest['blocks'] ?? [],
+                    'manage_url' => $manifest['manage_url'] ?? null,
                     'settings' => $manifest['settings'] ?? [],
                     'path' => $dir,
                 ];
@@ -87,6 +88,14 @@ class PluginManager
             && !in_array('rakitan-extended-blocks', $disabledList, true)
             && !in_array('rakitan-extended-blocks', $list, true)) {
             $list[] = 'rakitan-extended-blocks';
+            Setting::set('active_plugins', $list);
+        }
+
+        // Auto-include slider-builder if installed and not explicitly disabled
+        if (File::exists($this->getPluginsPath() . '/slider-builder/plugin.json')
+            && !in_array('slider-builder', $disabledList, true)
+            && !in_array('slider-builder', $list, true)) {
+            $list[] = 'slider-builder';
             Setting::set('active_plugins', $list);
         }
 
