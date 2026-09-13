@@ -242,4 +242,20 @@ class PluginManager
 
         return false;
     }
+
+    /**
+     * Dynamically load routes from all active plugins if routes.php exists.
+     */
+    public function loadPluginRoutes(): void
+    {
+        $activePlugins = $this->getActivePluginIds();
+        $pluginsPath = $this->getPluginsPath();
+
+        foreach ($activePlugins as $pluginId) {
+            $routesFile = $pluginsPath . '/' . $pluginId . '/routes.php';
+            if (File::exists($routesFile)) {
+                require $routesFile;
+            }
+        }
+    }
 }

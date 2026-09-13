@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\SliderBuilderController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\ToolsController;
 use App\Http\Controllers\Admin\UserController;
@@ -82,14 +81,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::prefix('menus')->name('menus.')->group(function () {
             Route::get('/', [MenuController::class, 'index'])->name('index');
             Route::post('/', [MenuController::class, 'update'])->name('update');
-        });
-
-        // Sliders Management (Slider Builder Plugin)
-        Route::prefix('sliders')->name('sliders.')->group(function () {
-            Route::get('/', [SliderBuilderController::class, 'index'])->name('index');
-            Route::post('/', [SliderBuilderController::class, 'store'])->name('store');
-            Route::put('/{slider}', [SliderBuilderController::class, 'update'])->name('update');
-            Route::delete('/{slider}', [SliderBuilderController::class, 'destroy'])->name('destroy');
         });
     });
 
@@ -184,15 +175,15 @@ Route::get('/api/latest-posts', function (Request $request) {
     return response()->json($posts);
 })->name('api.latest-posts');
 
-// API Endpoint for Sliders (Slider Builder Plugin)
-Route::get('/api/sliders', [SliderBuilderController::class, 'apiList'])->name('api.sliders');
-
 // Public Form Submissions API
 Route::post('/api/forms/submit', [PublicFormController::class, 'submit'])->name('api.forms.submit');
 
 // Public Theme Assets (Stylesheet and Screenshot)
 Route::get('/themes/{theme}/screenshot', [ThemeController::class, 'screenshot'])->name('themes.screenshot');
 Route::get('/themes/{theme}/style.css', [ThemeController::class, 'style'])->name('themes.style');
+
+// Dynamically Load All Active Plugins Routes
+app(\App\Services\PluginManager::class)->loadPluginRoutes();
 
 // Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
 Route::get('/{slug?}', [PublicPageController::class, 'show'])

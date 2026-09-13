@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace Plugins\SliderBuilder;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
@@ -139,7 +139,7 @@ class SliderBuilderController extends Controller
     {
         $sliders = $this->getSliders();
 
-        return Inertia::render('Admin/Sliders/Index', [
+        return Inertia::render('SlidersManager', [
             'sliders' => $sliders,
         ]);
     }
