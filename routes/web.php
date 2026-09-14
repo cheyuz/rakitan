@@ -187,5 +187,5 @@ app(\App\Services\PluginManager::class)->loadPluginRoutes();
 
 // Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
 Route::get('/{slug?}', [PublicPageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes|plugins|sliders).*$')
+    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes|plugins|sliders|sitemap\.xml|robots\.txt).*$')
     ->name('public.page');

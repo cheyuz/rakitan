@@ -32,6 +32,22 @@ class HandleInertiaRequests extends Middleware
         $themeManager = app(\App\Services\ThemeManager::class);
         $activeTheme = $themeManager->getActiveTheme();
 
+        $activePlugins = app(\App\Services\PluginManager::class)->getActivePluginIds();
+        $seoData = null;
+        if (in_array('seo-optimizer', $activePlugins, true)) {
+            $saved = \App\Models\Setting::get('seo_settings', []);
+            $savedArray = is_array($saved) ? $saved : (json_decode($saved, true) ?? []);
+            $seoData = array_merge([
+                'site_name' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
+                'title_separator' => '-',
+                'default_meta_description' => 'Rakitan CMS empowers creators with independent modular blocks, lightning performance, and complete visual freedom.',
+                'og_default_image' => '/images/rakitan-logo.png',
+                'twitter_card' => 'summary_large_image',
+                'google_verification' => '',
+                'robots_indexing' => 'index, follow',
+            ], $savedArray);
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -40,7 +56,8 @@ class HandleInertiaRequests extends Middleware
             'active_theme' => $activeTheme['id'],
             'theme' => $activeTheme,
             'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
-            'active_plugins' => app(\App\Services\PluginManager::class)->getActivePluginIds(),
+            'active_plugins' => $activePlugins,
+            'seo' => $seoData,
         ];
     }
 }

@@ -1,14 +1,22 @@
 {
     "id": "default-light",
     "name": "Rakitan Clean Light",
-    "version": "1.0.0",
-    "author": "Cecep Yusuf",
-    "description": "Minimalist white and airy slate layout (#ffffff & #f8fafc) with subtle gray borders (#e2e8f0), dark typography, and soft ambient shadows.",
+    "version": "1.1.0",
+    "author": "Rakitan Core Team",
+    "description": "A pristine, airy light theme crafted for clarity and modern design. Features Plus Jakarta Sans typography, ambient lighting, and bespoke block component overrides.",
     "screenshot": "screenshot.png",
     "is_builtin": true,
+    "font": "Plus Jakarta Sans",
+    "overrides": [
+        "hero",
+        "features",
+        "pricing",
+        "testimonials",
+        "cta"
+    ],
     "settings": {
         "colorScheme": "light",
-        "primaryColor": "#6366f1",
+        "primaryColor": "#4f46e5",
         "backgroundColor": "#f8fafc",
         "surfaceColor": "#ffffff",
         "borderColor": "#e2e8f0",

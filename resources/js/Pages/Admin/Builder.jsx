@@ -25,6 +25,7 @@ import {
 } from '@/Blocks/registry';
 import { convertBlockToCustom } from '@/Blocks/Helpers/blockConverter';
 import { CanvasEditProvider, useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
+import { getThemeBlockOverride } from '@/Themes/overrides';
 import {
     ArrowLeft,
     Save,
@@ -97,10 +98,12 @@ function SortableCanvasBlock({
         opacity: isDragging ? 0.6 : 1,
     };
 
+    const { active_theme } = usePage().props;
     const def = getBlockDefinition(block.type);
     if (!def) return null;
 
-    const Component = def.Component;
+    const OverrideComponent = getThemeBlockOverride(active_theme, block.type);
+    const Component = OverrideComponent || def.Component;
     const Icon = def.icon;
 
     if (isPreviewMode) {

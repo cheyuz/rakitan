@@ -20,11 +20,12 @@ import {
     Users,
     Inbox,
     SlidersHorizontal,
+    Search,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
-    const { auth, flash } = usePage().props;
+    const { auth, flash, active_plugins = [] } = usePage().props;
     const currentUrl = window.location.pathname;
     const userRole = auth?.user?.role || 'admin';
     const isAdmin = userRole === 'admin';
@@ -101,6 +102,13 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             icon: Palette,
             active: currentUrl.startsWith('/admin/themes'),
             show: isAdmin,
+        },
+        {
+            label: 'SEO Optimizer',
+            href: '/admin/seo',
+            icon: Search,
+            active: currentUrl.startsWith('/admin/seo'),
+            show: isAdmin && (active_plugins || []).includes('seo-optimizer'),
         },
         {
             label: 'Users & Roles',

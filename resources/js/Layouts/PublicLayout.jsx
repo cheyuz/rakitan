@@ -22,7 +22,7 @@ export default function PublicLayout({
     categories = [],
     isAdmin = false,
 }) {
-    const { active_theme } = usePage().props;
+    const { active_theme, seo } = usePage().props;
     const [currentTheme, setCurrentTheme] = useState(active_theme || 'default_dark');
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,10 +30,19 @@ export default function PublicLayout({
     useEffect(() => {
         if (active_theme) {
             setCurrentTheme(active_theme);
+            const themeClass = `theme-${active_theme.replace('_', '-')}`;
+            document.body.classList.remove('theme-default-dark', 'theme-default-light');
+            document.body.classList.add(themeClass);
+
+            if (active_theme === 'default-light' || active_theme === 'default_light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
         }
     }, [active_theme]);
 
-    const isLight = currentTheme === 'default_light';
+    const isLight = currentTheme === 'default_light' || currentTheme === 'default-light';
     const themeSlug = currentTheme.replace('_', '-');
 
     // If blank layout (e.g. Sales Funnel / Landing Page Canvas)
@@ -44,6 +53,18 @@ export default function PublicLayout({
             }`}>
                 <Head>
                     <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
+                    {seo && (
+                        <>
+                            {seo.robots_indexing && <meta name="robots" content={seo.robots_indexing} />}
+                            {seo.google_verification && <meta name="google-site-verification" content={seo.google_verification} />}
+                            {seo.default_meta_description && <meta name="description" content={seo.default_meta_description} />}
+                            <meta property="og:site_name" content={seo.site_name || 'Rakitan CMS'} />
+                            <meta property="og:type" content="website" />
+                            {seo.og_default_image && <meta property="og:image" content={seo.og_default_image} />}
+                            {seo.twitter_card && <meta name="twitter:card" content={seo.twitter_card} />}
+                            <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+                        </>
+                    )}
                 </Head>
                 {children}
             </div>
@@ -63,6 +84,18 @@ export default function PublicLayout({
         }`}>
             <Head>
                 <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
+                {seo && (
+                    <>
+                        {seo.robots_indexing && <meta name="robots" content={seo.robots_indexing} />}
+                        {seo.google_verification && <meta name="google-site-verification" content={seo.google_verification} />}
+                        {seo.default_meta_description && <meta name="description" content={seo.default_meta_description} />}
+                        <meta property="og:site_name" content={seo.site_name || 'Rakitan CMS'} />
+                        <meta property="og:type" content="website" />
+                        {seo.og_default_image && <meta property="og:image" content={seo.og_default_image} />}
+                        {seo.twitter_card && <meta name="twitter:card" content={seo.twitter_card} />}
+                        <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+                    </>
+                )}
             </Head>
             {/* Header Navigation */}
             <header className={`sticky top-0 z-50 w-full backdrop-blur-md transition-all ${

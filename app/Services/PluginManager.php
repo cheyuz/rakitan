@@ -99,7 +99,49 @@ class PluginManager
             Setting::set('active_plugins', $list);
         }
 
+        // Auto-include seo-optimizer if installed and not explicitly disabled
+        if (File::exists($this->getPluginsPath() . '/seo-optimizer/plugin.json')
+            && !in_array('seo-optimizer', $disabledList, true)
+            && !in_array('seo-optimizer', $list, true)) {
+            $list[] = 'seo-optimizer';
+            Setting::set('active_plugins', $list);
+        }
+
         return array_values(array_unique($list));
+    }
+
+    /**
+     * Check if a plugin is currently active.
+     */
+    public function isActive(string $pluginId): bool
+    {
+        return in_array($pluginId, $this->getActivePluginIds(), true);
+    }
+
+    /**
+     * Activate a plugin by ID if not already active.
+     */
+    public function activate(string $pluginId): void
+    {
+        if (!$this->isActive($pluginId)) {
+            $this->togglePlugin($pluginId);
+        }
+    }
+
+    /**
+     * Boot routes and services for all active plugins.
+     */
+    public function bootActivePlugins(): void
+    {
+        $activePluginIds = $this->getActivePluginIds();
+        $pluginsPath = $this->getPluginsPath();
+
+        foreach ($activePluginIds as $pluginId) {
+            $routesPath = $pluginsPath . '/' . $pluginId . '/routes.php';
+            if (File::exists($routesPath)) {
+                require_once $routesPath;
+            }
+        }
     }
 
     /**

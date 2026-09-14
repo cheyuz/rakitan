@@ -1,7 +1,8 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { getBlockDefinition } from '@/Blocks/registry';
+import { getThemeBlockOverride } from '@/Themes/overrides';
 import { AlertCircle, Edit3 } from 'lucide-react';
 
 export default function Show({
@@ -12,6 +13,7 @@ export default function Show({
     categories = [],
     isAdmin = false,
 }) {
+    const { active_theme } = usePage().props;
     const blocks = Array.isArray(page.blocks) ? page.blocks : [];
 
     return (
@@ -83,7 +85,8 @@ export default function Show({
                             );
                         }
 
-                        const Component = def.Component;
+                        const OverrideComponent = getThemeBlockOverride(active_theme, block.type);
+                        const Component = OverrideComponent || def.Component;
                         return (
                             <div key={block.id} id={block.id} className="w-full">
                                 <Component props={block.props || {}} blockId={block.id} />

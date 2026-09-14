@@ -21,5 +21,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        try {
+            app(\App\Services\PluginManager::class)->bootActivePlugins();
+        } catch (\Throwable $e) {
+            // Silently ignore during migration or early bootstrap
+        }
     }
 }

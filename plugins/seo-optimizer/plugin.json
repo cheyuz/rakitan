@@ -3,10 +3,17 @@
     "name": "Rakitan SEO Optimizer",
     "version": "1.2.0",
     "author": "Rakitan Ecosystem",
-    "description": "Automated meta tag generation, XML sitemaps, OpenGraph social previews, and Google SERP verification.",
+    "description": "Automated XML sitemaps, robots.txt, OpenGraph social previews, Google SERP verification, and page meta tags.",
     "is_builtin": false,
+    "manage_url": "/admin/seo",
     "settings": {
-        "autoSitemap": true,
-        "twitterCard": "summary_large_image"
+        "title_separator": "-",
+        "site_name": "Rakitan CMS",
+        "default_meta_description": "Rakitan CMS empowers creators with independent modular blocks, lightning performance, and complete visual freedom.",
+        "og_default_image": "/images/rakitan-logo.png",
+        "twitter_card": "summary_large_image",
+        "google_verification": "",
+        "auto_sitemap": true,
+        "robots_indexing": "index, follow"
     }
 }
