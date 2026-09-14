@@ -18,11 +18,47 @@ import {
 import InlineText from '@/Blocks/Components/InlineText';
 import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
+const DEFAULT_SLIDES = [
+    {
+        id: 'slide-1',
+        badge: 'MODULAR ARCHITECTURE',
+        title: 'Assemble Next-Gen Experiences Like Puzzle Blocks',
+        subtitle: 'Unleash limitless visual creativity with zero plugin bloat, ultra-clean code generation, and blazing-fast response times.',
+        primaryButtonText: 'Start Building Free',
+        primaryButtonUrl: '#',
+        secondaryButtonText: 'Explore Features',
+        secondaryButtonUrl: '#',
+        imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
+    },
+    {
+        id: 'slide-2',
+        badge: 'SPEED & SCALE',
+        title: 'Sub-45ms Edge Latency with Instant Navigation',
+        subtitle: 'Powered by Laravel 11 and Inertia.js React with intelligent asset streaming and server-side state hydration.',
+        primaryButtonText: 'Check Benchmarks',
+        primaryButtonUrl: '#',
+        secondaryButtonText: 'Documentation',
+        secondaryButtonUrl: '#',
+        imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80',
+    },
+    {
+        id: 'slide-3',
+        badge: 'ENTERPRISE RELIABILITY',
+        title: 'Battle-Tested Security and High Availability',
+        subtitle: 'Built-in DOMPurify XSS sanitization, zero unsafe eval, and strict role-based access controls for peace of mind.',
+        primaryButtonText: 'Security Whitepaper',
+        primaryButtonUrl: '#',
+        secondaryButtonText: 'Get in Touch',
+        secondaryButtonUrl: '#',
+        imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1600&q=80',
+    },
+];
+
 export const SliderBuilderComponent = ({ props = {}, blockId }) => {
     const {
-        source = 'custom', // 'custom' | 'saved'
+        source = 'custom',
         sliderId = '',
-        template = 'hero_banner', // 'hero_banner' | 'split_card' | 'testimonial' | 'minimal_fade'
+        template = 'hero_banner',
         settings = {},
         slides = [],
         bgStyle = 'none',
@@ -46,11 +82,12 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
 
     // Fetch saved slider if source is 'saved'
     useEffect(() => {
+        let isMounted = true;
         if (source === 'saved' && sliderId) {
             fetch('/api/sliders')
                 .then((res) => res.json())
                 .then((data) => {
-                    if (Array.isArray(data)) {
+                    if (isMounted && Array.isArray(data)) {
                         const found = data.find((s) => s.id === sliderId || s.slug === sliderId);
                         if (found) {
                             setSavedData(found);
@@ -61,6 +98,9 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
         } else {
             setSavedData(null);
         }
+        return () => {
+            isMounted = false;
+        };
     }, [source, sliderId]);
 
     // Determine active template, settings, and slides
@@ -70,19 +110,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
         ? savedData.slides
         : (slides && slides.length > 0)
         ? slides
-        : [
-              {
-                  id: 'default-1',
-                  badge: 'MODULAR BUILDER',
-                  title: 'Assemble Next-Gen Experiences Seamlessly',
-                  subtitle: 'Create responsive web experiences with ease, speed, and precision.',
-                  primaryButtonText: 'Get Started',
-                  primaryButtonUrl: '#',
-                  secondaryButtonText: 'Learn More',
-                  secondaryButtonUrl: '#',
-                  imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
-              },
-          ];
+        : DEFAULT_SLIDES;
 
     const slideCount = activeSlides.length;
 
@@ -121,20 +149,14 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
         }
     };
 
-    // Height class mappings
-    const heightClasses = {
-        compact: 'min-h-[380px] sm:min-h-[420px]',
-        medium: 'min-h-[480px] sm:min-h-[540px]',
-        tall: 'min-h-[580px] sm:min-h-[660px]',
-        fullscreen: 'min-h-[85vh] sm:min-h-screen',
+    const heightMinValues = {
+        compact: '380px',
+        medium: '480px',
+        tall: '580px',
+        fullscreen: '85vh',
     };
 
-    const paddingClasses = {
-        none: 'py-0',
-        sm: 'py-6 px-4',
-        md: 'py-12 px-4 sm:px-6',
-        lg: 'py-16 px-4 sm:px-8',
-    };
+    const minHeight = heightMinValues[activeSettings.height || 'tall'] || '580px';
 
     const bgClasses = {
         none: 'bg-transparent',
@@ -144,20 +166,24 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
         gradient: 'bg-gradient-to-br from-indigo-950/40 via-slate-950 to-purple-950/30 text-white',
     };
 
-    const currentSlide = activeSlides[currentIndex] || activeSlides[0];
+    const currentSlide = activeSlides[currentIndex] || activeSlides[0] || DEFAULT_SLIDES[0];
 
     return (
         <section
             className={`w-full relative overflow-hidden transition-all duration-300 ${
                 bgClasses[bgStyle] || bgClasses.none
-            } ${paddingClasses[padding] || paddingClasses.none}`}
+            }`}
+            style={{ minHeight }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className={`relative w-full ${heightClasses[activeSettings.height || 'tall']} flex items-center justify-center overflow-hidden`}>
+            <div
+                className="relative w-full flex items-center justify-center overflow-hidden"
+                style={{ minHeight }}
+            >
                 {/* 1. HERO BANNER MODERN TEMPLATE */}
                 {activeTemplate === 'hero_banner' && (
-                    <div className="w-full h-full absolute inset-0 flex items-center justify-center">
+                    <div className="w-full relative z-10 flex flex-col items-center justify-center py-20 px-4 sm:px-8">
                         {/* Background Media with Gradient Mask */}
                         {currentSlide.imageUrl && (
                             <img
@@ -166,13 +192,13 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                                 alt={currentSlide.title || 'Slide Background'}
                                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                                     activeSettings.transition === 'zoom' ? 'scale-105 transition-transform duration-1000' : ''
-                                } opacity-40`}
+                                } opacity-35`}
                             />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/30 dark:from-slate-950 dark:via-slate-950/80" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40" />
 
-                        {/* Slide Content */}
-                        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-8 py-16 space-y-5 animate-fadeIn">
+                        {/* Slide Content In Natural Flow */}
+                        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
                             {currentSlide.badge && (
                                 <div className="inline-block">
                                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 backdrop-blur-md">
@@ -217,9 +243,9 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
 
                 {/* 2. SPLIT CARD SHOWCASE TEMPLATE */}
                 {activeTemplate === 'split_card' && (
-                    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+                    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                            <div className="lg:col-span-7 space-y-5 animate-fadeIn">
+                            <div className="lg:col-span-7 space-y-5">
                                 {currentSlide.badge && (
                                     <span className="inline-block px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                                         {currentSlide.badge}
@@ -244,7 +270,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                                 </div>
                             </div>
 
-                            <div className="lg:col-span-5 animate-fadeIn">
+                            <div className="lg:col-span-5">
                                 <div className="rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/80 backdrop-blur-md relative aspect-[4/3] group">
                                     {currentSlide.imageUrl ? (
                                         <img
@@ -265,7 +291,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
 
                 {/* 3. TESTIMONIAL CAROUSEL TEMPLATE */}
                 {activeTemplate === 'testimonial' && (
-                    <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 py-16 text-center space-y-6 relative z-10 animate-fadeIn">
+                    <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 py-20 text-center space-y-6 relative z-10">
                         <div className="flex justify-center text-amber-400 gap-1.5">
                             {[...Array(Number(currentSlide.rating) || 5)].map((_, i) => (
                                 <Star key={i} className="w-5 h-5 fill-current" />
@@ -273,7 +299,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                         </div>
 
                         <blockquote className="text-xl sm:text-2xl lg:text-3xl font-medium text-white italic leading-relaxed max-w-3xl mx-auto">
-                            "{currentSlide.quote}"
+                            "{currentSlide.quote || currentSlide.subtitle || currentSlide.title}"
                         </blockquote>
 
                         <div className="flex items-center justify-center gap-3 pt-2">
@@ -285,8 +311,8 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                                 />
                             )}
                             <div className="text-left">
-                                <div className="font-bold text-white text-base">{currentSlide.author}</div>
-                                <div className="text-xs text-slate-400 font-medium">{currentSlide.role}</div>
+                                <div className="font-bold text-white text-base">{currentSlide.author || 'Verified Customer'}</div>
+                                <div className="text-xs text-slate-400 font-medium">{currentSlide.role || 'Executive Member'}</div>
                             </div>
                         </div>
                     </div>
@@ -294,7 +320,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
 
                 {/* 4. MINIMAL FADE SHOWCASE TEMPLATE */}
                 {activeTemplate === 'minimal_fade' && (
-                    <div className="w-full h-full absolute inset-0 flex items-end justify-center">
+                    <div className="w-full relative z-10 flex flex-col items-center justify-end py-16 px-4 sm:px-8" style={{ minHeight }}>
                         {currentSlide.imageUrl && (
                             <img
                                 src={currentSlide.imageUrl}
@@ -302,9 +328,9 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-60"
                             />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-                        <div className="relative z-10 w-full max-w-4xl mx-auto p-6 sm:p-8 mb-8 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="relative z-10 w-full max-w-4xl mx-auto p-6 sm:p-8 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
                                 <h3 className="text-lg sm:text-xl font-bold text-white">{currentSlide.title}</h3>
                                 <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">{currentSlide.subtitle}</p>
@@ -327,7 +353,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                         <button
                             type="button"
                             onClick={handlePrev}
-                            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-slate-900/70 border border-slate-700/80 text-white hover:bg-slate-800 hover:scale-110 transition-all z-20 backdrop-blur-md shadow-xl"
+                            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white hover:bg-slate-800 hover:scale-110 transition-all z-20 backdrop-blur-md shadow-xl"
                             aria-label="Previous Slide"
                         >
                             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -335,7 +361,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
                         <button
                             type="button"
                             onClick={handleNext}
-                            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-slate-900/70 border border-slate-700/80 text-white hover:bg-slate-800 hover:scale-110 transition-all z-20 backdrop-blur-md shadow-xl"
+                            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white hover:bg-slate-800 hover:scale-110 transition-all z-20 backdrop-blur-md shadow-xl"
                             aria-label="Next Slide"
                         >
                             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -366,7 +392,7 @@ export const SliderBuilderComponent = ({ props = {}, blockId }) => {
     );
 };
 
-export const SliderBuilderSettings = ({ props = {}, onChange }) => {
+export const SliderBuilderSettings = ({ props = {}, updateProps, onChange }) => {
     const {
         source = 'custom',
         sliderId = '',
@@ -390,11 +416,43 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
             .catch(() => {});
     }, []);
 
+    const setProp = (key, value) => {
+        if (typeof updateProps === 'function') {
+            updateProps({ [key]: value });
+        } else if (typeof onChange === 'function') {
+            onChange(key, value);
+        }
+    };
+
+    const setMultipleProps = (newPropsObj) => {
+        if (typeof updateProps === 'function') {
+            updateProps(newPropsObj);
+        } else if (typeof onChange === 'function') {
+            for (const k in newPropsObj) {
+                onChange(k, newPropsObj[k]);
+            }
+        }
+    };
+
     const updateSetting = (key, val) => {
-        onChange('settings', {
+        setProp('settings', {
             ...settings,
             [key]: val,
         });
+    };
+
+    const handleSelectSavedSlider = (selectedVal) => {
+        const found = savedSlidersList.find((s) => s.id === selectedVal || s.slug === selectedVal);
+        if (found) {
+            setMultipleProps({
+                sliderId: found.id,
+                template: found.template,
+                settings: found.settings || {},
+                slides: found.slides || [],
+            });
+        } else {
+            setProp('sliderId', selectedVal);
+        }
     };
 
     const handleAddSlide = () => {
@@ -420,13 +478,13 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
                   imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
               };
 
-        onChange('slides', [...slides, newSlide]);
+        setProp('slides', [...slides, newSlide]);
     };
 
     const handleUpdateSlide = (idx, field, val) => {
         const newSlides = [...slides];
         newSlides[idx] = { ...newSlides[idx], [field]: val };
-        onChange('slides', newSlides);
+        setProp('slides', newSlides);
     };
 
     const handleRemoveSlide = (idx) => {
@@ -434,20 +492,20 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
             alert('A slider must have at least 1 slide.');
             return;
         }
-        onChange('slides', slides.filter((_, i) => i !== idx));
+        setProp('slides', slides.filter((_, i) => i !== idx));
     };
 
     return (
         <div className="space-y-5 text-xs">
             {/* Slider Data Source */}
             <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                     Slider Data Source
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        onClick={() => onChange('source', 'custom')}
+                        onClick={() => setProp('source', 'custom')}
                         className={`p-2 rounded-xl text-center font-medium border transition-all ${
                             source === 'custom'
                                 ? 'bg-indigo-600 text-white border-indigo-500'
@@ -458,7 +516,7 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => onChange('source', 'saved')}
+                        onClick={() => setProp('source', 'saved')}
                         className={`p-2 rounded-xl text-center font-medium border transition-all ${
                             source === 'saved'
                                 ? 'bg-indigo-600 text-white border-indigo-500'
@@ -479,7 +537,7 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
                         </label>
                         <select
                             value={sliderId}
-                            onChange={(e) => onChange('sliderId', e.target.value)}
+                            onChange={(e) => handleSelectSavedSlider(e.target.value)}
                             className="w-full text-xs rounded-xl bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
                         >
                             <option value="">-- Select a Saved Slider --</option>
@@ -510,7 +568,7 @@ export const SliderBuilderSettings = ({ props = {}, onChange }) => {
                         </label>
                         <select
                             value={template}
-                            onChange={(e) => onChange('template', e.target.value)}
+                            onChange={(e) => setProp('template', e.target.value)}
                             className="w-full text-xs rounded-xl bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
                         >
                             <option value="hero_banner">Hero Banner Modern</option>
