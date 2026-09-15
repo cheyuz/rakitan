@@ -113,4 +113,59 @@ class PostAndCategoryTest extends TestCase
         // Clean up test post
         $post->delete();
     }
+
+    /**
+     * Test API endpoint for advanced posts with pagination and filters.
+     */
+    public function test_api_advanced_posts_endpoint(): void
+    {
+        $response = $this->getJson('/api/posts/advanced?limit=4');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'title',
+                    'slug',
+                    'excerpt',
+                    'featured_image',
+                    'published_at',
+                ],
+            ],
+            'current_page',
+            'last_page',
+            'total',
+            'per_page',
+            'categories',
+        ]);
+    }
+
+    /**
+     * Test custom blog page from Page Builder is rendered if exists.
+     */
+    public function test_custom_blog_page_rendered_if_exists(): void
+    {
+        $page = \App\Models\Page::create([
+            'title' => 'My Custom Magazine Hub',
+            'slug' => 'blog',
+            'status' => 'published',
+            'blocks' => [
+                [
+                    'id' => 'block_adv_1',
+                    'type' => 'advanced_posts',
+                    'props' => ['limit' => 6],
+                ],
+            ],
+        ]);
+
+        $response = $this->get('/blog');
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($pageProp) =>
+            $pageProp->component('Public/Show')
+                ->where('page.slug', 'blog')
+        );
+
+        $page->delete();
+    }
 }

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronDown, HelpCircle, Plus, Trash2 } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const FaqComponent = ({ props = {} }) => {
+export const FaqComponent = ({ props = {}, blockId }) => {
     const {
         badge = 'FAQ',
         title = 'Frequently Asked Questions',
@@ -24,7 +28,17 @@ export const FaqComponent = ({ props = {} }) => {
                 answer: 'Yes, Rakitan CMS is 100% open source under the MIT license. We welcome contributions, custom blocks, and community plugins from web developers worldwide.',
             },
         ],
+        isCustom = false,
+        subComponents = [],
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const [openIndex, setOpenIndex] = useState(0);
 
@@ -35,58 +49,120 @@ export const FaqComponent = ({ props = {} }) => {
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 transition-colors duration-200">
             <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12 sm:mb-16">
-                    {badge && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
-                            <HelpCircle className="w-3.5 h-3.5" />
-                            <span>{badge}</span>
-                        </div>
-                    )}
-                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
-                        {title}
-                    </h2>
-                    {subtitle && (
-                        <p className="text-base text-slate-400 max-w-2xl mx-auto">
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-
-                {/* FAQ Accordion List */}
-                <div className="space-y-4">
-                    {items.map((item, idx) => {
-                        const isOpen = openIndex === idx;
-
-                        return (
-                            <div
-                                key={idx}
-                                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                                    isOpen
-                                        ? 'bg-slate-900/90 border-indigo-500/50 shadow-lg shadow-indigo-950/20'
-                                        : 'bg-slate-900/40 border-slate-800/80 hover:border-slate-700'
-                                }`}
-                            >
-                                <button
-                                    type="button"
-                                    onClick={() => toggleItem(idx)}
-                                    className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base text-white focus:outline-none"
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok FAQ Ini"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="text-center mb-12 sm:mb-16">
+                            {(badge || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="badge"
+                                    label="Badge"
+                                    isCustom={isCustom}
                                 >
-                                    <span>{item.question}</span>
-                                    <div className={`p-1.5 rounded-xl bg-slate-800/60 text-slate-300 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180 text-indigo-400 bg-indigo-500/10' : ''}`}>
-                                        <ChevronDown className="w-4 h-4" />
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
+                                        <HelpCircle className="w-3.5 h-3.5" />
+                                        <InlineText
+                                            value={badge}
+                                            onChange={(val) => handlePropChange('badge', val)}
+                                            placeholder="Badge Text"
+                                        />
                                     </div>
-                                </button>
+                                </DefaultElementWrapper>
+                            )}
+                            {(title || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="title"
+                                    label="Headline"
+                                    isCustom={isCustom}
+                                >
+                                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
+                                        <InlineText
+                                            value={title}
+                                            onChange={(val) => handlePropChange('title', val)}
+                                            placeholder="FAQ Title"
+                                        />
+                                    </h2>
+                                </DefaultElementWrapper>
+                            )}
+                            {(subtitle || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="subtitle"
+                                    label="Subtitle"
+                                    isCustom={isCustom}
+                                >
+                                    <p className="text-base text-slate-400 max-w-2xl mx-auto">
+                                        <InlineText
+                                            value={subtitle}
+                                            onChange={(val) => handlePropChange('subtitle', val)}
+                                            placeholder="FAQ Subtitle"
+                                        />
+                                    </p>
+                                </DefaultElementWrapper>
+                            )}
+                        </div>
 
-                                {isOpen && (
-                                    <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/50 animate-in fade-in duration-150">
-                                        {item.answer}
-                                    </div>
-                                )}
+                        {/* FAQ Accordion List */}
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="items"
+                            label="FAQ Accordion"
+                            isCustom={isCustom}
+                        >
+                            <div className="space-y-4">
+                                {items.map((item, idx) => {
+                                    const isOpen = openIndex === idx;
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                                                isOpen
+                                                    ? 'bg-slate-900/80 border-indigo-500/50 shadow-lg shadow-indigo-500/10'
+                                                    : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                                            }`}
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleItem(idx)}
+                                                className="w-full px-6 py-5 flex items-center justify-between gap-4 text-left transition-colors"
+                                            >
+                                                <span className="font-bold text-white text-base sm:text-lg tracking-tight">
+                                                    {item.question}
+                                                </span>
+                                                <div
+                                                    className={`p-1.5 rounded-full border transition-transform duration-200 flex-shrink-0 ${
+                                                        isOpen
+                                                            ? 'bg-indigo-600 text-white border-indigo-500 rotate-180'
+                                                            : 'bg-slate-800 text-slate-400 border-slate-700'
+                                                    }`}
+                                                >
+                                                    <ChevronDown className="w-4 h-4" />
+                                                </div>
+                                            </button>
+
+                                            {isOpen && (
+                                                <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/50 animate-in fade-in duration-150">
+                                                    {item.answer}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        );
-                    })}
-                </div>
+                        </DefaultElementWrapper>
+                    </>
+                )}
             </div>
         </section>
     );

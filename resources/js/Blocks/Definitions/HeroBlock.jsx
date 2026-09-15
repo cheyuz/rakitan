@@ -1,9 +1,10 @@
-import React from 'react';
-import { AlignLeft, AlignCenter, AlignRight, Sparkles, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlignLeft, AlignCenter, AlignRight, Sparkles, ArrowRight, Image as ImageIcon, FolderOpen, X } from 'lucide-react';
 import InlineText from '@/Blocks/Components/InlineText';
 import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
 import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
 import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
+import MediaPickerModal from '@/Components/MediaPickerModal';
 
 export const HeroComponent = ({ props = {}, blockId }) => {
     const {
@@ -191,6 +192,15 @@ export const HeroComponent = ({ props = {}, blockId }) => {
 };
 
 export const HeroSettings = ({ props, updateProps }) => {
+    const [showMediaPicker, setShowMediaPicker] = useState(false);
+
+    const handleSelectMedia = (item) => {
+        if (item && item.url) {
+            updateProps({ imageUrl: item.url });
+        }
+        setShowMediaPicker(false);
+    };
+
     return (
         <div className="space-y-4 text-xs">
             <div>
@@ -278,7 +288,7 @@ export const HeroSettings = ({ props, updateProps }) => {
                                 key={align.id}
                                 type="button"
                                 onClick={() => updateProps({ alignment: align.id })}
-                                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                                     isSelected
                                         ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -307,14 +317,55 @@ export const HeroSettings = ({ props, updateProps }) => {
             </div>
 
             {props.bgStyle === 'image' && (
-                <div>
-                    <label className="block font-semibold text-slate-300 mb-1.5">Background Image URL</label>
-                    <input
-                        type="url"
-                        value={props.imageUrl || ''}
-                        onChange={(e) => updateProps({ imageUrl: e.target.value })}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                <div className="space-y-2">
+                    <label className="block font-semibold text-slate-300">Background Image URL</label>
+                    <div className="flex gap-1.5">
+                        <input
+                            type="url"
+                            value={props.imageUrl || ''}
+                            onChange={(e) => updateProps({ imageUrl: e.target.value })}
+                            placeholder="https://images.unsplash.com/... or choose media"
+                            className="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowMediaPicker(true)}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all whitespace-nowrap active:scale-95"
+                            title="Browse Media Library"
+                        >
+                            <FolderOpen className="w-3.5 h-3.5" />
+                            <span>Browse</span>
+                        </button>
+                    </div>
+
+                    {props.imageUrl && (
+                        <div className="relative group rounded-xl overflow-hidden border border-slate-700/80 aspect-video bg-slate-950">
+                            <img
+                                src={props.imageUrl}
+                                alt="Background Preview"
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between p-2">
+                                <span className="text-[10px] text-slate-300 truncate max-w-[150px]">
+                                    {props.imageUrl}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => updateProps({ imageUrl: '' })}
+                                    className="p-1 rounded-lg bg-red-600 text-white hover:bg-red-500 transition-colors shadow-sm"
+                                    title="Remove Image"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <MediaPickerModal
+                        isOpen={showMediaPicker}
+                        onClose={() => setShowMediaPicker(false)}
+                        onSelect={handleSelectMedia}
+                        title="Select Hero Background Image"
                     />
                 </div>
             )}

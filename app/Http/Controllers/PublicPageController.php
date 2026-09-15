@@ -38,6 +38,14 @@ class PublicPageController extends Controller
             abort(404, "Halaman '{$targetSlug}' tidak ditemukan.");
         }
 
+        return $this->renderPage($request, $page);
+    }
+
+    /**
+     * Render data Page ke view Inertia Public/Show.
+     */
+    public function renderPage(Request $request, Page $page): Response
+    {
         // Ambil menu navigasi dari database Menu dengan fallback ke halaman published
         $fallbackNav = Page::where('status', 'published')
             ->select('id', 'title', 'slug')

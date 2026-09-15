@@ -180,6 +180,51 @@ Route::get('/api/latest-posts', function (Request $request) {
     return response()->json($posts);
 })->name('api.latest-posts');
 
+// API Endpoint for Advanced Posts Block (with AJAX pagination, search, and category tabs)
+Route::get('/api/posts/advanced', function (Request $request) {
+    $limit = max(1, min((int) $request->input('limit', 6), 24));
+    $categoryId = $request->input('category_id');
+    $search = trim((string) $request->input('search', ''));
+
+    $query = Post::published()->with(['author:id,name', 'category:id,name,slug']);
+
+    if ($categoryId && $categoryId !== 'all') {
+        $query->where('category_id', $categoryId);
+    }
+
+    if ($search !== '') {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('excerpt', 'like', "%{$search}%")
+              ->orWhere('content', 'like', "%{$search}%");
+        });
+    }
+
+    $paginated = $query->latest('published_at')
+        ->latest('created_at')
+        ->paginate($limit);
+
+    $categories = \App\Models\Category::select('id', 'name', 'slug')->get();
+
+    return response()->json([
+        'data' => collect($paginated->items())->map(fn ($p) => [
+            'id' => $p->id,
+            'title' => $p->title,
+            'slug' => $p->slug,
+            'excerpt' => $p->excerpt,
+            'featured_image' => $p->featured_image,
+            'category' => $p->category ? ['id' => $p->category->id, 'name' => $p->category->name, 'slug' => $p->category->slug] : null,
+            'author' => $p->author?->name ?? 'Admin',
+            'published_at' => $p->published_at ? $p->published_at->format('d M Y') : $p->created_at->format('d M Y'),
+        ]),
+        'current_page' => $paginated->currentPage(),
+        'last_page' => $paginated->lastPage(),
+        'total' => $paginated->total(),
+        'per_page' => $paginated->perPage(),
+        'categories' => $categories,
+    ]);
+})->name('api.posts.advanced');
+
 // Public Form Submissions API
 Route::post('/api/forms/submit', [PublicFormController::class, 'submit'])->name('api.forms.submit');
 

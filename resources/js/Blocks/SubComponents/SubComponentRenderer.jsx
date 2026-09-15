@@ -27,6 +27,7 @@ import { CSS } from '@dnd-kit/utilities';
 import InlineText from '@/Blocks/Components/InlineText';
 import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 import SubComponentSlot from './SubComponentSlot';
+import { renderSocialIcon } from '@/Blocks/Definitions/SocialBlock';
 
 // Helper icon resolver
 const getIcon = (name, className = 'w-4 h-4') => {
@@ -551,6 +552,65 @@ export default function SubComponentRenderer({
                 );
             }
 
+            case 'sub_social': {
+                const {
+                    style = 'pills',
+                    size = 'md',
+                    align = 'center',
+                    items = [
+                        { platform: 'x', label: 'Twitter / X', url: 'https://x.com' },
+                        { platform: 'github', label: 'GitHub', url: 'https://github.com' },
+                        { platform: 'discord', label: 'Discord', url: 'https://discord.gg' },
+                        { platform: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com' },
+                    ],
+                } = props;
+
+                const sizeClass = {
+                    sm: 'px-2.5 py-1 text-xs gap-1.5',
+                    md: 'px-3.5 py-1.5 text-xs gap-2',
+                    lg: 'px-4.5 py-2 text-sm gap-2.5',
+                }[size] || 'px-3.5 py-1.5 text-xs gap-2';
+
+                const iconSize = {
+                    sm: 'w-3.5 h-3.5',
+                    md: 'w-4 h-4',
+                    lg: 'w-5 h-5',
+                }[size] || 'w-4 h-4';
+
+                const justifyClass = {
+                    left: 'justify-start',
+                    center: 'justify-center',
+                    right: 'justify-end',
+                }[align] || 'justify-center';
+
+                return (
+                    <div className={`w-full flex flex-wrap items-center ${justifyClass} gap-2.5 my-1`}>
+                        {items.map((item, idx) => (
+                            <a
+                                key={item.id || idx}
+                                href={isEditing ? undefined : (item.url || '#')}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => {
+                                    if (isEditing) e.preventDefault();
+                                }}
+                                className={`inline-flex items-center rounded-xl font-medium transition-all duration-150 ${
+                                    style === 'icons'
+                                        ? 'p-2 bg-slate-900/80 hover:bg-indigo-600 text-slate-300 hover:text-white border border-slate-800'
+                                        : style === 'minimal'
+                                        ? 'text-slate-400 hover:text-indigo-400 hover:bg-slate-800/40 p-1.5 rounded-lg'
+                                        : `bg-slate-900/80 hover:bg-indigo-600/20 text-slate-300 hover:text-white border border-slate-800 hover:border-indigo-500/40 ${sizeClass}`
+                                }`}
+                                title={item.label}
+                            >
+                                <span className="text-indigo-400">{renderSocialIcon(item.platform, iconSize)}</span>
+                                {style === 'pills' && <span>{item.label}</span>}
+                            </a>
+                        ))}
+                    </div>
+                );
+            }
+
             default:
                 return null;
         }
@@ -878,6 +938,49 @@ export default function SubComponentRenderer({
                                     <option value="md">Standard (Medium)</option>
                                     <option value="lg">Wide (Large)</option>
                                 </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {type === 'sub_social' && (
+                        <div className="space-y-2">
+                            <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Display Style</label>
+                                <select
+                                    value={props.style || 'pills'}
+                                    onChange={(e) => handlePropChange('style', e.target.value)}
+                                    className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                                >
+                                    <option value="pills">Pill Badges</option>
+                                    <option value="icons">Icon Buttons</option>
+                                    <option value="minimal">Minimal Flat</option>
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Size</label>
+                                    <select
+                                        value={props.size || 'md'}
+                                        onChange={(e) => handlePropChange('size', e.target.value)}
+                                        className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                                    >
+                                        <option value="sm">Small</option>
+                                        <option value="md">Medium</option>
+                                        <option value="lg">Large</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-slate-400 mb-1">Alignment</label>
+                                    <select
+                                        value={props.align || 'center'}
+                                        onChange={(e) => handlePropChange('align', e.target.value)}
+                                        className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                                    >
+                                        <option value="left">Left</option>
+                                        <option value="center">Center</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     )}

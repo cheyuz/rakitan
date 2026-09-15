@@ -20,6 +20,7 @@ import {
     Plus,
     ExternalLink,
     Columns3,
+    Share2,
 } from 'lucide-react';
 
 export const SUB_COMPONENTS_REGISTRY = {
@@ -154,6 +155,23 @@ export const SUB_COMPONENTS_REGISTRY = {
             columnSlots: [
                 { id: 'col-0', subComponents: [] },
                 { id: 'col-1', subComponents: [] },
+            ],
+        },
+    },
+    sub_social: {
+        type: 'sub_social',
+        label: 'Social Links',
+        icon: Share2,
+        description: 'Compact row or pill badges of social media channels with direct links.',
+        defaultProps: {
+            style: 'pills',
+            size: 'md',
+            align: 'center',
+            items: [
+                { platform: 'x', label: 'Twitter / X', url: 'https://x.com' },
+                { platform: 'github', label: 'GitHub', url: 'https://github.com' },
+                { platform: 'discord', label: 'Discord', url: 'https://discord.gg' },
+                { platform: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com' },
             ],
         },
     },

@@ -16,6 +16,17 @@ class PublicBlogController extends Controller
      */
     public function index(Request $request): Response
     {
+        // Jika tidak ada query search/category/page dan ada Page kustom dengan slug 'blog' dari Builder
+        if (!$request->has('search') && !$request->has('category') && !$request->has('page')) {
+            $customBlogPage = \App\Models\Page::where('slug', 'blog')
+                ->when(!$request->user(), fn ($q) => $q->where('status', 'published'))
+                ->first();
+
+            if ($customBlogPage) {
+                return app(PublicPageController::class)->renderPage($request, $customBlogPage);
+            }
+        }
+
         $query = Post::query()->with(['author:id,name', 'category:id,name,slug']);
 
         if (!$request->user()) {

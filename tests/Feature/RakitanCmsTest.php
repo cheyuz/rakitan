@@ -109,6 +109,8 @@ class RakitanCmsTest extends TestCase
         $postResponse = $this->actingAs($admin)->post('/admin/settings', [
             'site_title' => 'Rakitan CMS Tested',
             'site_tagline' => 'Next-Gen Visual Builder',
+            'site_logo' => '/images/custom-logo.png',
+            'site_favicon' => '/images/custom-favicon.png',
             'admin_email' => 'admin@rakitan.test',
             'default_status' => 'draft',
             'footer_text' => 'Tested Footer',
@@ -116,6 +118,8 @@ class RakitanCmsTest extends TestCase
 
         $postResponse->assertSessionHasNoErrors();
         $this->assertEquals('Rakitan CMS Tested', Setting::get('site_title'));
+        $this->assertEquals('/images/custom-logo.png', Setting::get('site_logo'));
+        $this->assertEquals('/images/custom-favicon.png', Setting::get('site_favicon'));
     }
 
     /**

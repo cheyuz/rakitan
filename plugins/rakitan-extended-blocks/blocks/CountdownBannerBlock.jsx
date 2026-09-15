@@ -197,7 +197,12 @@ export const CountdownBannerComponent = ({ props = {}, blockId }) => {
     );
 };
 
-export const CountdownBannerSettings = ({ props = {}, onChange }) => {
+export const CountdownBannerSettings = ({ props = {}, updateProps, onChange }) => {
+    const handleFieldChange = (key, val) => {
+        if (typeof onChange === 'function') onChange(key, val);
+        if (typeof updateProps === 'function') updateProps({ [key]: val });
+    };
+
     const {
         badge = '',
         title = '',
@@ -214,134 +219,159 @@ export const CountdownBannerSettings = ({ props = {}, onChange }) => {
     } = props;
 
     return (
-        <div className="space-y-5 text-sm">
+        <div className="space-y-5 text-xs">
             <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block font-bold text-slate-400 uppercase tracking-wider mb-2">
                     Banner Content
                 </label>
-                <div className="space-y-3">
-                    <input
-                        type="text"
-                        placeholder="Badge label"
-                        value={badge}
-                        onChange={(e) => onChange('badge', e.target.value)}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Main title"
-                        value={title}
-                        onChange={(e) => onChange('title', e.target.value)}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-medium"
-                    />
-                    <textarea
-                        placeholder="Subtitle description"
-                        value={subtitle}
-                        onChange={(e) => onChange('subtitle', e.target.value)}
-                        rows={2}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
+                <div className="space-y-2.5">
+                    <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Badge Label</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. FLASH SALE - LIMITED TIME"
+                            value={badge}
+                            onChange={(e) => handleFieldChange('badge', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Main Heading</label>
+                        <input
+                            type="text"
+                            placeholder="Main title"
+                            value={title}
+                            onChange={(e) => handleFieldChange('title', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500 font-semibold"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Subtitle / Description</label>
+                        <textarea
+                            placeholder="Subtitle description"
+                            value={subtitle}
+                            onChange={(e) => handleFieldChange('subtitle', e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <div className="space-y-3 pt-3 border-t border-slate-800">
+                <div>
+                    <label className="block font-semibold text-slate-300 mb-1">
                         Expiry Date & Time (ISO format)
                     </label>
                     <input
                         type="datetime-local"
                         value={targetDate ? targetDate.substring(0, 16) : ''}
-                        onChange={(e) => onChange('targetDate', e.target.value ? `${e.target.value}:00` : '')}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                        onChange={(e) => handleFieldChange('targetDate', e.target.value ? `${e.target.value}:00` : '')}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono outline-none focus:border-indigo-500"
                     />
                 </div>
 
-                <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Promo Code</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. FLASH40"
-                        value={promoCode}
-                        onChange={(e) => onChange('promoCode', e.target.value)}
-                        className="w-full text-xs font-mono rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <label className="block font-semibold text-slate-300 mb-1">Promo Code</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. FLASH40"
+                            value={promoCode}
+                            onChange={(e) => handleFieldChange('promoCode', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono outline-none focus:border-indigo-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block font-semibold text-slate-300 mb-1">Discount Tag</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. 40% OFF"
+                            value={discountTag}
+                            onChange={(e) => handleFieldChange('discountTag', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Discount Tag</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. 40% OFF"
-                        value={discountTag}
-                        onChange={(e) => onChange('discountTag', e.target.value)}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
-                </div>
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <label className="block font-semibold text-slate-300 mb-1">Background Style</label>
+                        <select
+                            value={bgStyle}
+                            onChange={(e) => handleFieldChange('bgStyle', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        >
+                            <option value="gradient">Deep Gradient Glow</option>
+                            <option value="dark">Solid Dark</option>
+                            <option value="brand">Brand Indigo</option>
+                            <option value="glass">Glassmorphism</option>
+                        </select>
+                    </div>
 
-                <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Background Style</label>
-                    <select
-                        value={bgStyle}
-                        onChange={(e) => onChange('bgStyle', e.target.value)}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    >
-                        <option value="gradient">Deep Gradient Glow</option>
-                        <option value="dark">Solid Dark</option>
-                        <option value="brand">Brand Indigo</option>
-                        <option value="glass">Glassmorphism</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Padding</label>
-                    <select
-                        value={padding}
-                        onChange={(e) => onChange('padding', e.target.value)}
-                        className="w-full text-xs rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    >
-                        <option value="sm">Compact (sm)</option>
-                        <option value="md">Normal (md)</option>
-                        <option value="lg">Spacious (lg)</option>
-                    </select>
+                    <div>
+                        <label className="block font-semibold text-slate-300 mb-1">Padding</label>
+                        <select
+                            value={padding}
+                            onChange={(e) => handleFieldChange('padding', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        >
+                            <option value="sm">Compact (sm)</option>
+                            <option value="md">Normal (md)</option>
+                            <option value="lg">Spacious (lg)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-3">
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <div className="pt-3 border-t border-slate-800 space-y-3">
+                <label className="block font-bold text-slate-400 uppercase tracking-wider">
                     Call To Action Buttons
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                    <input
-                        type="text"
-                        placeholder="Primary Button Text"
-                        value={buttonText}
-                        onChange={(e) => onChange('buttonText', e.target.value)}
-                        className="text-xs rounded border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Primary URL"
-                        value={buttonUrl}
-                        onChange={(e) => onChange('buttonUrl', e.target.value)}
-                        className="text-xs rounded border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
+                    <div>
+                        <label className="block text-[10px] text-slate-400 mb-1">Primary Button Text</label>
+                        <input
+                            type="text"
+                            placeholder="Button Text"
+                            value={buttonText}
+                            onChange={(e) => handleFieldChange('buttonText', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[10px] text-slate-400 mb-1">Primary Button URL</label>
+                        <input
+                            type="text"
+                            placeholder="URL"
+                            value={buttonUrl}
+                            onChange={(e) => handleFieldChange('buttonUrl', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                    <input
-                        type="text"
-                        placeholder="Secondary Button Text"
-                        value={secondaryText}
-                        onChange={(e) => onChange('secondaryText', e.target.value)}
-                        className="text-xs rounded border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Secondary URL"
-                        value={secondaryUrl}
-                        onChange={(e) => onChange('secondaryUrl', e.target.value)}
-                        className="text-xs rounded border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
+                    <div>
+                        <label className="block text-[10px] text-slate-400 mb-1">Secondary Button Text</label>
+                        <input
+                            type="text"
+                            placeholder="Secondary Text"
+                            value={secondaryText}
+                            onChange={(e) => handleFieldChange('secondaryText', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[10px] text-slate-400 mb-1">Secondary Button URL</label>
+                        <input
+                            type="text"
+                            placeholder="URL"
+                            value={secondaryUrl}
+                            onChange={(e) => handleFieldChange('secondaryUrl', e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-indigo-500"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

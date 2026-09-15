@@ -11,6 +11,8 @@ import {
     MessageSquareQuote,
     Mail,
     LayoutGrid,
+    Newspaper,
+    Share2,
 } from 'lucide-react';
 
 import { HeroComponent, HeroSettings } from './Definitions/HeroBlock';
@@ -20,11 +22,13 @@ import { CtaComponent, CtaSettings } from './Definitions/CtaBlock';
 import { GalleryComponent, GallerySettings } from './Definitions/GalleryBlock';
 import { SpacerComponent, SpacerSettings } from './Definitions/SpacerBlock';
 import { LatestPostsComponent, LatestPostsSettings } from './Definitions/LatestPostsBlock';
+import { AdvancedPostsComponent, AdvancedPostsSettings } from './Definitions/AdvancedPostsBlock';
 import { PricingComponent, PricingSettings } from './Definitions/PricingBlock';
 import { FaqComponent, FaqSettings } from './Definitions/FaqBlock';
 import { TestimonialsComponent, TestimonialsSettings } from './Definitions/TestimonialsBlock';
-import { ContactFormComponent, ContactFormSettings } from './Definitions/ContactFormBlock';
+import { ContactFormComponent, ContactFormSettings, DEFAULT_CONTACT_FIELDS } from './Definitions/ContactFormBlock';
 import { ContainerComponent, ContainerSettings } from './Definitions/ContainerBlock';
+import { SocialComponent, SocialSettings, DEFAULT_SOCIAL_ITEMS } from './Definitions/SocialBlock';
 
 export {
     SUB_COMPONENTS_REGISTRY,
@@ -202,6 +206,31 @@ export const BLOCK_REGISTRY = {
         Component: LatestPostsComponent,
         SettingsComponent: LatestPostsSettings,
     },
+    advanced_posts: {
+        type: 'advanced_posts',
+        label: 'Advanced Posts Feed',
+        category: 'Dynamic Content',
+        icon: Newspaper,
+        description: 'Comprehensive blog and news feed with interactive AJAX search, category tabs, and real-time pagination.',
+        defaultProps: {
+            badge: 'EXPLORE KNOWLEDGE',
+            title: 'Latest Insights & Articles',
+            subtitle: 'Browse our curated publications, tutorials, and engineering updates.',
+            limit: 6,
+            columns: 3,
+            categoryId: 'all',
+            cardStyle: 'modern',
+            showSearch: true,
+            showCategoryFilter: true,
+            showExcerpt: true,
+            showDate: true,
+            showAuthor: true,
+            showBadge: true,
+            showPagination: true,
+        },
+        Component: AdvancedPostsComponent,
+        SettingsComponent: AdvancedPostsSettings,
+    },
     pricing: {
         type: 'pricing',
         label: 'Pricing Table',
@@ -352,6 +381,8 @@ export const BLOCK_REGISTRY = {
             formName: 'contact',
             buttonText: 'Send Message',
             successMessage: 'Thank you! Your message has been sent successfully. We will be in touch soon.',
+            fields: DEFAULT_CONTACT_FIELDS,
+            subComponents: [],
         },
         Component: ContactFormComponent,
         SettingsComponent: ContactFormSettings,
@@ -399,6 +430,24 @@ export const BLOCK_REGISTRY = {
         },
         Component: ContainerComponent,
         SettingsComponent: ContainerSettings,
+    },
+    social: {
+        type: 'social',
+        label: 'Social Networks',
+        category: 'Marketing',
+        icon: Share2,
+        description: 'Showcase your official social media channels, profiles, and communities with interactive links.',
+        defaultProps: {
+            badge: 'CONNECT & COLLABORATE',
+            title: 'Join Our Thriving Community Across Networks',
+            subtitle: 'Follow our latest development updates, live demos, and community discussions.',
+            style: 'cards',
+            alignment: 'center',
+            items: DEFAULT_SOCIAL_ITEMS,
+            subComponents: [],
+        },
+        Component: SocialComponent,
+        SettingsComponent: SocialSettings,
     },
 };
 

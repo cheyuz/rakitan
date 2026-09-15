@@ -1,7 +1,11 @@
 import React from 'react';
 import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const GalleryComponent = ({ props = {} }) => {
+export const GalleryComponent = ({ props = {}, blockId }) => {
     const {
         title = 'Media Showcase & Gallery',
         subtitle = 'A visual documentation of product interfaces and creative assets',
@@ -24,7 +28,17 @@ export const GalleryComponent = ({ props = {} }) => {
                 alt: 'Developer Code View',
             },
         ],
+        isCustom = false,
+        subComponents = [],
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const colClasses = {
         2: 'grid-cols-1 sm:grid-cols-2',
@@ -41,43 +55,84 @@ export const GalleryComponent = ({ props = {} }) => {
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 text-slate-100 transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
-                {(title || subtitle) && (
-                    <div className="text-center max-w-2xl mx-auto mb-12">
-                        {title && (
-                            <h2 className="text-3xl font-extrabold text-white tracking-tight mb-3">
-                                {title}
-                            </h2>
-                        )}
-                        {subtitle && (
-                            <p className="text-base text-slate-400">
-                                {subtitle}
-                            </p>
-                        )}
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Galeri Ini"
+                        />
                     </div>
-                )}
+                ) : (
+                    <>
+                        {(title || subtitle || isEditing) && (
+                            <div className="text-center max-w-2xl mx-auto mb-12">
+                                {(title || isEditing) && (
+                                    <DefaultElementWrapper
+                                        blockId={blockId}
+                                        elementKey="title"
+                                        label="Headline"
+                                        isCustom={isCustom}
+                                    >
+                                        <h2 className="text-3xl font-extrabold text-white tracking-tight mb-3">
+                                            <InlineText
+                                                value={title}
+                                                onChange={(val) => handlePropChange('title', val)}
+                                                placeholder="Gallery Title"
+                                            />
+                                        </h2>
+                                    </DefaultElementWrapper>
+                                )}
+                                {(subtitle || isEditing) && (
+                                    <DefaultElementWrapper
+                                        blockId={blockId}
+                                        elementKey="subtitle"
+                                        label="Subtitle"
+                                        isCustom={isCustom}
+                                    >
+                                        <p className="text-base text-slate-400">
+                                            <InlineText
+                                                value={subtitle}
+                                                onChange={(val) => handlePropChange('subtitle', val)}
+                                                placeholder="Gallery Subtitle"
+                                            />
+                                        </p>
+                                    </DefaultElementWrapper>
+                                )}
+                            </div>
+                        )}
 
-                <div className={`grid ${colClasses} ${gapClasses}`}>
-                    {images.map((img, idx) => (
-                        <div
-                            key={idx}
-                            className="group relative overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 shadow-sm aspect-[4/3]"
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="images"
+                            label="Gallery Images"
+                            isCustom={isCustom}
                         >
-                            <img
-                                src={img.url}
-                                alt={img.alt || img.caption || `Gallery image ${idx + 1}`}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy"
-                            />
-                            {img.caption && (
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-                                    <p className="text-white text-sm font-medium leading-snug">
-                                        {img.caption}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                            <div className={`grid ${colClasses} ${gapClasses}`}>
+                                {images.map((img, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="group relative overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 shadow-sm aspect-[4/3]"
+                                    >
+                                        <img
+                                            src={img.url}
+                                            alt={img.alt || img.caption || `Gallery image ${idx + 1}`}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            loading="lazy"
+                                        />
+                                        {img.caption && (
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                                                <p className="text-white text-sm font-medium leading-snug">
+                                                    {img.caption}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </DefaultElementWrapper>
+                    </>
+                )}
             </div>
         </section>
     );

@@ -1,7 +1,11 @@
 import React from 'react';
 import { Star, MessageSquareQuote, Plus, Trash2 } from 'lucide-react';
+import InlineText from '@/Blocks/Components/InlineText';
+import SubComponentSlot from '@/Blocks/SubComponents/SubComponentSlot';
+import DefaultElementWrapper from '@/Blocks/Components/DefaultElementWrapper';
+import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 
-export const TestimonialsComponent = ({ props = {} }) => {
+export const TestimonialsComponent = ({ props = {}, blockId }) => {
     const {
         badge = 'TESTIMONIALS',
         title = 'Loved by Developers & Agencies Worldwide',
@@ -30,7 +34,17 @@ export const TestimonialsComponent = ({ props = {} }) => {
                 rating: 5,
             },
         ],
+        isCustom = false,
+        subComponents = [],
     } = props;
+
+    const { onUpdateBlockProp, isEditing } = useCanvasEdit();
+
+    const handlePropChange = (key, val) => {
+        if (onUpdateBlockProp && blockId) {
+            onUpdateBlockProp(blockId, key, val);
+        }
+    };
 
     const gridColsClass = {
         1: 'grid-cols-1 max-w-2xl mx-auto',
@@ -41,71 +55,120 @@ export const TestimonialsComponent = ({ props = {} }) => {
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-                    {badge && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
-                            <MessageSquareQuote className="w-3.5 h-3.5" />
-                            <span>{badge}</span>
-                        </div>
-                    )}
-                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
-                        {title}
-                    </h2>
-                    {subtitle && (
-                        <p className="text-base text-slate-400">
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-
-                {/* Testimonial Cards */}
-                <div className={`grid ${gridColsClass} gap-6 sm:gap-8`}>
-                    {items.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all hover:shadow-xl shadow-slate-950/40 group"
-                        >
-                            <div className="space-y-4">
-                                {/* Stars */}
-                                <div className="flex items-center gap-1 text-amber-400">
-                                    {[...Array(5)].map((_, sIdx) => (
-                                        <Star
-                                            key={sIdx}
-                                            className={`w-4 h-4 ${sIdx < (item.rating || 5) ? 'fill-amber-400' : 'text-slate-700'}`}
+                {isCustom ? (
+                    <div className="w-full">
+                        <SubComponentSlot
+                            blockId={blockId}
+                            subComponents={subComponents}
+                            emptyPlaceholder="+ Tambahkan Sub-Komponen ke Blok Testimoni Ini"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                            {(badge || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="badge"
+                                    label="Badge"
+                                    isCustom={isCustom}
+                                >
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
+                                        <MessageSquareQuote className="w-3.5 h-3.5" />
+                                        <InlineText
+                                            value={badge}
+                                            onChange={(val) => handlePropChange('badge', val)}
+                                            placeholder="Badge Text"
                                         />
-                                    ))}
-                                </div>
-
-                                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
-                                    "{item.quote}"
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-800/80">
-                                {item.avatarUrl ? (
-                                    <img
-                                        src={item.avatarUrl}
-                                        alt={item.author}
-                                        className="w-10 h-10 rounded-full object-cover border border-slate-700 flex-shrink-0"
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">
-                                        {item.author?.charAt(0) || 'U'}
                                     </div>
-                                )}
-                                <div className="min-w-0">
-                                    <h4 className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">
-                                        {item.author}
-                                    </h4>
-                                    <p className="text-[11px] text-slate-400 truncate">
-                                        {item.role}
+                                </DefaultElementWrapper>
+                            )}
+                            {(title || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="title"
+                                    label="Headline"
+                                    isCustom={isCustom}
+                                >
+                                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
+                                        <InlineText
+                                            value={title}
+                                            onChange={(val) => handlePropChange('title', val)}
+                                            placeholder="Testimonials Title"
+                                        />
+                                    </h2>
+                                </DefaultElementWrapper>
+                            )}
+                            {(subtitle || isEditing) && (
+                                <DefaultElementWrapper
+                                    blockId={blockId}
+                                    elementKey="subtitle"
+                                    label="Subtitle"
+                                    isCustom={isCustom}
+                                >
+                                    <p className="text-base text-slate-400">
+                                        <InlineText
+                                            value={subtitle}
+                                            onChange={(val) => handlePropChange('subtitle', val)}
+                                            placeholder="Testimonials Subtitle"
+                                        />
                                     </p>
-                                </div>
-                            </div>
+                                </DefaultElementWrapper>
+                            )}
                         </div>
-                    ))}
-                </div>
+
+                        {/* Testimonial Cards */}
+                        <DefaultElementWrapper
+                            blockId={blockId}
+                            elementKey="items"
+                            label="Testimonial Cards"
+                            isCustom={isCustom}
+                        >
+                            <div className={`grid ${gridColsClass} gap-6 sm:gap-8`}>
+                                {items.map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all hover:shadow-xl shadow-slate-950/40 group"
+                                    >
+                                        <div className="space-y-4">
+                                            {/* Stars */}
+                                            <div className="flex items-center gap-1 text-amber-400">
+                                                {Array.from({ length: item.rating || 5 }).map((_, sIdx) => (
+                                                    <Star key={sIdx} className="w-4 h-4 fill-amber-400" />
+                                                ))}
+                                            </div>
+
+                                            {/* Quote */}
+                                            <p className="text-sm sm:text-base text-slate-200 leading-relaxed italic">
+                                                "{item.quote}"
+                                            </p>
+                                        </div>
+
+                                        {/* Author details */}
+                                        <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-800/80">
+                                            {item.avatarUrl && (
+                                                <img
+                                                    src={item.avatarUrl}
+                                                    alt={item.author}
+                                                    className="w-10 h-10 rounded-full object-cover border border-slate-700"
+                                                />
+                                            )}
+                                            <div className="min-w-0">
+                                                <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                                                    {item.author}
+                                                </h4>
+                                                <p className="text-[11px] text-slate-400 truncate">
+                                                    {item.role}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </DefaultElementWrapper>
+                    </>
+                )}
             </div>
         </section>
     );

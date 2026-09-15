@@ -1805,6 +1805,8 @@ export default function Builder({ page }) {
                                         <selectedDef.SettingsComponent
                                             props={selectedBlock.props || {}}
                                             updateProps={handleUpdateBlockProps}
+                                            onChange={(key, val) => handleUpdateBlockProps({ [key]: val })}
+                                            blockId={selectedBlock.id}
                                         />
                                     </div>
                                 ) : (

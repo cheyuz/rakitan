@@ -10,8 +10,10 @@ import {
     Calendar,
     Menu as MenuIcon,
     X,
+    Sparkles,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import { renderSocialIcon } from '@/Blocks/Definitions/SocialBlock';
 
 export default function PublicLayout({
     children,
@@ -22,10 +24,35 @@ export default function PublicLayout({
     categories = [],
     isAdmin = false,
 }) {
-    const { active_theme, seo } = usePage().props;
+    const {
+        active_theme,
+        seo,
+        site_logo,
+        site_favicon,
+        site_title,
+        footer_text: global_footer_text,
+        layout_settings = {},
+        auth,
+    } = usePage().props;
+    const isLoggedIn = Boolean(auth?.user || isAdmin);
     const [currentTheme, setCurrentTheme] = useState(active_theme || 'default_dark');
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Layout configuration from global settings with page-level overrides
+    const effectiveLayout = layout !== 'default' ? layout : (layout_settings.body_layout || 'default');
+    const headerSticky = layout_settings.header_sticky !== false;
+    const headerStyle = layout_settings.header_style || 'glass';
+    const headerWidth = layout_settings.header_width || 'contained';
+    const headerShowCta = Boolean(layout_settings.header_show_cta && layout_settings.header_cta_text);
+    const headerCtaText = layout_settings.header_cta_text || 'Get Started';
+    const headerCtaUrl = layout_settings.header_cta_url || '/contact';
+    const bodyMaxWidth = layout_settings.body_max_width || '7xl';
+    const footerEnabled = layout_settings.footer_enabled !== false;
+    const footerStyle = layout_settings.footer_style || 'default';
+    const footerText = layout_settings.footer_text || global_footer_text || `© ${new Date().getFullYear()} Rakitan CMS. Built for the open-source community.`;
+    const footerShowBranding = layout_settings.footer_show_branding !== false;
+    const footerShowSocials = layout_settings.footer_show_socials !== false;
 
     useEffect(() => {
         if (active_theme) {
@@ -52,13 +79,14 @@ export default function PublicLayout({
                 isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
             }`}>
                 <Head>
+                    <link rel="icon" type="image/png" href={site_favicon || '/images/rakitan-logo.png'} />
                     <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
                     {seo && (
                         <>
                             {seo.robots_indexing && <meta name="robots" content={seo.robots_indexing} />}
                             {seo.google_verification && <meta name="google-site-verification" content={seo.google_verification} />}
                             {seo.default_meta_description && <meta name="description" content={seo.default_meta_description} />}
-                            <meta property="og:site_name" content={seo.site_name || 'Rakitan CMS'} />
+                            <meta property="og:site_name" content={seo.site_name || site_title || 'Rakitan CMS'} />
                             <meta property="og:type" content="website" />
                             {seo.og_default_image && <meta property="og:image" content={seo.og_default_image} />}
                             {seo.twitter_card && <meta name="twitter:card" content={seo.twitter_card} />}
@@ -83,13 +111,14 @@ export default function PublicLayout({
             isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
         }`}>
             <Head>
+                <link rel="icon" type="image/png" href={site_favicon || '/images/rakitan-logo.png'} />
                 <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
                 {seo && (
                     <>
                         {seo.robots_indexing && <meta name="robots" content={seo.robots_indexing} />}
                         {seo.google_verification && <meta name="google-site-verification" content={seo.google_verification} />}
                         {seo.default_meta_description && <meta name="description" content={seo.default_meta_description} />}
-                        <meta property="og:site_name" content={seo.site_name || 'Rakitan CMS'} />
+                        <meta property="og:site_name" content={seo.site_name || site_title || 'Rakitan CMS'} />
                         <meta property="og:type" content="website" />
                         {seo.og_default_image && <meta property="og:image" content={seo.og_default_image} />}
                         {seo.twitter_card && <meta name="twitter:card" content={seo.twitter_card} />}
@@ -98,18 +127,26 @@ export default function PublicLayout({
                 )}
             </Head>
             {/* Header Navigation */}
-            <header className={`sticky top-0 z-50 w-full backdrop-blur-md transition-all ${
-                isLight
-                    ? 'bg-white/85 border-b border-slate-200/80 shadow-sm'
-                    : 'bg-slate-950/85 border-b border-slate-800/80'
+            <header className={`${headerSticky ? 'sticky top-0 z-50' : 'relative z-40'} w-full transition-all ${
+                headerStyle === 'solid'
+                    ? (isLight ? 'bg-white border-b border-slate-200 shadow-sm' : 'bg-slate-950 border-b border-slate-800')
+                    : headerStyle === 'transparent'
+                        ? 'bg-transparent border-b border-transparent backdrop-blur-none'
+                        : (isLight ? 'bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-sm' : 'bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80')
             }`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div className={`${headerWidth === 'full' ? 'w-full px-4 sm:px-6 lg:px-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'} h-16 flex items-center justify-between`}>
                     {/* Brand Logo */}
                     <Link href="/" className="flex items-center gap-2.5 group">
-                        <ApplicationLogo className="w-9 h-9 rounded-xl shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-all" />
-                        <span className={`text-xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                            Rakitan<span className="text-indigo-500">.</span>
-                        </span>
+                        {site_logo ? (
+                            <img src={site_logo} alt={site_title || 'Rakitan'} className="h-9 w-auto max-w-[180px] object-contain rounded-lg" />
+                        ) : (
+                            <>
+                                <ApplicationLogo className="w-9 h-9 rounded-xl shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-all" />
+                                <span className={`text-xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                                    {site_title || 'Rakitan'}<span className="text-indigo-500">.</span>
+                                </span>
+                            </>
+                        )}
                     </Link>
 
                     {/* Navigation Links */}
@@ -132,25 +169,23 @@ export default function PublicLayout({
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                        {isAdmin ? (
+                        {headerShowCta && (
+                            <Link
+                                href={headerCtaUrl}
+                                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-sm shadow-indigo-600/20 transition-all"
+                            >
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>{headerCtaText}</span>
+                            </Link>
+                        )}
+
+                        {isLoggedIn && (
                             <Link
                                 href="/admin/dashboard"
-                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
                             >
                                 <LayoutDashboard className="w-3.5 h-3.5" />
                                 <span>Dashboard</span>
-                            </Link>
-                        ) : (
-                            <Link
-                                href="/login"
-                                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                                    isLight
-                                        ? 'text-slate-700 hover:text-slate-900 border-slate-300 bg-white hover:bg-slate-100 shadow-sm'
-                                        : 'text-slate-200 hover:text-white border-slate-800 bg-slate-900/60 hover:bg-slate-800'
-                                }`}
-                            >
-                                <LogIn className="w-3.5 h-3.5" />
-                                <span>Log In</span>
                             </Link>
                         )}
 
@@ -189,14 +224,23 @@ export default function PublicLayout({
                                 {item.label || item.title}
                             </Link>
                         ))}
+                        {headerShowCta && (
+                            <Link
+                                href={headerCtaUrl}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block text-center mt-2 px-3 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-white"
+                            >
+                                {headerCtaText}
+                            </Link>
+                        )}
                     </div>
                 )}
             </header>
 
             {/* Main Content Area based on chosen Layout */}
             <main className="flex-1 w-full">
-                {layout === 'boxed' ? (
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 my-10 sm:my-14">
+                {effectiveLayout === 'boxed' ? (
+                    <div className={`${bodyMaxWidth === 'full' ? 'w-full' : bodyMaxWidth === '6xl' ? 'max-w-6xl' : bodyMaxWidth === '5xl' ? 'max-w-5xl' : 'max-w-7xl'} mx-auto px-4 sm:px-6 my-10 sm:my-14`}>
                         <div className={`rounded-3xl p-6 sm:p-12 shadow-2xl backdrop-blur-xl border ${
                             isLight
                                 ? 'bg-white/90 border-slate-200 shadow-slate-200/50 text-slate-900'
@@ -205,8 +249,8 @@ export default function PublicLayout({
                             {children}
                         </div>
                     </div>
-                ) : layout === 'sidebar' ? (
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                ) : effectiveLayout === 'sidebar' ? (
+                    <div className={`${bodyMaxWidth === 'full' ? 'w-full' : bodyMaxWidth === '6xl' ? 'max-w-6xl' : bodyMaxWidth === '5xl' ? 'max-w-5xl' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8 py-10`}>
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             {/* Main Content (8 cols) */}
                             <div className="lg:col-span-8 min-w-0">
@@ -345,55 +389,122 @@ export default function PublicLayout({
             </main>
 
             {/* Footer Navigation */}
-            <footer className={`border-t py-12 px-4 sm:px-6 lg:px-8 transition-colors ${
-                isLight
-                    ? 'border-slate-200 bg-white text-slate-600'
-                    : 'border-slate-800/80 bg-slate-950/90 text-slate-400'
-            }`}>
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-2.5">
-                        <ApplicationLogo className="w-7 h-7 rounded-lg" />
-                        <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
-                            Rakitan Modular CMS
-                        </span>
-                        <span className="text-xs text-slate-400">
-                            © {new Date().getFullYear()} Open-Source CMS.
-                        </span>
-                    </div>
+            {footerEnabled && (
+                <footer className={`transition-all ${
+                    footerStyle === 'glass'
+                        ? `mx-4 sm:mx-6 lg:mx-8 mb-6 mt-12 rounded-3xl backdrop-blur-xl border p-6 sm:p-8 ${
+                              isLight
+                                  ? 'border-slate-200/80 bg-white/80 shadow-lg text-slate-600'
+                                  : 'border-slate-800/80 bg-slate-900/60 shadow-2xl text-slate-400'
+                          }`
+                        : footerStyle === 'minimal'
+                            ? `border-t py-6 px-4 sm:px-6 lg:px-8 ${
+                                  isLight ? 'border-slate-200 bg-white text-slate-600' : 'border-slate-800/80 bg-slate-950 text-slate-400'
+                              }`
+                            : `border-t py-12 px-4 sm:px-6 lg:px-8 ${
+                                  isLight ? 'border-slate-200 bg-white text-slate-600' : 'border-slate-800/80 bg-slate-950/90 text-slate-400'
+                              }`
+                }`}>
+                    <div className={`${headerWidth === 'full' ? 'w-full' : 'max-w-7xl'} mx-auto flex flex-col md:flex-row items-center justify-between gap-6`}>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+                            <div className="flex items-center gap-2.5">
+                                <ApplicationLogo className="w-7 h-7 rounded-lg" />
+                                <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
+                                    {site_title || 'Rakitan CMS'}
+                                </span>
+                            </div>
+                            <span className="text-xs text-slate-400">
+                                {footerText}
+                            </span>
+                        </div>
 
-                    <div className="flex flex-wrap items-center gap-6 text-xs">
-                        {footerNavigation && footerNavigation.length > 0 ? (
-                            footerNavigation.map((item, idx) => (
-                                <Link
-                                    key={idx}
-                                    href={item.url || item.slug || '/'}
-                                    target={item.target || '_self'}
-                                    className={`transition-colors ${
-                                        isLight ? 'hover:text-slate-900 text-slate-600' : 'hover:text-white text-slate-400'
-                                    }`}
+                        {/* Social Media Links in Footer */}
+                        {footerShowSocials && (
+                            <div className="flex items-center gap-2 text-slate-400">
+                                <a
+                                    href="https://twitter.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg hover:text-indigo-400 hover:bg-slate-800/60 transition-all"
+                                    title="Twitter / X"
                                 >
-                                    {item.label || item.title}
-                                </Link>
-                            ))
-                        ) : (
-                            <>
-                                <Link href="/" className="hover:text-indigo-500 transition-colors">Home</Link>
-                                <Link href="/blog" className="hover:text-indigo-500 transition-colors">Blog</Link>
-                                <Link href="/about" className="hover:text-indigo-500 transition-colors">About</Link>
-                            </>
+                                    {renderSocialIcon('x', 'w-4 h-4')}
+                                </a>
+                                <a
+                                    href="https://github.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg hover:text-indigo-400 hover:bg-slate-800/60 transition-all"
+                                    title="GitHub"
+                                >
+                                    {renderSocialIcon('github', 'w-4 h-4')}
+                                </a>
+                                <a
+                                    href="https://linkedin.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg hover:text-indigo-400 hover:bg-slate-800/60 transition-all"
+                                    title="LinkedIn"
+                                >
+                                    {renderSocialIcon('linkedin', 'w-4 h-4')}
+                                </a>
+                                <a
+                                    href="https://youtube.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg hover:text-indigo-400 hover:bg-slate-800/60 transition-all"
+                                    title="YouTube"
+                                >
+                                    {renderSocialIcon('youtube', 'w-4 h-4')}
+                                </a>
+                                <a
+                                    href="https://instagram.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg hover:text-indigo-400 hover:bg-slate-800/60 transition-all"
+                                    title="Instagram"
+                                >
+                                    {renderSocialIcon('instagram', 'w-4 h-4')}
+                                </a>
+                            </div>
                         )}
-                        <a
-                            href="https://laravel.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 hover:text-indigo-500 transition-colors"
-                        >
-                            <span>Powered by Laravel & Inertia</span>
-                            <ArrowUpRight className="w-3 h-3" />
-                        </a>
+
+                        <div className="flex flex-wrap items-center gap-6 text-xs">
+                            {footerNavigation && footerNavigation.length > 0 ? (
+                                footerNavigation.map((item, idx) => (
+                                    <Link
+                                        key={idx}
+                                        href={item.url || item.slug || '/'}
+                                        target={item.target || '_self'}
+                                        className={`transition-colors ${
+                                            isLight ? 'hover:text-slate-900 text-slate-600' : 'hover:text-white text-slate-400'
+                                        }`}
+                                    >
+                                        {item.label || item.title}
+                                    </Link>
+                                ))
+                            ) : (
+                                <>
+                                    <Link href="/" className="hover:text-indigo-500 transition-colors">Home</Link>
+                                    <Link href="/blog" className="hover:text-indigo-500 transition-colors">Blog</Link>
+                                    <Link href="/about" className="hover:text-indigo-500 transition-colors">About</Link>
+                                </>
+                            )}
+                            {footerShowBranding && (
+                                <a
+                                    href="https://laravel.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 hover:text-indigo-500 transition-colors"
+                                >
+                                    <span>Powered by Laravel & Inertia</span>
+                                    <ArrowUpRight className="w-3 h-3" />
+                                </a>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </footer>
+                </footer>
+            )}
         </div>
     );
 }
