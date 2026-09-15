@@ -21,6 +21,7 @@ import {
     Inbox,
     SlidersHorizontal,
     Search,
+    BookMarked,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -130,6 +131,13 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             icon: Settings,
             active: currentUrl.startsWith('/admin/settings'),
             show: isAdmin,
+        },
+        {
+            label: 'Documentation',
+            href: '/admin/documentation',
+            icon: BookMarked,
+            active: currentUrl.startsWith('/admin/documentation'),
+            show: true,
         },
     ].filter((item) => item.show);
 

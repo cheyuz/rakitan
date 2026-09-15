@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DocumentationController;
 use App\Http\Controllers\Admin\FormSubmissionController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
@@ -114,10 +115,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
-        // Tools (XML Export / Import)
+        // Tools (XML Export / Import & Site Reset)
         Route::get('/tools', [ToolsController::class, 'index'])->name('tools.index');
         Route::get('/tools/export', [ToolsController::class, 'export'])->name('tools.export');
         Route::post('/tools/import', [ToolsController::class, 'import'])->name('tools.import');
+        Route::post('/tools/reset', [ToolsController::class, 'reset'])->name('tools.reset');
+
+        // In-CMS Developer Documentation
+        Route::get('/documentation', [DocumentationController::class, 'index'])->name('documentation.index');
     });
 });
 

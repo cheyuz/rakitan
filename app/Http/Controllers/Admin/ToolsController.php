@@ -3,9 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\FormSubmission;
+use App\Models\Media;
+use App\Models\MediaFolder;
+use App\Models\Menu;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\Setting;
+use App\Models\User;
+use App\Services\PluginManager;
+use Database\Seeders\PageSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -246,5 +258,81 @@ class ToolsController extends Controller
         }
 
         return back()->with('success', "Successfully imported {$importedCount} pages into Rakitan CMS!");
+    }
+
+    /**
+     * Clean and reset website content to initial post-installation state.
+     * All files (plugins & themes) remain on disk, but plugins are disabled and theme is reset to default.
+     * Current authenticated admin user is preserved.
+     */
+    public function reset(Request $request, PluginManager $pluginManager): RedirectResponse
+    {
+        $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        $currentUser = $request->user();
+
+        // 1. Authenticate admin password for security confirmation
+        if (!Hash::check($request->password, $currentUser->password)) {
+            return back()->withErrors([
+                'password' => 'Kata sandi konfirmasi tidak cocok. Tindakan reset dibatalkan demi keamanan.',
+            ]);
+        }
+
+        // 2. Clear uploaded media files & database records safely
+        try {
+            $mediaPath = storage_path('app/public/media');
+            if (File::isDirectory($mediaPath)) {
+                File::cleanDirectory($mediaPath);
+            }
+        } catch (\Throwable $e) {
+            // Log or ignore filesystem deletion issues
+        }
+
+        Media::query()->delete();
+        MediaFolder::query()->delete();
+
+        // 3. Clear customer inquiries / contact submissions
+        FormSubmission::query()->delete();
+
+        // 4. Clear user-created posts and categories
+        Post::query()->delete();
+        Category::query()->delete();
+
+        // 5. Clear navigation menus
+        Menu::query()->delete();
+
+        // 6. Clear user pages
+        Page::query()->delete();
+
+        // 7. Reset plugins to inactive & record them in disabled_plugins
+        $allPlugins = $pluginManager->scanPlugins();
+        $allPluginIds = array_column($allPlugins, 'id');
+        Setting::set('disabled_plugins', $allPluginIds);
+        Setting::set('active_plugins', []);
+
+        // 8. Reset theme to default dark
+        Setting::set('active_theme', 'default-dark');
+
+        // 9. Remove other users except currently authenticated admin
+        User::where('id', '!=', $currentUser->id)->delete();
+
+        // 10. Re-seed default demo content (Pages, Categories, Posts, Menus)
+        try {
+            $seeder = new PageSeeder();
+            $seeder->run();
+
+            // Re-assign seeded content to current admin user
+            Page::query()->update(['user_id' => $currentUser->id]);
+            Post::query()->update(['user_id' => $currentUser->id]);
+        } catch (\Throwable $e) {
+            // Seeder fallback
+        }
+
+        return redirect()->route('admin.tools.index')->with(
+            'success',
+            'Data website berhasil dibersihkan dan direset seperti baru setelah instalasi! Seluruh plugin telah dinonaktifkan dan tema kembali ke tema bawaan.'
+        );
     }
 }

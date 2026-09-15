@@ -126,6 +126,11 @@ class PluginManager
         if (!$this->isActive($pluginId)) {
             $this->togglePlugin($pluginId);
         }
+
+        $routesPath = $this->getPluginsPath() . '/' . $pluginId . '/routes.php';
+        if (File::exists($routesPath)) {
+            require $routesPath;
+        }
     }
 
     /**
@@ -139,7 +144,7 @@ class PluginManager
         foreach ($activePluginIds as $pluginId) {
             $routesPath = $pluginsPath . '/' . $pluginId . '/routes.php';
             if (File::exists($routesPath)) {
-                require_once $routesPath;
+                require $routesPath;
             }
         }
     }
