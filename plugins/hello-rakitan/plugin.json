@@ -2,7 +2,7 @@
     "id": "hello-rakitan",
     "name": "Hello Rakitan",
     "version": "1.0.0",
-    "author": "Rakitan Core Team",
+    "author": "Cecep Yusuf",
     "description": "A starter plugin demonstrating how developers can extend Rakitan CMS with custom modular capabilities.",
     "is_builtin": true,
     "settings": {

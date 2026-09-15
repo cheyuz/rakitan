@@ -2,7 +2,7 @@
     "id": "default-light",
     "name": "Rakitan Clean Light",
     "version": "1.1.0",
-    "author": "Rakitan Core Team",
+    "author": "Cecep Yusuf",
     "description": "A pristine, airy light theme crafted for clarity and modern design. Features Plus Jakarta Sans typography, ambient lighting, and bespoke block component overrides.",
     "screenshot": "screenshot.png",
     "is_builtin": true,

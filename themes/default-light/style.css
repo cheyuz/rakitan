@@ -31,20 +31,26 @@ body.theme-default-light ::selection {
     color: #ffffff;
 }
 
-/* Polished Scrollbar for Light Theme */
+/* Polished Dynamic Scrollbar for Light Theme */
 body.theme-default-light::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 body.theme-default-light::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
 }
 
 body.theme-default-light::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background-color: transparent;
     border-radius: 9999px;
+    transition: background-color 0.25s ease-in-out;
+}
+
+body.theme-default-light:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.32);
 }
 
 body.theme-default-light::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background-color: rgba(71, 85, 105, 0.6);
 }

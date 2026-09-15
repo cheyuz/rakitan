@@ -104,7 +104,7 @@ class ThemeManager
             'id' => 'default-dark',
             'name' => 'Rakitan Cyber Dark',
             'version' => '1.0.0',
-            'author' => 'Rakitan Core',
+            'author' => 'Cecep Yusuf',
             'description' => 'Default fallback dark theme',
             'is_builtin' => true,
             'is_active' => true,
