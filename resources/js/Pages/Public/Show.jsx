@@ -1,9 +1,9 @@
 import React from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { getBlockDefinition } from '@/Blocks/registry';
 import { getThemeBlockOverride } from '@/Themes/overrides';
-import { AlertCircle, Edit3 } from 'lucide-react';
+import { AlertCircle, Edit3, Globe } from 'lucide-react';
 
 export default function Show({
     page,
@@ -34,18 +34,33 @@ export default function Show({
 
             {/* Admin Draft Preview Banner */}
             {isAdmin && page.status === 'draft' && (
-                <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-xs text-amber-400 flex items-center justify-center gap-3">
+                <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-xs text-amber-400 flex flex-wrap items-center justify-center gap-3">
                     <div className="flex items-center gap-1.5 font-medium">
-                        <AlertCircle className="w-4 h-4 text-amber-400" />
+                        <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
                         <span>Draft Preview Mode: This page is not yet visible to the public.</span>
                     </div>
-                    <Link
-                        href={`/admin/pages/${page.id}/builder`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-semibold hover:bg-amber-400 transition-colors"
-                    >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Open Visual Builder</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                router.patch(`/admin/pages/${page.id}/toggle-status`, {}, {
+                                    preserveScroll: true,
+                                });
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer"
+                            title="Make this page publicly accessible now"
+                        >
+                            <Globe className="w-3.5 h-3.5" />
+                            <span>Publish Page Now</span>
+                        </button>
+                        <Link
+                            href={`/admin/pages/${page.id}/builder`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+                        >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Open Visual Builder</span>
+                        </Link>
+                    </div>
                 </div>
             )}
 

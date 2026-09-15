@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -81,7 +82,7 @@ class PageController extends Controller
             'slug' => $slug,
             'meta_title' => $validated['title'],
             'meta_description' => null,
-            'status' => 'draft',
+            'status' => Setting::get('default_status', 'draft'),
             'user_id' => $request->user()?->id,
             'blocks' => [
                 [
@@ -182,5 +183,20 @@ class PageController extends Controller
 
         return redirect()->route('admin.pages.index')
             ->with('success', "Halaman '{$title}' berhasil dihapus.");
+    }
+
+    /**
+     * Alihkan status publikasi halaman (draft <-> published).
+     */
+    public function toggleStatus(Page $page): RedirectResponse
+    {
+        $newStatus = $page->status === 'published' ? 'draft' : 'published';
+        $page->update(['status' => $newStatus]);
+
+        $message = $newStatus === 'published'
+            ? "Halaman '{$page->title}' berhasil dipublikasikan!"
+            : "Halaman '{$page->title}' dikembalikan menjadi draf.";
+
+        return back()->with('success', $message);
     }
 }

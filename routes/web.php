@@ -66,6 +66,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::post('/', [PageController::class, 'store'])->name('store');
             Route::get('/{page}/builder', [PageController::class, 'builder'])->name('builder');
             Route::put('/{page}', [PageController::class, 'update'])->name('update');
+            Route::patch('/{page}/toggle-status', [PageController::class, 'toggleStatus'])->name('toggle-status');
             Route::post('/{page}/duplicate', [PageController::class, 'duplicate'])->name('duplicate');
             Route::delete('/{page}', [PageController::class, 'destroy'])->name('destroy');
         });

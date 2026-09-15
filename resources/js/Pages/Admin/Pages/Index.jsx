@@ -54,6 +54,12 @@ export default function Index({ pages, filters = {} }) {
         }
     };
 
+    const handleToggleStatus = (pageId) => {
+        router.patch(`/admin/pages/${pageId}/toggle-status`, {}, {
+            preserveScroll: true,
+        });
+    };
+
     const handleDelete = (pageId, title) => {
         if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
             router.delete(`/admin/pages/${pageId}`);
@@ -159,13 +165,19 @@ export default function Index({ pages, filters = {} }) {
                                                 </div>
                                             </td>
                                             <td className="py-4 px-5">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                                                    page.status === 'published'
-                                                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                                        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                                                }`}>
-                                                    {page.status === 'published' ? 'Published' : 'Draft'}
-                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleStatus(page.id)}
+                                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                                                        page.status === 'published'
+                                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
+                                                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20'
+                                                    }`}
+                                                    title="Klik untuk mengubah status (Draft / Published)"
+                                                >
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${page.status === 'published' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                    <span>{page.status === 'published' ? 'Published' : 'Draft'}</span>
+                                                </button>
                                             </td>
                                             <td className="py-4 px-5 text-slate-300">
                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-medium">

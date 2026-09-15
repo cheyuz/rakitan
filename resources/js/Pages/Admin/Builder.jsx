@@ -56,6 +56,7 @@ import {
     ZoomOut,
     Wand2,
     RotateCcw,
+    Globe,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -931,7 +932,11 @@ export default function Builder({ page }) {
         setSelectedBlockId(newBlock.id);
     };
 
-    const handleSave = () => {
+    const handleSave = (overrideStatus = null) => {
+        const finalStatus = overrideStatus !== null ? overrideStatus : status;
+        if (overrideStatus !== null) {
+            setStatus(overrideStatus);
+        }
         setIsSaving(true);
         setSaveSuccess(false);
 
@@ -940,7 +945,7 @@ export default function Builder({ page }) {
             {
                 title,
                 slug,
-                status,
+                status: finalStatus,
                 layout,
                 meta_title: metaTitle,
                 meta_description: metaDescription,
@@ -1321,28 +1326,72 @@ export default function Builder({ page }) {
                         <span>View Public</span>
                     </Link>
 
-                    <button
-                        type="button"
-                        disabled={isSaving}
-                        onClick={handleSave}
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg active:scale-95 ${
-                            saveSuccess
-                                ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
-                        }`}
-                    >
-                        {saveSuccess ? (
-                            <>
-                                <CheckCircle2 className="w-4 h-4 text-white animate-bounce" />
-                                <span>Saved!</span>
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4" />
-                                <span>{isSaving ? 'Saving...' : 'Save Page'}</span>
-                            </>
-                        )}
-                    </button>
+                    {status === 'draft' ? (
+                        <>
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSave('draft')}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 transition-all shadow-sm active:scale-95"
+                                title="Save changes as a draft (remains hidden from public)"
+                            >
+                                <Save className="w-3.5 h-3.5" />
+                                <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSave('published')}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition-all active:scale-95"
+                                title="Publish page to make it live and visible to everyone"
+                            >
+                                {saveSuccess ? (
+                                    <>
+                                        <CheckCircle2 className="w-4 h-4 text-white animate-bounce" />
+                                        <span>Published!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Globe className="w-4 h-4" />
+                                        <span>{isSaving ? 'Publishing...' : 'Publish Page'}</span>
+                                    </>
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSave('draft')}
+                                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-all"
+                                title="Revert this page to draft mode (hide from public)"
+                            >
+                                <span>Switch to Draft</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSave('published')}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition-all active:scale-95"
+                                title="Save changes and keep page published"
+                            >
+                                {saveSuccess ? (
+                                    <>
+                                        <CheckCircle2 className="w-4 h-4 text-white animate-bounce" />
+                                        <span>Saved!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4" />
+                                        <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+                                    </>
+                                )}
+                            </button>
+                        </>
+                    )}
                 </div>
             </header>
 
