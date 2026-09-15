@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     DndContext,
@@ -60,6 +60,48 @@ import {
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 /**
+ * Safe Error Boundary for Canvas Blocks
+ * Prevents full builder crashes when an individual block encounters an error
+ */
+class BuilderErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        console.error('[Rakitan Builder] Render exception caught:', error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="p-6 my-4 mx-auto max-w-xl rounded-2xl border border-red-500/30 bg-red-950/20 text-red-300 text-center shadow-lg">
+                    <p className="text-xs font-bold text-red-400 mb-1">
+                        Block Preview Render Warning
+                    </p>
+                    <p className="text-[11px] text-slate-400 mb-3">
+                        {this.state.error?.message || 'An error occurred while displaying this block.'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => this.setState({ hasError: false, error: null })}
+                        className="px-3 py-1 rounded-lg bg-red-600/80 hover:bg-red-500 text-white text-[11px] font-medium transition-colors"
+                    >
+                        Retry Render
+                    </button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
+/**
  * Sortable Canvas Item Wrapper
  */
 function SortableCanvasBlock({
@@ -88,8 +130,9 @@ function SortableCanvasBlock({
         isDragging,
     } = useSortable({ id: block.id });
 
-    const { draggingPaletteItem, onEndDragPaletteItem } = useCanvasEdit();
+    const { draggingPaletteItem, pointerDrag, onEndDragPaletteItem } = useCanvasEdit();
     const [isDragOverBlock, setIsDragOverBlock] = useState(false);
+    const dragCounter = useRef(0);
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -109,7 +152,9 @@ function SortableCanvasBlock({
     if (isPreviewMode) {
         return (
             <div className="w-full">
-                <Component props={block.props || {}} blockId={block.id} />
+                <BuilderErrorBoundary>
+                    <Component props={block.props || {}} blockId={block.id} />
+                </BuilderErrorBoundary>
             </div>
         );
     }
@@ -120,18 +165,26 @@ function SortableCanvasBlock({
         e.preventDefault();
         e.stopPropagation();
         e.dataTransfer.dropEffect = 'copy';
+        if (!isDragOverBlock) {
+            setIsDragOverBlock(true);
+        }
     };
 
     const handleBlockNativeDragEnter = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsDragOverBlock(true);
+        dragCounter.current += 1;
+        if (dragCounter.current === 1) {
+            setIsDragOverBlock(true);
+        }
     };
 
     const handleBlockNativeDragLeave = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!e.currentTarget.contains(e.relatedTarget)) {
+        dragCounter.current -= 1;
+        if (dragCounter.current <= 0) {
+            dragCounter.current = 0;
             setIsDragOverBlock(false);
         }
     };
@@ -139,6 +192,7 @@ function SortableCanvasBlock({
     const handleBlockNativeDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        dragCounter.current = 0;
         setIsDragOverBlock(false);
 
         // 1. Cek jika yang di-drop adalah sub-komponen
@@ -150,14 +204,23 @@ function SortableCanvasBlock({
             }
         } catch (err) {}
 
+        if (!subType) {
+            try {
+                const rawText = e.dataTransfer.getData('text/plain');
+                if (rawText) {
+                    const parsed = JSON.parse(rawText);
+                    if (parsed.category === 'subcomponent') {
+                        subType = parsed.type;
+                    }
+                }
+            } catch (err) {}
+        }
+
         if (!subType && draggingPaletteItem?.category === 'subcomponent') {
             subType = draggingPaletteItem.type;
         }
 
         if (subType) {
-            if (!isCustom && onConvertToCustom) {
-                onConvertToCustom(block.id);
-            }
             if (onAddSubComponent) {
                 onAddSubComponent(block.id, subType);
             }
@@ -174,6 +237,18 @@ function SortableCanvasBlock({
             }
         } catch (err) {}
 
+        if (!blockType) {
+            try {
+                const rawText = e.dataTransfer.getData('text/plain');
+                if (rawText) {
+                    const parsed = JSON.parse(rawText);
+                    if (parsed.category === 'block') {
+                        blockType = parsed.type;
+                    }
+                }
+            } catch (err) {}
+        }
+
         if (!blockType && draggingPaletteItem?.category === 'block') {
             blockType = draggingPaletteItem.type;
         }
@@ -184,10 +259,20 @@ function SortableCanvasBlock({
         }
     };
 
+    const isPointerHoverThisBlock =
+        pointerDrag?.isDragging &&
+        pointerDrag.hoverTarget?.type === 'block' &&
+        pointerDrag.hoverTarget.blockId === block.id;
+    const showBlockFeedback = isDragOverBlock || isPointerHoverThisBlock;
+    const activeDragCategory = pointerDrag?.item?.category || draggingPaletteItem?.category;
+    const activeDragLabel = pointerDrag?.item?.label || draggingPaletteItem?.label;
+
     return (
         <div
             ref={setNodeRef}
             style={style}
+            data-canvas-block-id={block.id}
+            data-canvas-block-index={index}
             onDragOver={handleBlockNativeDragOver}
             onDragEnter={handleBlockNativeDragEnter}
             onDragLeave={handleBlockNativeDragLeave}
@@ -197,7 +282,7 @@ function SortableCanvasBlock({
                 onSelect(block.id);
             }}
             className={`group relative transition-all duration-200 ${
-                isDragOverBlock
+                showBlockFeedback
                     ? 'ring-4 ring-indigo-500 ring-offset-2 ring-offset-slate-950 shadow-2xl scale-[1.005]'
                     : isSelected
                     ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950 shadow-2xl'
@@ -205,14 +290,14 @@ function SortableCanvasBlock({
             }`}
         >
             {/* Overlay feedback saat ada komponen/blok di-drag ke atas blok ini */}
-            {isDragOverBlock && (
+            {showBlockFeedback && (
                 <div className="absolute inset-0 z-40 bg-indigo-950/75 border-2 border-dashed border-indigo-400 backdrop-blur-sm rounded-2xl flex items-center justify-center pointer-events-none animate-pulse">
                     <div className="px-5 py-3 rounded-2xl bg-slate-900 border border-indigo-500/60 shadow-2xl text-xs font-bold text-white flex items-center gap-2.5">
                         <Sparkles className="w-4 h-4 text-indigo-400 animate-spin" />
                         <span>
-                            {draggingPaletteItem?.category === 'subcomponent'
-                                ? `Release to insert ${draggingPaletteItem.label || 'micro-component'} into this block`
-                                : `Release to add ${draggingPaletteItem?.label || ''} block below this block`}
+                            {activeDragCategory === 'subcomponent'
+                                ? `Release to insert ${activeDragLabel || 'micro-component'} into this block`
+                                : `Release to add ${activeDragLabel || ''} block below this block`}
                         </span>
                     </div>
                 </div>
@@ -333,7 +418,9 @@ function SortableCanvasBlock({
 
             {/* Block Live Render Content */}
             <div className="w-full pointer-events-auto">
-                <Component props={block.props || {}} blockId={block.id} />
+                <BuilderErrorBoundary>
+                    <Component props={block.props || {}} blockId={block.id} />
+                </BuilderErrorBoundary>
             </div>
         </div>
     );
@@ -371,6 +458,120 @@ export default function Builder({ page }) {
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [draggingPaletteItem, setDraggingPaletteItem] = useState(null);
+    const [pointerDrag, setPointerDrag] = useState(null);
+
+    const handleStartPointerDrag = (e, item) => {
+        if (e.button !== 0) return;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        let hasStartedDrag = false;
+
+        const handlePointerMove = (moveEvent) => {
+            const dx = moveEvent.clientX - startX;
+            const dy = moveEvent.clientY - startY;
+            const distance = Math.hypot(dx, dy);
+
+            if (!hasStartedDrag) {
+                if (distance > 5) {
+                    hasStartedDrag = true;
+                    document.body.style.userSelect = 'none';
+                    document.body.style.cursor = 'grabbing';
+                } else {
+                    return;
+                }
+            }
+
+            const elemUnder = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+            let hoverTarget = null;
+            if (elemUnder) {
+                const slotElem = elemUnder.closest('[data-slot-block-id]');
+                if (slotElem) {
+                    const blockId = slotElem.getAttribute('data-slot-block-id');
+                    const rawPath = slotElem.getAttribute('data-slot-path');
+                    let slotPath = null;
+                    try {
+                        if (rawPath) slotPath = JSON.parse(rawPath);
+                    } catch (err) {}
+                    hoverTarget = { type: 'slot', blockId, slotPath };
+                } else {
+                    const blockElem = elemUnder.closest('[data-canvas-block-id]');
+                    if (blockElem) {
+                        const blockId = blockElem.getAttribute('data-canvas-block-id');
+                        const index = parseInt(blockElem.getAttribute('data-canvas-block-index') || '0', 10);
+                        hoverTarget = { type: 'block', blockId, index };
+                    } else if (elemUnder.closest('[data-canvas-empty="true"]') || elemUnder.closest('main')) {
+                        hoverTarget = { type: 'empty' };
+                    }
+                }
+            }
+
+            setPointerDrag({
+                item,
+                x: moveEvent.clientX,
+                y: moveEvent.clientY,
+                isDragging: true,
+                hoverTarget,
+            });
+        };
+
+        const handlePointerUp = (upEvent) => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+            window.removeEventListener('pointercancel', handlePointerUp);
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+
+            if (hasStartedDrag) {
+                const elemUnder = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
+                if (elemUnder) {
+                    const slotElem = elemUnder.closest('[data-slot-block-id]');
+                    const blockElem = elemUnder.closest('[data-canvas-block-id]');
+                    const emptyElem = elemUnder.closest('[data-canvas-empty="true"]') || elemUnder.closest('main');
+
+                    if (slotElem && item.category === 'subcomponent') {
+                        const blockId = slotElem.getAttribute('data-slot-block-id');
+                        const rawPath = slotElem.getAttribute('data-slot-path');
+                        let slotPath = null;
+                        try {
+                            if (rawPath) slotPath = JSON.parse(rawPath);
+                        } catch (err) {}
+                        handleAddSubComponent(blockId, item.type, slotPath);
+                    } else if (blockElem) {
+                        const blockId = blockElem.getAttribute('data-canvas-block-id');
+                        const index = parseInt(blockElem.getAttribute('data-canvas-block-index') || '0', 10);
+                        if (item.category === 'subcomponent') {
+                            handleAddSubComponent(blockId, item.type);
+                        } else if (item.category === 'block') {
+                            handleAddBlockAt(item.type, index + 1);
+                        }
+                    } else if (emptyElem) {
+                        if (item.category === 'block') {
+                            handleAddBlock(item.type);
+                        } else if (item.category === 'subcomponent') {
+                            const containerBlock = createBlockInstance('container');
+                            const subInstance = createSubComponentInstance(item.type);
+                            if (containerBlock && subInstance) {
+                                containerBlock.props = {
+                                    ...containerBlock.props,
+                                    subComponents: [subInstance],
+                                };
+                                updateBlocksWithHistory([...blocks, containerBlock]);
+                                setSelectedBlockId(containerBlock.id);
+                            }
+                        }
+                    }
+                }
+                setPointerDrag(null);
+            } else {
+                setPointerDrag(null);
+            }
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', handlePointerUp);
+    };
 
     // Dnd-Kit Sensors
     const sensors = useSensors(
@@ -541,12 +742,18 @@ export default function Builder({ page }) {
 
         const newBlocks = blocks.map((b) => {
             if (b.id === targetId) {
-                const currentSubs = Array.isArray(b.props?.subComponents) ? b.props.subComponents : [];
+                let targetBlock = b;
+                // Jika belum dalam mode kustom dan bukan container murni, konversi otomatis
+                if (!b.props?.isCustom && b.type !== 'container') {
+                    targetBlock = convertBlockToCustom(b);
+                }
+                const currentSubs = Array.isArray(targetBlock.props?.subComponents) ? targetBlock.props.subComponents : [];
                 const updatedSubs = updateSubListWithSlotPath(currentSubs, slotPath, (list) => [...list, newSub]);
                 return {
-                    ...b,
+                    ...targetBlock,
                     props: {
-                        ...b.props,
+                        ...targetBlock.props,
+                        isCustom: true,
                         subComponents: updatedSubs,
                     },
                 };
@@ -788,16 +995,19 @@ export default function Builder({ page }) {
         onConvertBlockToCustom: handleConvertBlockToCustom,
         onResetBlockToDefault: handleResetBlockToDefault,
         draggingPaletteItem,
+        pointerDrag,
         onStartDragPaletteItem: (item) => setDraggingPaletteItem(item),
         onEndDragPaletteItem: () => setDraggingPaletteItem(null),
         onAddBlockAt: handleAddBlockAt,
     };
 
     const [isEmptyDragOver, setIsEmptyDragOver] = useState(false);
+    const emptyDragCounter = useRef(0);
 
     const handleEmptyDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        emptyDragCounter.current = 0;
         setIsEmptyDragOver(false);
 
         // Cek jika sub-komponen di-drop ke kanvas kosong
@@ -806,6 +1016,19 @@ export default function Builder({ page }) {
             const rawSub = e.dataTransfer.getData('application/rakitan-subcomponent');
             if (rawSub) subType = JSON.parse(rawSub).type;
         } catch (err) {}
+
+        if (!subType) {
+            try {
+                const rawText = e.dataTransfer.getData('text/plain');
+                if (rawText) {
+                    const parsed = JSON.parse(rawText);
+                    if (parsed.category === 'subcomponent') {
+                        subType = parsed.type;
+                    }
+                }
+            } catch (err) {}
+        }
+
         if (!subType && draggingPaletteItem?.category === 'subcomponent') {
             subType = draggingPaletteItem.type;
         }
@@ -832,6 +1055,19 @@ export default function Builder({ page }) {
             const rawBlock = e.dataTransfer.getData('application/rakitan-block');
             if (rawBlock) blockType = JSON.parse(rawBlock).type;
         } catch (err) {}
+
+        if (!blockType) {
+            try {
+                const rawText = e.dataTransfer.getData('text/plain');
+                if (rawText) {
+                    const parsed = JSON.parse(rawText);
+                    if (parsed.category === 'block') {
+                        blockType = parsed.type;
+                    }
+                }
+            } catch (err) {}
+        }
+
         if (!blockType && draggingPaletteItem?.category === 'block') {
             blockType = draggingPaletteItem.type;
         }
@@ -843,30 +1079,47 @@ export default function Builder({ page }) {
     };
 
     const renderCanvasBlocks = () => {
+        const isPointerHoverEmpty = pointerDrag?.isDragging && pointerDrag.hoverTarget?.type === 'empty';
+        const showEmptyFeedback = isEmptyDragOver || isPointerHoverEmpty;
+
         return (
             <CanvasEditProvider value={canvasEditContextValue}>
                 {blocks.length === 0 ? (
                     <div
+                        data-canvas-empty="true"
                         onDragOver={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             e.dataTransfer.dropEffect = 'copy';
+                            if (!isEmptyDragOver) setIsEmptyDragOver(true);
                         }}
-                        onDragEnter={() => setIsEmptyDragOver(true)}
+                        onDragEnter={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            emptyDragCounter.current += 1;
+                            if (emptyDragCounter.current === 1) {
+                                setIsEmptyDragOver(true);
+                            }
+                        }}
                         onDragLeave={(e) => {
-                            if (!e.currentTarget.contains(e.relatedTarget)) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            emptyDragCounter.current -= 1;
+                            if (emptyDragCounter.current <= 0) {
+                                emptyDragCounter.current = 0;
                                 setIsEmptyDragOver(false);
                             }
                         }}
                         onDrop={handleEmptyDrop}
                         className={`flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-3xl text-center my-auto min-h-[400px] transition-all ${
-                            isEmptyDragOver
+                            showEmptyFeedback
                                 ? 'border-indigo-400 bg-indigo-500/15 ring-4 ring-indigo-500/20 scale-[1.01]'
                                 : 'border-slate-800 bg-slate-900/30'
                         }`}
                     >
                         <ApplicationLogo className="w-16 h-16 rounded-2xl mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-white mb-2">
-                            {isEmptyDragOver ? '📥 Drop Component Here' : 'Canvas is Empty'}
+                            {showEmptyFeedback ? '📥 Drop Component Here' : 'Canvas is Empty'}
                         </h3>
                         <p className="text-xs text-slate-400 max-w-sm mb-6">
                             Drag components or puzzle pieces from the left panel and drop them in this area to get started.
@@ -1179,22 +1432,14 @@ export default function Builder({ page }) {
                                             return (
                                                 <div
                                                     key={item.type}
-                                                    draggable={true}
-                                                    onDragStart={(e) => {
-                                                        e.dataTransfer.setData(
-                                                            'application/rakitan-subcomponent',
-                                                            JSON.stringify({ type: item.type })
-                                                        );
-                                                        e.dataTransfer.effectAllowed = 'copy';
-                                                        setDraggingPaletteItem({
+                                                    onPointerDown={(e) =>
+                                                        handleStartPointerDrag(e, {
                                                             category: 'subcomponent',
                                                             type: item.type,
                                                             label: item.label,
-                                                        });
-                                                    }}
-                                                    onDragEnd={() => {
-                                                        setDraggingPaletteItem(null);
-                                                    }}
+                                                            icon: Icon,
+                                                        })
+                                                    }
                                                     onClick={() => {
                                                         if (blocks.length === 0) {
                                                             handleAddBlock('container');
@@ -1280,22 +1525,14 @@ export default function Builder({ page }) {
                                         return (
                                             <div
                                                 key={item.type}
-                                                draggable={true}
-                                                onDragStart={(e) => {
-                                                    e.dataTransfer.setData(
-                                                        'application/rakitan-block',
-                                                        JSON.stringify({ type: item.type })
-                                                    );
-                                                    e.dataTransfer.effectAllowed = 'copy';
-                                                    setDraggingPaletteItem({
+                                                onPointerDown={(e) =>
+                                                    handleStartPointerDrag(e, {
                                                         category: 'block',
                                                         type: item.type,
                                                         label: item.label,
-                                                    });
-                                                }}
-                                                onDragEnd={() => {
-                                                    setDraggingPaletteItem(null);
-                                                }}
+                                                        icon: Icon,
+                                                    })
+                                                }
                                                 onClick={() => handleAddBlock(item.type)}
                                                 className="group p-3.5 rounded-2xl bg-slate-950 border border-slate-800/90 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 cursor-grab active:cursor-grabbing transition-all duration-200 select-none"
                                                 title="Drag to center canvas or click to add"
@@ -1399,7 +1636,13 @@ export default function Builder({ page }) {
                 )}
 
                 {/* Center Canvas */}
-                <main className="flex-1 overflow-y-auto bg-slate-950/60 p-4 sm:p-8 flex flex-col items-center">
+                <main
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'copy';
+                    }}
+                    className="flex-1 overflow-y-auto bg-slate-950/60 p-4 sm:p-8 flex flex-col items-center custom-scrollbar"
+                >
                     <div
                         className="transition-all duration-300 w-full flex flex-col items-center"
                         style={{
@@ -1676,6 +1919,42 @@ export default function Builder({ page }) {
                     </aside>
                 )}
             </div>
+            {/* Pointer Drag Floating Avatar */}
+            {pointerDrag?.isDragging && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        left: pointerDrag.x + 14,
+                        top: pointerDrag.y + 14,
+                        zIndex: 99999,
+                        pointerEvents: 'none',
+                        transform: 'translate3d(0, 0, 0)',
+                    }}
+                    className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-indigo-600/95 text-white shadow-2xl shadow-indigo-950/80 border border-indigo-400/80 backdrop-blur-md select-none pointer-events-none ring-2 ring-indigo-400/30"
+                >
+                    <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                        {React.createElement(pointerDrag.item.icon || Sparkles, {
+                            className: 'w-3.5 h-3.5 text-white animate-pulse',
+                        })}
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-white tracking-wide leading-tight">
+                            {pointerDrag.item.label}
+                        </span>
+                        <span className="text-[10px] text-indigo-200 font-medium">
+                            {pointerDrag.hoverTarget?.type === 'slot'
+                                ? '📥 Release to insert into slot'
+                                : pointerDrag.hoverTarget?.type === 'block'
+                                ? pointerDrag.item.category === 'subcomponent'
+                                    ? '📥 Release to insert into block'
+                                    : '➕ Release to insert block here'
+                                : pointerDrag.hoverTarget?.type === 'empty'
+                                ? '📥 Release to add to page'
+                                : 'Drag onto canvas...'}
+                        </span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

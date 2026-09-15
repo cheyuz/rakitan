@@ -16,6 +16,7 @@ export const CanvasEditContext = createContext({
     onConvertBlockToCustom: () => {},
     onResetBlockToDefault: () => {},
     draggingPaletteItem: null,
+    pointerDrag: null,
     onStartDragPaletteItem: () => {},
     onEndDragPaletteItem: () => {},
 });

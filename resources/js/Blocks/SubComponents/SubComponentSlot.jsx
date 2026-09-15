@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Plus, Sparkles, X, ChevronRight } from 'lucide-react';
 import {
     DndContext,
@@ -34,10 +34,12 @@ export default function SubComponentSlot({
         onAddSubComponent,
         onReorderSubComponents,
         draggingPaletteItem,
+        pointerDrag,
         onEndDragPaletteItem,
     } = useCanvasEdit();
     const [isOpenPicker, setIsOpenPicker] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
+    const slotDragCounter = useRef(0);
 
     const allAvailableSubComponents = getAllSubComponents();
 
@@ -59,14 +61,18 @@ export default function SubComponentSlot({
     const handleNativeDragEnter = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsDragOver(true);
+        slotDragCounter.current += 1;
+        if (slotDragCounter.current === 1) {
+            setIsDragOver(true);
+        }
     };
 
     const handleNativeDragLeave = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Only turn off if cursor leaves the slot container entirely
-        if (!e.currentTarget.contains(e.relatedTarget)) {
+        slotDragCounter.current -= 1;
+        if (slotDragCounter.current <= 0) {
+            slotDragCounter.current = 0;
             setIsDragOver(false);
         }
     };
@@ -74,6 +80,7 @@ export default function SubComponentSlot({
     const handleNativeDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        slotDragCounter.current = 0;
         setIsDragOver(false);
 
         let subType = null;
@@ -84,6 +91,18 @@ export default function SubComponentSlot({
                 subType = parsed.type;
             }
         } catch (err) {}
+
+        if (!subType) {
+            try {
+                const rawText = e.dataTransfer.getData('text/plain');
+                if (rawText) {
+                    const parsed = JSON.parse(rawText);
+                    if (parsed.category === 'subcomponent' || parsed.type) {
+                        subType = parsed.type;
+                    }
+                }
+            } catch (err) {}
+        }
 
         // Fallback to draggingPaletteItem in context
         if (!subType && draggingPaletteItem?.category === 'subcomponent') {
@@ -143,17 +162,29 @@ export default function SubComponentSlot({
         );
     }
 
-    const isDraggingSubcomponent = draggingPaletteItem?.category === 'subcomponent';
+    const isPointerHoverThisSlot =
+        pointerDrag?.isDragging &&
+        pointerDrag.hoverTarget?.type === 'slot' &&
+        pointerDrag.hoverTarget.blockId === blockId &&
+        JSON.stringify(pointerDrag.hoverTarget.slotPath || null) === JSON.stringify(slotPath || null);
+
+    const isDraggingSubcomponent =
+        draggingPaletteItem?.category === 'subcomponent' ||
+        (pointerDrag?.isDragging && pointerDrag.item?.category === 'subcomponent');
+
+    const showDropActive = isDragOver || isPointerHoverThisSlot;
 
     // Canvas Builder Mode with Drag and Drop
     return (
         <div
+            data-slot-block-id={blockId}
+            data-slot-path={slotPath ? JSON.stringify(slotPath) : ''}
             onDragOver={handleNativeDragOver}
             onDragEnter={handleNativeDragEnter}
             onDragLeave={handleNativeDragLeave}
             onDrop={handleNativeDrop}
             className={`w-full my-1.5 transition-all duration-200 relative rounded-2xl ${
-                isDragOver
+                showDropActive
                     ? 'ring-2 ring-indigo-400 bg-indigo-500/15 p-2 shadow-2xl scale-[1.01]'
                     : isDraggingSubcomponent
                     ? 'ring-1 ring-dashed ring-indigo-500/40 bg-indigo-500/5 p-1'
@@ -161,10 +192,12 @@ export default function SubComponentSlot({
             } ${className}`}
         >
             {/* Active Drop Zone Indicator during Drag Hover */}
-            {isDragOver && (
+            {showDropActive && (
                 <div className="w-full my-2 py-4 px-4 rounded-xl border-2 border-dashed border-indigo-400 bg-indigo-500/25 shadow-inner flex items-center justify-center gap-2 text-indigo-200 font-bold text-xs animate-pulse pointer-events-none">
                     <Sparkles className="w-4 h-4 text-indigo-300 animate-spin" />
-                    <span>📥 Drop here to insert {draggingPaletteItem?.label || 'micro-component'}!</span>
+                    <span>
+                        📥 Drop here to insert {pointerDrag?.item?.label || draggingPaletteItem?.label || 'micro-component'}!
+                    </span>
                 </div>
             )}
             {/* Sub-Components List with DnD Sortable */}
