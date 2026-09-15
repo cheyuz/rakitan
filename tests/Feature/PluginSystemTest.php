@@ -108,4 +108,35 @@ class PluginSystemTest extends TestCase
             @unlink($tempZip);
         }
     }
+
+    /**
+     * Test plugin admin navigation menu is injected only when active.
+     */
+    public function test_plugin_admin_menus_injected_only_when_active(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $pluginManager = app(PluginManager::class);
+
+        // Pastikan slider-builder tidak aktif
+        if ($pluginManager->isActive('slider-builder')) {
+            $pluginManager->togglePlugin('slider-builder');
+        }
+
+        $menusInactive = $pluginManager->getActiveAdminMenus($admin);
+        $sliderMenu = array_filter($menusInactive, fn ($m) => ($m['plugin_id'] ?? '') === 'slider-builder');
+        $this->assertEmpty($sliderMenu, 'Menu slider tidak boleh muncul saat plugin tidak aktif');
+
+        // Aktifkan slider-builder
+        $pluginManager->activate('slider-builder');
+        $menusActive = $pluginManager->getActiveAdminMenus($admin);
+        $sliderMenuActive = array_filter($menusActive, fn ($m) => ($m['plugin_id'] ?? '') === 'slider-builder');
+        $this->assertNotEmpty($sliderMenuActive, 'Menu slider harus terinjeksi saat plugin aktif');
+
+        $firstSliderMenu = array_values($sliderMenuActive)[0];
+        $this->assertEquals('Sliders', $firstSliderMenu['label']);
+        $this->assertEquals('/admin/sliders', $firstSliderMenu['href']);
+
+        // Kembalikan ke non-aktif
+        $pluginManager->togglePlugin('slider-builder');
+    }
 }
