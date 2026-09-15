@@ -9,6 +9,13 @@
         "slider_builder"
     ],
     "manage_url": "/admin/sliders",
+    "admin_menu": {
+        "label": "Sliders",
+        "href": "/admin/sliders",
+        "icon": "SlidersHorizontal",
+        "order": 45,
+        "permission": "content"
+    },
     "settings": {
         "badge": "Pro Suite",
         "defaultInterval": 5000

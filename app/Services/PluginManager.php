@@ -60,6 +60,7 @@ class PluginManager
                     'is_active' => $isActive,
                     'blocks' => $manifest['blocks'] ?? [],
                     'manage_url' => $manifest['manage_url'] ?? null,
+                    'admin_menu' => $manifest['admin_menu'] ?? null,
                     'settings' => $manifest['settings'] ?? [],
                     'path' => $dir,
                 ];
@@ -74,40 +75,94 @@ class PluginManager
 
     /**
      * Get array of active plugin IDs.
+     * Only returns plugins explicitly enabled by the user or builtin on first install.
      */
     public function getActivePluginIds(): array
     {
-        $active = Setting::get('active_plugins', ['hello-rakitan', 'rakitan-extended-blocks']);
-        $list = is_array($active) ? $active : (json_decode($active, true) ?? ['hello-rakitan', 'rakitan-extended-blocks']);
+        $active = Setting::get('active_plugins', null);
 
-        $disabled = Setting::get('disabled_plugins', []);
-        $disabledList = is_array($disabled) ? $disabled : (json_decode($disabled, true) ?? []);
-
-        // Auto-include rakitan-extended-blocks if installed and not explicitly disabled
-        if (File::exists($this->getPluginsPath() . '/rakitan-extended-blocks/plugin.json')
-            && !in_array('rakitan-extended-blocks', $disabledList, true)
-            && !in_array('rakitan-extended-blocks', $list, true)) {
-            $list[] = 'rakitan-extended-blocks';
+        if ($active === null) {
+            $builtinIds = [];
+            foreach ($this->getPluginDirectories() as $dir) {
+                $manifestPath = $dir . '/plugin.json';
+                if (File::exists($manifestPath)) {
+                    $manifest = json_decode(File::get($manifestPath), true);
+                    if (!empty($manifest['is_builtin']) && !empty($manifest['id'])) {
+                        $builtinIds[] = $manifest['id'];
+                    }
+                }
+            }
+            $list = !empty($builtinIds) ? $builtinIds : ['hello-rakitan'];
             Setting::set('active_plugins', $list);
+            return $list;
         }
 
-        // Auto-include slider-builder if installed and not explicitly disabled
-        if (File::exists($this->getPluginsPath() . '/slider-builder/plugin.json')
-            && !in_array('slider-builder', $disabledList, true)
-            && !in_array('slider-builder', $list, true)) {
-            $list[] = 'slider-builder';
-            Setting::set('active_plugins', $list);
-        }
-
-        // Auto-include seo-optimizer if installed and not explicitly disabled
-        if (File::exists($this->getPluginsPath() . '/seo-optimizer/plugin.json')
-            && !in_array('seo-optimizer', $disabledList, true)
-            && !in_array('seo-optimizer', $list, true)) {
-            $list[] = 'seo-optimizer';
-            Setting::set('active_plugins', $list);
-        }
-
+        $list = is_array($active) ? $active : (json_decode($active, true) ?? []);
         return array_values(array_unique($list));
+    }
+
+    /**
+     * Get injected admin navigation menus from active plugins only.
+     */
+    public function getActiveAdminMenus($user = null): array
+    {
+        $menus = [];
+        $activeIds = $this->getActivePluginIds();
+        $plugins = $this->scanPlugins();
+
+        foreach ($plugins as $plugin) {
+            if (!in_array($plugin['id'], $activeIds, true)) {
+                continue;
+            }
+
+            $adminMenu = $plugin['admin_menu'] ?? null;
+            if (!$adminMenu && !empty($plugin['manage_url'])) {
+                $adminMenu = [
+                    'label' => $plugin['name'],
+                    'href' => $plugin['manage_url'],
+                    'icon' => 'Puzzle',
+                    'order' => 60,
+                    'permission' => 'admin',
+                ];
+            }
+
+            if (!$adminMenu) {
+                continue;
+            }
+
+            $menuItems = isset($adminMenu[0]) && is_array($adminMenu[0]) ? $adminMenu : [$adminMenu];
+
+            foreach ($menuItems as $idx => $item) {
+                if (empty($item['href']) || empty($item['label'])) {
+                    continue;
+                }
+
+                $permission = $item['permission'] ?? 'admin';
+                if ($user) {
+                    $role = $user->role ?? 'admin';
+                    if ($permission === 'admin' && $role !== 'admin') {
+                        continue;
+                    }
+                    if ($permission === 'content' && !in_array($role, ['admin', 'editor'], true)) {
+                        continue;
+                    }
+                }
+
+                $menus[] = [
+                    'id' => $plugin['id'] . '-' . ($item['id'] ?? $idx),
+                    'plugin_id' => $plugin['id'],
+                    'label' => $item['label'],
+                    'href' => $item['href'],
+                    'icon' => $item['icon'] ?? 'Puzzle',
+                    'order' => (int) ($item['order'] ?? 50),
+                    'permission' => $permission,
+                ];
+            }
+        }
+
+        usort($menus, fn ($a, $b) => $a['order'] <=> $b['order']);
+
+        return array_values($menus);
     }
 
     /**

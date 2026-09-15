@@ -154,6 +154,25 @@ export default function Documentation({ system, installedPlugins, installedTheme
                                         <pre className="p-4 rounded-2xl bg-slate-950 border border-slate-800 overflow-x-auto text-[11px] text-indigo-300 font-mono leading-relaxed">
                                             {snippetPluginJson}
                                         </pre>
+                                        <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300 space-y-1.5 leading-relaxed">
+                                            <p className="font-bold text-white flex items-center gap-1.5">
+                                                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                                                Prinsip Clean Core & Injeksi Menu CMS Otomatis:
+                                            </p>
+                                            <p>
+                                                Rakitan CMS mengadopsi prinsip <strong>Clean Core</strong>. Kode layout bawaan tidak boleh di-hardcode dengan menu plugin tertentu. Untuk menambahkan menu ke sidebar admin CMS, cukup definisikan properti <code className="px-1 py-0.5 rounded bg-slate-900 text-amber-300">"admin_menu"</code> di dalam <code className="px-1 py-0.5 rounded bg-slate-900 text-indigo-300">plugin.json</code>:
+                                            </p>
+                                            <ul className="list-disc list-inside space-y-1 text-slate-300 pl-1">
+                                                <li><strong className="text-white">label</strong>: Judul menu yang tampil di sidebar.</li>
+                                                <li><strong className="text-white">href</strong>: Target URL route admin (misal <code className="text-amber-300">/admin/my-plugin</code>).</li>
+                                                <li><strong className="text-white">icon</strong>: Nama icon Lucide React (misal <code className="text-amber-300">SlidersHorizontal, Search, Sparkles, Layers, BarChart3</code>).</li>
+                                                <li><strong className="text-white">order</strong>: Urutan tampil di sidebar (default: 50).</li>
+                                                <li><strong className="text-white">permission</strong>: <code className="text-emerald-300">'admin'</code> (khusus Superadmin) atau <code className="text-emerald-300">'content'</code> (bisa diakses Admin & Editor).</li>
+                                            </ul>
+                                            <p className="text-[11px] text-slate-400 pt-1">
+                                                * Menu ini <strong>hanya akan muncul ketika plugin aktif</strong>. Saat plugin dimatikan di menu Plugins, menu akan otomatis lenyap seketika tanpa meninggalkan sampah di sistem.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* routes.php snippet */}
@@ -449,13 +468,15 @@ const snippetPluginJson = `{
   "description": "Deskripsi fitur plugin Anda",
   "manage_url": "/admin/my-plugin",
   "is_builtin": false,
+  "admin_menu": {
+    "label": "My Plugin Tool",
+    "href": "/admin/my-plugin",
+    "icon": "Sparkles",
+    "order": 50,
+    "permission": "admin"
+  },
   "blocks": [
-    {
-      "type": "custom_banner",
-      "label": "Custom Banner",
-      "category": "Extended Suite",
-      "icon": "Sparkles"
-    }
+    "custom_banner"
   ]
 }`;
 

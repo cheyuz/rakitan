@@ -22,11 +22,43 @@ import {
     SlidersHorizontal,
     Search,
     BookMarked,
+    Sparkles,
+    BarChart3,
+    Layers,
+    Share2,
+    Compass,
+    Sliders,
+    MessageSquare,
+    Zap,
 } from 'lucide-react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
+const PLUGIN_ICON_MAP = {
+    SlidersHorizontal,
+    Sliders,
+    Search,
+    Sparkles,
+    BarChart3,
+    Layers,
+    Share2,
+    Compass,
+    Puzzle,
+    Tag,
+    BookOpen,
+    FileText,
+    Palette,
+    Users,
+    Inbox,
+    MessageSquare,
+    Zap,
+};
+
+const resolvePluginIcon = (iconName) => {
+    return PLUGIN_ICON_MAP[iconName] || Puzzle;
+};
+
 export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
-    const { auth, flash, active_plugins = [] } = usePage().props;
+    const { auth, flash, active_plugins = [], plugin_menus = [] } = usePage().props;
     const currentUrl = window.location.pathname;
     const userRole = auth?.user?.role || 'admin';
     const isAdmin = userRole === 'admin';
@@ -77,13 +109,6 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             show: canManageContent,
         },
         {
-            label: 'Sliders',
-            href: '/admin/sliders',
-            icon: SlidersHorizontal,
-            active: currentUrl.startsWith('/admin/sliders'),
-            show: canManageContent,
-        },
-        {
             label: 'Inquiries / Inbox',
             href: '/admin/submissions',
             icon: Inbox,
@@ -103,13 +128,6 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
             icon: Palette,
             active: currentUrl.startsWith('/admin/themes'),
             show: isAdmin,
-        },
-        {
-            label: 'SEO Optimizer',
-            href: '/admin/seo',
-            icon: Search,
-            active: currentUrl.startsWith('/admin/seo'),
-            show: isAdmin && (active_plugins || []).includes('seo-optimizer'),
         },
         {
             label: 'Users & Roles',
@@ -181,6 +199,36 @@ export default function AdminLayout({ children, title = 'Rakitan Admin' }) {
                                 </Link>
                             );
                         })}
+
+                        {/* Injected Plugin Menus (Only when active) */}
+                        {plugin_menus && plugin_menus.length > 0 && (
+                            <div className="pt-4 mt-3 border-t border-slate-800/60 space-y-1">
+                                <div className="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Plugin Extensions</span>
+                                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">
+                                        {plugin_menus.length}
+                                    </span>
+                                </div>
+                                {plugin_menus.map((item) => {
+                                    const PluginIcon = resolvePluginIcon(item.icon);
+                                    const isActive = currentUrl.startsWith(item.href);
+                                    return (
+                                        <Link
+                                            key={item.id || item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                                                isActive
+                                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                                                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                                            }`}
+                                        >
+                                            <PluginIcon className="w-4 h-4 text-indigo-400" />
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
 

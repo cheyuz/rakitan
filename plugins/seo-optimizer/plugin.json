@@ -6,6 +6,13 @@
     "description": "Automated XML sitemaps, robots.txt, OpenGraph social previews, Google SERP verification, and page meta tags.",
     "is_builtin": false,
     "manage_url": "/admin/seo",
+    "admin_menu": {
+        "label": "SEO Optimizer",
+        "href": "/admin/seo",
+        "icon": "Search",
+        "order": 55,
+        "permission": "admin"
+    },
     "settings": {
         "title_separator": "-",
         "site_name": "Rakitan CMS",

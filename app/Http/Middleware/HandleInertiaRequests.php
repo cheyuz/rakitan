@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             'theme' => $activeTheme,
             'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
             'active_plugins' => $activePlugins,
+            'plugin_menus' => app(\App\Services\PluginManager::class)->getActiveAdminMenus($request->user()),
             'seo' => $seoData,
         ];
     }
