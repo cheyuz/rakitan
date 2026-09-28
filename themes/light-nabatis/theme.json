@@ -1,0 +1,33 @@
+{
+    "id": "light-nabatis",
+    "name": "Light Nabatis",
+    "version": "1.0.0",
+    "author": "Rakitan Studio",
+    "description": "Tema modern botanical soft dengan aksen strip warna cerah-alami, kontur organik asimetris bentuk daun, nuansa sage dan matcha herbal yang menyejukkan.",
+    "screenshot": "screenshot.png",
+    "is_builtin": true,
+    "font": "Plus Jakarta Sans",
+    "overrides": [
+        "hero",
+        "features",
+        "pricing",
+        "testimonials",
+        "cta",
+        "faq",
+        "contact",
+        "latest_posts",
+        "rich_text",
+        "container"
+    ],
+    "settings": {
+        "colorScheme": "light",
+        "primaryColor": "#2d6a4f",
+        "secondaryColor": "#52b788",
+        "accentColor": "#e9d8a6",
+        "backgroundColor": "#f4f7f4",
+        "surfaceColor": "#ffffff",
+        "borderColor": "#d8e2dc",
+        "textColor": "#1b281f",
+        "mutedTextColor": "#526b58"
+    }
+}

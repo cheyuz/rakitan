@@ -237,6 +237,9 @@ Route::get('/themes/{theme}/style.css', [ThemeController::class, 'style'])->name
 app(\App\Services\PluginManager::class)->loadPluginRoutes();
 
 // Dynamic Catch-All Public Routing (Renders Rakitan blocks based on slug)
+$activeLoginPath = \App\Models\Setting::get('login_route_path', 'login');
+$activeLoginPath = preg_quote(trim($activeLoginPath ?: 'login', '/'), '#');
+
 Route::get('/{slug?}', [PublicPageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|profile|password|verify-email|install|blog|api|themes|plugins|sliders|sitemap\.xml|robots\.txt).*$')
+    ->where('slug', '^(?!admin|' . $activeLoginPath . '|login|register|logout|profile|password|verify-email|install|blog|api|themes|plugins|sliders|sitemap\.xml|robots\.txt).*$')
     ->name('public.page');

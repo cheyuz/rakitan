@@ -4,7 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        @php
+            $siteTitle = \App\Models\Setting::get('site_title', config('app.name', 'Rakitan CMS'));
+            $siteTagline = \App\Models\Setting::get('site_tagline', 'Next-Generation Modular Visual CMS');
+        @endphp
+        <title inertia>{{ $siteTitle }}{{ $siteTagline ? ' - ' . $siteTagline : '' }}</title>
+        <meta name="description" content="{{ $siteTagline }}">
 
         <!-- Favicon -->
         @php

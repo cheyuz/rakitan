@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Search, Calendar, User, ArrowRight, BookOpen, Sparkles, Filter } from 'lucide-react';
 
@@ -13,6 +13,7 @@ export default function Index({
     footerNavigation = [],
     isAdmin = false,
 }) {
+    const { site_title, site_tagline } = usePage().props;
     const [search, setSearch] = useState(filters.search || '');
 
     const handleSearch = (e) => {
@@ -33,10 +34,10 @@ export default function Index({
             isAdmin={isAdmin}
         >
             <Head>
-                <title>{activeCategory ? `${activeCategory.name} - Blog - Rakitan CMS` : 'The Rakitan Journal - Blog & Articles'}</title>
+                <title>{activeCategory ? `${activeCategory.name} - Blog - ${site_title || 'Rakitan CMS'}` : `Blog & Articles - ${site_title || 'Rakitan CMS'}`}</title>
                 <meta
                     name="description"
-                    content="Stay up-to-date with tutorials, architecture insights, and engineering updates from Rakitan CMS."
+                    content={site_tagline || `Stay up-to-date with tutorials, architecture insights, and engineering updates from ${site_title || 'Rakitan CMS'}.`}
                 />
             </Head>
 

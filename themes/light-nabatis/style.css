@@ -1,0 +1,126 @@
+/* ==========================================================================
+   Rakitan Light Nabatis Theme Stylesheet
+   Fresh, Botanical Soft Green, Asymmetric Organic Shapes & Strip Accents
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+
+:root {
+    --nabatis-bg: #f4f7f4;
+    --nabatis-surface: #ffffff;
+    --nabatis-border: #d8e2dc;
+    --nabatis-border-light: #e8efe9;
+    --nabatis-primary: #2d6a4f;
+    --nabatis-primary-hover: #1b4332;
+    --nabatis-secondary: #40916c;
+    --nabatis-accent: #52b788;
+    --nabatis-mint: #d8f3dc;
+    --nabatis-mint-soft: #edf7ef;
+    --nabatis-gold: #d4a373;
+    --nabatis-text: #182a1d;
+    --nabatis-text-muted: #526b58;
+    --nabatis-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --nabatis-heading-font: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+}
+
+body.theme-light-nabatis {
+    background-color: var(--nabatis-bg);
+    color: var(--nabatis-text);
+    font-family: var(--nabatis-font-family);
+    letter-spacing: -0.012em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light Nabatis Selection */
+body.theme-light-nabatis ::selection {
+    background-color: #74c69d;
+    color: #081c15;
+}
+
+/* Botanical Smooth Scrollbar */
+body.theme-light-nabatis::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+body.theme-light-nabatis::-webkit-scrollbar-track {
+    background: #eef3ee;
+}
+
+body.theme-light-nabatis::-webkit-scrollbar-thumb {
+    background-color: #b7e4c7;
+    border-radius: 9999px;
+    transition: background-color 0.25s ease-in-out;
+}
+
+body.theme-light-nabatis::-webkit-scrollbar-thumb:hover {
+    background-color: #74c69d;
+}
+
+/* Nabatis Signature Triple-Strip Gradient */
+.nabatis-strip-bar {
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(90deg, #2d6a4f 0%, #52b788 45%, #b7e4c7 80%, #d4a373 100%);
+}
+
+.nabatis-strip-pill {
+    display: inline-flex;
+    height: 3px;
+    width: 36px;
+    background: linear-gradient(90deg, #2d6a4f 0%, #74c69d 60%, #e9d8a6 100%);
+    border-radius: 9999px;
+}
+
+/* Nabatis Asymmetrical Organic Leaf Shape Cards */
+.nabatis-card-leaf {
+    border-radius: 28px 8px 28px 8px;
+    background: #ffffff;
+    border: 1px solid #dce8dd;
+    box-shadow: 0 10px 25px -8px rgba(45, 106, 79, 0.08);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nabatis-card-leaf:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 36px -10px rgba(45, 106, 79, 0.15);
+    border-color: #b7e4c7;
+}
+
+/* Strip Accent Left Border */
+.nabatis-strip-left {
+    position: relative;
+    border-left: 4px solid #40916c;
+    border-radius: 0 20px 20px 0;
+}
+
+/* Botanical Primary & Secondary Action Styles */
+.theme-light-nabatis .btn-nabatis-primary {
+    background-color: #2d6a4f !important;
+    color: #ffffff !important;
+    border-top: 2px solid #74c69d !important;
+}
+
+.theme-light-nabatis .btn-nabatis-primary:hover {
+    background-color: #1b4332 !important;
+}
+
+.theme-light-nabatis .btn-nabatis-secondary {
+    background-color: #ffffff !important;
+    color: #2d6a4f !important;
+    border: 1px solid #b7e4c7 !important;
+}
+
+.theme-light-nabatis .btn-nabatis-secondary:hover {
+    background-color: #edf7ef !important;
+}
+
+/* Nabatis Typography Headings */
+body.theme-light-nabatis h1,
+body.theme-light-nabatis h2,
+body.theme-light-nabatis h3,
+body.theme-light-nabatis h4 {
+    font-family: var(--nabatis-heading-font);
+    color: #14281a;
+}

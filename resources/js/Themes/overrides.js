@@ -48,6 +48,24 @@ export function getThemeBlockOverride(themeId, blockType) {
 }
 
 /**
+ * Resolve custom subcomponent override for an active theme.
+ *
+ * @param {string} themeId - Active theme ID (e.g. 'light-nabatis')
+ * @param {string} subType - Subcomponent identifier (e.g. 'sub_button', 'sub_badge')
+ * @returns {React.Component|null}
+ */
+export function getThemeSubComponentOverride(themeId, subType) {
+    if (!themeId || !subType) return null;
+
+    const theme = themeOverridesMap[themeId];
+    if (theme && theme.subComponents && theme.subComponents[subType]) {
+        return theme.subComponents[subType];
+    }
+
+    return null;
+}
+
+/**
  * Check if a theme provides an override for a block type.
  */
 export function hasThemeBlockOverride(themeId, blockType) {

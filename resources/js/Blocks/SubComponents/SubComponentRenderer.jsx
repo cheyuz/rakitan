@@ -24,10 +24,12 @@ import {
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { usePage } from '@inertiajs/react';
 import InlineText from '@/Blocks/Components/InlineText';
 import { useCanvasEdit } from '@/Blocks/Context/CanvasEditContext';
 import SubComponentSlot from './SubComponentSlot';
 import { renderSocialIcon } from '@/Blocks/Definitions/SocialBlock';
+import { getThemeSubComponentOverride } from '@/Themes/overrides';
 
 // Helper icon resolver
 const getIcon = (name, className = 'w-4 h-4') => {
@@ -77,6 +79,8 @@ export default function SubComponentRenderer({
     if (!subComponent) return null;
 
     const { id, type, props = {} } = subComponent;
+    const { active_theme } = usePage()?.props || {};
+    const ThemeSubOverride = getThemeSubComponentOverride(active_theme, type);
 
     const {
         attributes,
@@ -102,6 +106,19 @@ export default function SubComponentRenderer({
 
     // Render Konten Spesifik Sub-Komponen
     const renderContent = () => {
+        if (ThemeSubOverride) {
+            return (
+                <ThemeSubOverride
+                    props={props}
+                    isEditing={isEditing}
+                    handlePropChange={handlePropChange}
+                    blockId={blockId}
+                    id={id}
+                    slotPath={slotPath}
+                />
+            );
+        }
+
         switch (type) {
             case 'sub_button': {
                 const {

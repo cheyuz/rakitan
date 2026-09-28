@@ -13,8 +13,14 @@ export default function Show({
     categories = [],
     isAdmin = false,
 }) {
-    const { active_theme } = usePage().props;
+    const { active_theme, site_title, site_tagline } = usePage().props;
     const blocks = Array.isArray(page.blocks) ? page.blocks : [];
+
+    const pageTitle = page.meta_title
+        ? page.meta_title
+        : (page.slug === 'home' || !page.slug
+            ? `${site_title || 'Rakitan CMS'} - ${site_tagline || 'Next-Generation Modular Visual CMS'}`
+            : `${page.title} - ${site_title || 'Rakitan CMS'}`);
 
     return (
         <PublicLayout
@@ -26,9 +32,9 @@ export default function Show({
             isAdmin={isAdmin}
         >
             <Head>
-                <title>{page.meta_title || page.title}</title>
-                {page.meta_description && (
-                    <meta name="description" content={page.meta_description} />
+                <title>{pageTitle}</title>
+                {(page.meta_description || site_tagline) && (
+                    <meta name="description" content={page.meta_description || site_tagline} />
                 )}
             </Head>
 

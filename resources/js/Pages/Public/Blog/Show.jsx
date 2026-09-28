@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import DOMPurify from 'dompurify';
 import { Calendar, User, Eye, ArrowLeft, ArrowRight, Share2, AlertCircle, Edit3, BookOpen } from 'lucide-react';
@@ -13,6 +13,8 @@ export default function Show({
     footerNavigation = [],
     isAdmin = false,
 }) {
+    const { site_title } = usePage().props;
+
     // Sanitize markdown / HTML content
     const sanitizedHtml = DOMPurify.sanitize(post.content || '', {
         USE_PROFILES: { html: true },
@@ -40,7 +42,7 @@ export default function Show({
             isAdmin={isAdmin}
         >
             <Head>
-                <title>{`${post.title} - Rakitan Blog`}</title>
+                <title>{`${post.title} - ${site_title || 'Rakitan CMS'}`}</title>
                 {post.excerpt && <meta name="description" content={post.excerpt} />}
             </Head>
 

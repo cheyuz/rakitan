@@ -16,6 +16,8 @@ class SettingsController extends Controller
      */
     public function index(): Response
     {
+        $themeManager = app(\App\Services\ThemeManager::class);
+
         $settings = [
             'site_title' => Setting::get('site_title', 'Rakitan CMS'),
             'site_tagline' => Setting::get('site_tagline', 'Next-Generation Modular Visual CMS'),
@@ -25,6 +27,7 @@ class SettingsController extends Controller
             'default_status' => Setting::get('default_status', 'draft'),
             'footer_text' => Setting::get('footer_text', '© 2026 Rakitan CMS. Built for the open-source community.'),
             'active_theme' => Setting::get('active_theme', 'default-dark'),
+            'login_route_path' => Setting::get('login_route_path', 'login'),
 
             // Header Layout Customization
             'header_sticky' => Setting::get('header_sticky', '1'),
@@ -47,6 +50,7 @@ class SettingsController extends Controller
 
         return Inertia::render('Admin/Settings', [
             'settings' => $settings,
+            'themes' => $themeManager->scanThemes(),
         ]);
     }
 
@@ -55,6 +59,13 @@ class SettingsController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        $reservedSlugs = [
+            'admin', 'blog', 'api', 'plugins', 'themes', 'sliders',
+            'install', 'register', 'logout', 'password', 'profile',
+            'verify-email', 'submissions', 'dashboard', 'media', 'up',
+            'sitemap.xml', 'robots.txt',
+        ];
+
         $validated = $request->validate([
             'site_title' => ['required', 'string', 'max:255'],
             'site_tagline' => ['nullable', 'string', 'max:255'],
@@ -64,6 +75,19 @@ class SettingsController extends Controller
             'default_status' => ['required', 'in:draft,published'],
             'footer_text' => ['nullable', 'string', 'max:500'],
             'active_theme' => ['nullable', 'string', 'max:100'],
+            'login_route_path' => [
+                'required',
+                'string',
+                'min:3',
+                'max:50',
+                'regex:/^[a-zA-Z0-9\-_]+$/',
+                function ($attribute, $value, $fail) use ($reservedSlugs) {
+                    $cleaned = strtolower(trim($value, '/'));
+                    if (in_array($cleaned, $reservedSlugs, true)) {
+                        $fail("Path '{$value}' tidak dapat digunakan karena merupakan kata terlarang sistem.");
+                    }
+                },
+            ],
 
             // Layout Settings Validation
             'header_sticky' => ['nullable', 'in:0,1,true,false'],
@@ -79,6 +103,10 @@ class SettingsController extends Controller
             'footer_show_branding' => ['nullable', 'in:0,1,true,false'],
             'footer_show_socials' => ['nullable', 'in:0,1,true,false'],
         ]);
+
+        if (isset($validated['login_route_path'])) {
+            $validated['login_route_path'] = strtolower(trim($validated['login_route_path'], '/'));
+        }
 
         foreach ($validated as $key => $value) {
             Setting::set($key, $value !== null ? (string) $value : '');

@@ -9,6 +9,7 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.{js,jsx}',
         './plugins/**/*.{js,jsx}',
+        './themes/**/*.{js,jsx}',
     ],
 
     theme: {

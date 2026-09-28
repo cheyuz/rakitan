@@ -56,6 +56,7 @@ class HandleInertiaRequests extends Middleware
             'active_theme' => $activeTheme['id'],
             'theme' => $activeTheme,
             'site_title' => \App\Models\Setting::get('site_title', 'Rakitan CMS'),
+            'site_tagline' => \App\Models\Setting::get('site_tagline', 'Next-Generation Modular Visual CMS'),
             'site_logo' => \App\Models\Setting::get('site_logo', ''),
             'site_favicon' => \App\Models\Setting::get('site_favicon', ''),
             'footer_text' => \App\Models\Setting::get('footer_text', '© 2026 Rakitan CMS. Built for the open-source community.'),

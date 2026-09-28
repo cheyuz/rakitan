@@ -11,16 +11,25 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
+$loginPath = \App\Models\Setting::get('login_route_path', 'login');
+$loginPath = trim($loginPath ?: 'login', '/');
+
+Route::middleware('guest')->group(function () use ($loginPath) {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    Route::get($loginPath, [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post($loginPath, [AuthenticatedSessionController::class, 'store']);
+
+    if ($loginPath !== 'login') {
+        Route::any('login', function () {
+            abort(404);
+        });
+    }
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

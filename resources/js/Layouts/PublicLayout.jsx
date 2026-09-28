@@ -30,6 +30,7 @@ export default function PublicLayout({
         site_logo,
         site_favicon,
         site_title,
+        site_tagline,
         footer_text: global_footer_text,
         layout_settings = {},
         auth,
@@ -50,7 +51,7 @@ export default function PublicLayout({
     const bodyMaxWidth = layout_settings.body_max_width || '7xl';
     const footerEnabled = layout_settings.footer_enabled !== false;
     const footerStyle = layout_settings.footer_style || 'default';
-    const footerText = layout_settings.footer_text || global_footer_text || `© ${new Date().getFullYear()} Rakitan CMS. Built for the open-source community.`;
+    const footerText = layout_settings.footer_text || global_footer_text || `© ${new Date().getFullYear()} ${site_title || 'Rakitan CMS'}. Built for the open-source community.`;
     const footerShowBranding = layout_settings.footer_show_branding !== false;
     const footerShowSocials = layout_settings.footer_show_socials !== false;
 
@@ -58,10 +59,16 @@ export default function PublicLayout({
         if (active_theme) {
             setCurrentTheme(active_theme);
             const themeClass = `theme-${active_theme.replace('_', '-')}`;
-            document.body.classList.remove('theme-default-dark', 'theme-default-light');
+            document.body.classList.remove('theme-default-dark', 'theme-default-light', 'theme-light-nabatis');
             document.body.classList.add(themeClass);
 
-            if (active_theme === 'default-light' || active_theme === 'default_light') {
+            const isCurrentLight =
+                active_theme === 'default-light' ||
+                active_theme === 'default_light' ||
+                active_theme === 'light-nabatis' ||
+                active_theme === 'light_nabatis';
+
+            if (isCurrentLight) {
                 document.documentElement.classList.remove('dark');
             } else {
                 document.documentElement.classList.add('dark');
@@ -69,7 +76,11 @@ export default function PublicLayout({
         }
     }, [active_theme]);
 
-    const isLight = currentTheme === 'default_light' || currentTheme === 'default-light';
+    const isLight =
+        currentTheme === 'default_light' ||
+        currentTheme === 'default-light' ||
+        currentTheme === 'light-nabatis' ||
+        currentTheme === 'light_nabatis';
     const themeSlug = currentTheme.replace('_', '-');
 
     // If blank layout (e.g. Sales Funnel / Landing Page Canvas)
@@ -106,14 +117,16 @@ export default function PublicLayout({
         }
     };
 
+    const isNabatis = currentTheme === 'light-nabatis' || currentTheme === 'light_nabatis';
+
     return (
-        <div className={`min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white font-sans antialiased transition-colors duration-200 ${
-            isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
+        <div className={`min-h-screen flex flex-col ${isNabatis ? 'selection:bg-[#74c69d] selection:text-[#081c15]' : 'selection:bg-indigo-500 selection:text-white'} font-sans antialiased transition-colors duration-200 ${
+            isLight ? (isNabatis ? 'bg-[#f4f7f4] text-[#182a1d]' : 'bg-slate-50 text-slate-900') : 'bg-slate-950 text-slate-100'
         }`}>
             <Head>
                 <link rel="icon" type="image/png" href={site_favicon || '/images/rakitan-logo.png'} />
                 <link rel="stylesheet" href={`/themes/${themeSlug}/style.css`} />
-                {seo && (
+                {seo ? (
                     <>
                         {seo.robots_indexing && <meta name="robots" content={seo.robots_indexing} />}
                         {seo.google_verification && <meta name="google-site-verification" content={seo.google_verification} />}
@@ -123,6 +136,12 @@ export default function PublicLayout({
                         {seo.og_default_image && <meta property="og:image" content={seo.og_default_image} />}
                         {seo.twitter_card && <meta name="twitter:card" content={seo.twitter_card} />}
                         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+                    </>
+                ) : (
+                    <>
+                        {site_tagline && <meta name="description" content={site_tagline} />}
+                        <meta property="og:site_name" content={site_title || 'Rakitan CMS'} />
+                        <meta property="og:type" content="website" />
                     </>
                 )}
             </Head>
@@ -140,12 +159,19 @@ export default function PublicLayout({
                         {site_logo ? (
                             <img src={site_logo} alt={site_title || 'Rakitan'} className="h-9 w-auto max-w-[180px] object-contain rounded-lg" />
                         ) : (
-                            <>
+                            <div className="flex items-center gap-2.5">
                                 <ApplicationLogo className="w-9 h-9 rounded-xl shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-all" />
-                                <span className={`text-xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                                    {site_title || 'Rakitan'}<span className="text-indigo-500">.</span>
-                                </span>
-                            </>
+                                <div className="flex flex-col">
+                                    <span className={`text-xl font-black tracking-tight leading-none ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                                        {site_title || 'Rakitan'}<span className={isNabatis ? 'text-[#2d6a4f]' : 'text-indigo-500'}>.</span>
+                                    </span>
+                                    {site_tagline && (
+                                        <span className="text-[10px] text-slate-400 font-medium tracking-wide hidden sm:block line-clamp-1 mt-0.5">
+                                            {site_tagline}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         )}
                     </Link>
 
@@ -158,7 +184,7 @@ export default function PublicLayout({
                                 target={item.target || '_self'}
                                 className={`text-sm font-medium transition-colors ${
                                     isLight
-                                        ? 'text-slate-600 hover:text-slate-900'
+                                        ? (isNabatis ? 'text-[#3b5943] hover:text-[#182a1d]' : 'text-slate-600 hover:text-slate-900')
                                         : 'text-slate-300 hover:text-white'
                                 }`}
                             >
@@ -172,7 +198,11 @@ export default function PublicLayout({
                         {headerShowCta && (
                             <Link
                                 href={headerCtaUrl}
-                                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-sm shadow-indigo-600/20 transition-all"
+                                className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white ${
+                                    isNabatis
+                                        ? 'bg-gradient-to-r from-[#2d6a4f] to-[#40916c] hover:from-[#1b4332] hover:to-[#2d6a4f] shadow-sm shadow-[#2d6a4f]/20'
+                                        : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-sm shadow-indigo-600/20'
+                                } transition-all`}
                             >
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>{headerCtaText}</span>
@@ -182,7 +212,11 @@ export default function PublicLayout({
                         {isLoggedIn && (
                             <Link
                                 href="/admin/dashboard"
-                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
+                                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white ${
+                                    isNabatis
+                                        ? 'bg-[#2d6a4f] hover:bg-[#1b4332] shadow-md shadow-[#2d6a4f]/20'
+                                        : 'bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20'
+                                } transition-all`}
                             >
                                 <LayoutDashboard className="w-3.5 h-3.5" />
                                 <span>Dashboard</span>
@@ -409,9 +443,16 @@ export default function PublicLayout({
                         <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
                             <div className="flex items-center gap-2.5">
                                 <ApplicationLogo className="w-7 h-7 rounded-lg" />
-                                <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
-                                    {site_title || 'Rakitan CMS'}
-                                </span>
+                                <div className="flex flex-col text-left">
+                                    <span className={`text-sm font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
+                                        {site_title || 'Rakitan CMS'}
+                                    </span>
+                                    {site_tagline && (
+                                        <span className="text-[10px] text-slate-400">
+                                            {site_tagline}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <span className="text-xs text-slate-400">
                                 {footerText}
